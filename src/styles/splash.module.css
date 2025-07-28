@@ -1,0 +1,48 @@
+.splashImage {
+    height: 100vh;
+    width: 100%;
+    background-image: url('/splashCover.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+
+    color: white;
+    text-align: center;
+    padding: 0 20px;
+}
+
+.overlay {
+    text-align: left;
+    color: white;
+    padding: 0 20px;
+}
+
+.titleText {
+    font-size: 70px;
+}
+
+.subText {
+    font-size: 40px;
+}
+
+.fadeIn {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 2s ease-out forwards;
+}
+
+.fadeIn + .fadeIn {
+    animation-delay: 0.5s;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

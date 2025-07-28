@@ -1,0 +1,30 @@
+.navbar {
+    position:fixed;
+    align-items: center;
+    display:flex;
+    height: 60px;
+    width: 100%;
+    background-color: rgba(0,0,0, 0.300);
+    backdrop-filter: blur(8px);
+}
+
+.logo {
+    display: flex;
+    margin-right: auto;
+    padding-left: 40px;
+}
+
+.links {
+    display:flex;
+    gap:1.5rem;
+    padding-right: 50px;
+    margin-left: auto;
+}
+
+.linkFont {
+    font-weight: bold;
+}
+
+.linkFont:hover {
+    color:rgba(226, 226, 38, 0.966);
+}
