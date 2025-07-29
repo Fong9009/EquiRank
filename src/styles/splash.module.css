@@ -46,3 +46,12 @@
         transform: translateY(0);
     }
 }
+
+@media (max-width: 768px) {
+    .titleText {
+        font-size: clamp(10px, 10vw, 70px);
+    }
+    .subText {
+        font-size: clamp(10px, 7vw, 40px);
+    }
+}

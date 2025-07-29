@@ -8,6 +8,10 @@
     backdrop-filter: blur(8px);
 }
 
+.hamburger {
+    display: none;
+}
+
 .logo {
     display: flex;
     margin-right: auto;
@@ -15,16 +19,98 @@
 }
 
 .links {
-    display:flex;
-    gap:1.5rem;
-    padding-right: 50px;
-    margin-left: auto;
+    display: none;
 }
 
 .linkFont {
     font-weight: bold;
+    transition: color 0.5s ease;
 }
 
 .linkFont:hover {
-    color:rgba(226, 226, 38, 0.966);
+    color: rgb(176, 230, 110);
+}
+
+.centerLinks {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 1.5rem;
+}
+
+.rightButtons {
+    padding-right: 30px;
+    display: flex;
+    gap: 1rem; /* spacing between buttons */
+}
+
+.navButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 120px;
+    height: 40px;
+
+    background-color: #323232;
+    border: none;
+    border-radius: 34px;
+    cursor: pointer;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.5s;
+}
+
+.navButton:hover {
+    background-color: #b0e66e;
+}
+
+@media (max-width: 768px) {
+    .centerLinks, .rightButtons {
+        display: none;
+    }
+
+    .hamburger {
+        display: block;
+        cursor: pointer;
+        padding-right: 30px;
+    }
+
+    .links {
+        display: flex;
+        position: absolute;
+        max-height: 0;
+        gap: 0;
+        overflow: hidden;
+        flex-direction: column;
+        top: 100%;
+        background-color: #292926;
+        width: 200px;
+        padding: 0 1rem;
+        border-radius: 4px;
+        transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+        left: 100%;
+        transform: translateX(-100%);
+    }
+
+    .links a {
+        padding: 1rem 0.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        text-decoration: none;
+        color: white;
+    }
+
+    .linkFont:hover {
+        color: rgb(176, 230, 110);
+        background-color: #353532;
+        transition:color 0.3s ease-out, background-color 0.3s ease-out;
+    }
+
+    .links.show {
+        max-height: 500px; /* enough height to show all links */
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
 }
