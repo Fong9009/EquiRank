@@ -1,0 +1,272 @@
+@font-face {
+    font-family: 'MyCustomFont';
+    src: url('/fonts/Iceland-Regular.ttf') format('truetype');
+}
+
+.customFont {
+    font-family: 'MyCustomFont', sans-serif;
+}
+
+.splashImage {
+    height: 100vh;
+    width: 100%;
+    background-image: url('/splashCover.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
+    color: white;
+    text-align: center;
+    padding: 0 20px;
+}
+
+.overlay {
+    padding-top: 110px;
+    text-align: center;
+    color: white;
+}
+
+.textBox {
+    width: 90%;
+    max-width: 600px;
+    height: auto;
+    padding: 16px;
+    margin: 0 auto;
+}
+
+.buttonBox {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 80px;
+    padding-top: 10px;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.startBtn {
+    position: relative;
+    overflow: hidden;
+    align-items: center;
+    background: linear-gradient(270deg, #51C342, #B9EB72, #51C342);
+    background-size: 300% 100%;
+    background-position: 0% 50%;
+    border-radius: 34px;
+    color: #323232;
+    display: flex;
+    font-size: 32px;
+    font-family: 'MyCustomFont', sans-serif;
+    justify-content: center;
+    transition: color 0.25s ease-in, background-position 0.5s ease;
+    height: 50px;
+    width: 170px;
+    z-index: 1;
+}
+
+.learnBtn {
+    position: relative;
+    overflow: hidden;
+    align-items: center;
+    background: linear-gradient(270deg, #42A0C3, #72A7EB, #42A0C3);
+    background-size: 300% 100%;
+    background-position: 0% 50%;
+    border-radius: 34px;
+    color: #323232;
+    display: flex;
+    font-size: 32px;
+    font-family: 'MyCustomFont', sans-serif;
+    justify-content: center;
+    transition: color 0.25s ease-in, background-position 0.5s ease;
+    height: 50px;
+    width: 170px;
+    z-index: 1;
+}
+
+.startBtn:hover,
+.learnBtn:hover {
+    color: white;
+    cursor: pointer;
+    background-position: 100% 50%;
+}
+
+.startBtn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -75%;
+    height: 100%;
+    width: 50%;
+    background: linear-gradient(
+            120deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.4) 50%,
+            rgba(255, 255, 255, 0) 100%
+    );
+    transform: skewX(-20deg);
+    z-index: 2;
+}
+
+.learnBtn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -75%;
+    height: 100%;
+    width: 50%;
+    background: linear-gradient(
+            120deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.35) 50%,
+            rgba(255, 255, 255, 0) 100%
+    );
+    transform: skewX(-20deg);
+    z-index: 2;
+}
+
+.startBtn:hover::before,
+.learnBtn:hover::before {
+    animation: shimmer 1s ease forwards;
+}
+
+@keyframes shimmer {
+    0% {
+        left: -75%;
+    }
+    100% {
+        left: 125%;
+    }
+}
+
+
+.titleText {
+    font-size: 96px;
+    font-family: 'MyCustomFont', sans-serif;
+    z-index: 500;
+}
+
+.subText {
+    font-size: 64px;
+    font-family: 'MyCustomFont', sans-serif;
+}
+
+.paraText {
+    font-size: 24px;
+    font-family: 'MyCustomFont', sans-serif;
+}
+
+
+.fadeIn {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 2s ease-out forwards;
+}
+
+.fadeIn + .fadeIn {
+    animation-delay: 0.5s;
+}
+
+.listBoxContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 40px;
+    gap: 50px;
+}
+
+.listBox {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 280px;
+    height: 300px;
+    border-radius: 32px;
+    background: rgba(36, 36, 36, 0.9);
+}
+
+.listBoxTitle {
+    color: #AAE66B;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    font-family: 'MyCustomFont', sans-serif;
+    font-size: 30px;
+    height: 100%;
+    padding-top: 10px;
+}
+
+.listTitleUnderline {
+    border-bottom: 1px solid white;
+    display: inline-block;
+    padding-bottom: 4px;
+    width: 230px;
+}
+
+.listBodyText {
+    color: white;
+    font-size: 24px;
+    font-family: 'MyCustomFont', sans-serif;
+    height: 100%;
+    padding-bottom: 40px;
+    width: 230px;
+}
+
+
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (min-width: 769px) and (max-width: 880px) {
+    .listBoxContainer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 260px;
+        height: 320px;
+        gap: 20px;
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .textBlock {
+        height: 200px;
+    }
+    .titleText {
+        font-size: clamp(10px, 10vw, 70px);
+    }
+    .subText {
+        font-size: clamp(10px, 7vw, 40px);
+    }
+    .paraText {
+        font-size: clamp(10px, 7vw, 20px);
+    }
+    .buttonBox {
+        align-items: center;
+        flex-direction: column; /* Stack buttons vertically */
+        gap: 12px;
+    }
+
+    .startBtn,
+    .learnBtn {
+        max-width: 100%;    /* Full width of container */
+        font-size: 32px;    /* Smaller font size for mobile */
+        width: 300px;
+        height: 40px;       /* Smaller height */
+        min-width: auto;    /* Remove min-width to allow shrinking */
+    }
+    .listBoxContainer {
+        display: none;
+    }
+
+}
