@@ -1,4 +1,4 @@
-import styles from "@/styles/splash.module.css";
+import styles from "@/styles/pages/home/splash.module.css";
 import clsx from "clsx";
 import Link from "next/link";
 import React from "react";
