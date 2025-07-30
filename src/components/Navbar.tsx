@@ -17,12 +17,20 @@ export default function Navbar() {
 
     return (
         <nav className={styles.navbar}>
+
             <div className={styles.logo}>
                 <Link href="/">APPLOGO</Link>
             </div>
             <div className={styles.hamburger} onClick={toggleMenu}>
                 &#9776;
             </div>
+
+            {/*For Desktop Buttons*/}
+            <div className={styles.rightButtons}>
+                <Link className={clsx(styles.joinBtn, styles.navButton)} href="/join">Join Now</Link>
+                <Link className={clsx(styles.loginBtn, styles.navButton)} href="/login">Login</Link>
+            </div>
+
             {/*For Desktop*/}
             <div className={styles.centerLinks}>
                 <Link className={styles.linkFont} href="/">Home</Link>
@@ -39,12 +47,6 @@ export default function Navbar() {
                 <Link className={styles.linkFont} onClick={closeMenu} href="/how-it-works">How it Works</Link>
                 <Link className={styles.linkFont} onClick={closeMenu} href="/pricing">Pricing</Link>
                 <Link className={styles.linkFont} onClick={closeMenu} href="/contact-us">Contact</Link>
-            </div>
-
-            {/*For Desktop Buttons*/}
-            <div className={styles.rightButtons}>
-                <Link className={clsx(styles.joinBtn, styles.navButton)} href="/join">Join Now</Link>
-                <Link className={clsx(styles.loginBtn, styles.navButton)} href="/login">Login</Link>
             </div>
         </nav>
     );
