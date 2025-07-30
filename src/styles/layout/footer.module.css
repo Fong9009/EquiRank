@@ -1,0 +1,100 @@
+@font-face {
+    font-family: 'MyCustomFont';
+    src: url('/fonts/Iceland-Regular.ttf') format('truetype');
+}
+
+.customFont {
+    font-family: 'MyCustomFont', sans-serif;
+}
+
+
+.columnTitle {
+    font-size: 32px;
+    font-family: 'MyCustomFont', sans-serif;
+    color: #AAE66B;
+}
+
+
+.columnText {
+    font-size: 24px;
+    font-family: 'MyCustomFont', sans-serif;
+    color: white;
+    transition: color 0.3s;
+}
+
+.columnLink {
+    font-size: 24px;
+    font-family: 'MyCustomFont', sans-serif;
+    color: white;
+    transition: color 0.3s;
+}
+
+.columnLink:hover {
+    color: #AAE66B;
+}
+
+.footerBottom {
+    align-items: center;
+    background-color: #AAE66B;
+    color: #1b1b1b;
+    display: flex;
+    height: 20px;
+    justify-content: center;
+}
+
+.footerTitle {
+    display: flex;
+    font-size: 32px;
+    flex-direction: column;
+    padding-top: 40px;
+    min-width: 140px;
+    margin: 10px;
+}
+
+.footerTitleText {
+    font-size: 24px;
+    font-family: 'MyCustomFont', sans-serif;
+    color: white;
+    transition: color 0.3s;
+}
+
+.footerBox {
+    height: 300px;
+    width: 100%;
+}
+
+.footerTop {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    height: auto;
+    padding: 40px 20px;
+    background-color: #1b1b1b;
+    row-gap: 20px;
+    column-gap: 20px;
+}
+
+.footerColumn {
+    display: flex;
+    flex-direction: column;
+    padding-top: 40px;
+    min-width: 180px;
+    margin: 10px;
+}
+
+.columnTitleUnderline {
+    border-bottom: 1px solid white;
+    display: inline-block;
+    width: 180px;
+}
+
+@media (max-width: 768px) {
+    .footerTitle {
+        align-items: center;
+    }
+
+    .footerTitleText {
+        align-items: center;
+        text-align: center;
+    }
+}
