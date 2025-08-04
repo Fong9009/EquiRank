@@ -9,8 +9,8 @@ export default function Footer() {
         <footer className={styles.footerBox}>
             <div className={styles.footerTop}>
                 <div className={styles.footerTitle}>
-                    <h4>APP LOGO</h4>
-                    <p className={styles.footerTitleText}>Powering the Next Generation<br/>For Investment </p>
+                    <h4>EquiRank</h4>
+                    <p className={styles.footerTitleText}>Powering the Next Generation<br/>Of Investment </p>
                 </div>
                 <div className={styles.footerColumn}>
                     <h3 className={clsx(styles.columnTitle,styles.columnTitleUnderline)}>About</h3>

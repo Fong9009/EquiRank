@@ -19,7 +19,7 @@ export default function Navbar() {
         <nav className={styles.navbar}>
 
             <div className={styles.logo}>
-                <Link href="/">APPLOGO</Link>
+                <Link href="/">EquiRank</Link>
             </div>
             <div className={styles.hamburger} onClick={toggleMenu}>
                 &#9776;

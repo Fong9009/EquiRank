@@ -8,25 +8,23 @@
 }
 
 .splashImage {
-    height: 100vh;
+    min-height: 100vh;
     width: 100%;
-    background-image: url('/splashCover.jpg');
+    background-image: url('/images/splashCover.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
-
     color: white;
     text-align: center;
     padding: 0 20px;
 }
 
 .overlay {
-    padding-top: 110px;
+    overflow: hidden;
     text-align: center;
     color: white;
 }
@@ -45,6 +43,7 @@
     justify-content: center;
     gap: 80px;
     padding-top: 10px;
+    padding-bottom: 50px;
     width: 100%;
     max-width: 600px;
     margin: 0 auto;
@@ -147,6 +146,7 @@
 .titleText {
     font-size: 96px;
     font-family: 'MyCustomFont', sans-serif;
+    color: #AAE66B;
     z-index: 500;
 }
 
@@ -167,15 +167,12 @@
     animation: fadeInUp 2s ease-out forwards;
 }
 
-.fadeIn + .fadeIn {
-    animation-delay: 0.5s;
-}
-
 .listBoxContainer {
     display: flex;
     align-items: center;
     justify-content: center;
     padding-top: 40px;
+    padding-bottom: 40px;
     gap: 50px;
 }
 
