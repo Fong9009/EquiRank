@@ -1,0 +1,73 @@
+@font-face {
+    font-family: 'MyCustomFont';
+    src: url('/fonts/Iceland-Regular.ttf') format('truetype');
+}
+
+.customFont {
+    font-family: 'MyCustomFont', sans-serif;
+}
+
+.flipCard {
+    background-color: transparent;
+    max-width: 500px;
+    min-height: 600px;
+    perspective: 1000px; /* Enables 3D effect */
+}
+
+.flipCardInner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.8s;
+    transform-style: preserve-3d;
+}
+
+.flipCardFront,
+.flipCardBack {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border: 1px solid #AAE66B;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: center;
+}
+
+.flipCardFront {
+    background-color: #1b1b1b;
+    color: white;
+    padding: 30px;
+}
+
+.flipCardBack {
+    background-color: #1b1b1b;
+    color: white;
+    transform: rotateY(180deg);
+}
+
+.flipCardTitleText {
+    color: white;
+    font-size: 46px;
+    font-family: 'MyCustomFont', sans-serif;
+    padding-top: 20px;
+}
+
+.flipCardText {
+    color: white;
+    font-size: 26px;
+    font-family: 'MyCustomFont', sans-serif;
+    padding-top: 20px;
+    text-align: left;
+}
+
+.imageContainer {
+    height: 80px;
+    width: 80px;
+}
+.readMoreButton {
+    padding-top: 20px;
+}
