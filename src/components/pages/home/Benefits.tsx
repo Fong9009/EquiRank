@@ -2,6 +2,7 @@
 import clsx from 'clsx';
 import styles from '@/styles/pages/home/benefits.module.css'
 import FlipCard from "@/components/common/FlipCard";
+import React from "react";
 
 export default function Benefits() {
     return (
@@ -19,6 +20,19 @@ export default function Benefits() {
                     readMore={<p className={styles.readMoreText}>
                         Flip To Read More <img src="/icons/arrow_forward.png" alt="Forward Arrow" className={styles.arrowIcon} />
                     </p>}
+                    backText={
+                    <>
+                        <></>
+                        <p>EquiRank's Engine is designed to provide as much information
+                                as you need to make an informed decision when it comes to investing.
+                                You will be able to see company statistics such as:
+                        </p>
+                            <ul className={styles.dotList}>
+                                <li>Annual Turnover</li>
+                                <li>Industry Type</li>
+                                <li>Number of Employees</li>
+                            </ul>
+                    </>}
                 />
 
                 <FlipCard
@@ -29,6 +43,7 @@ export default function Benefits() {
                     readMore={<p className={styles.readMoreText}>
                         Flip To Read More <img src="/icons/arrow_forward.png" alt="Forward Arrow" className={styles.arrowIcon} />
                     </p>}
+                    backText={<p>This is a test</p>}
                 />
 
                 <FlipCard
@@ -39,6 +54,7 @@ export default function Benefits() {
                     readMore={<p className={styles.readMoreText}>
                         Flip To Read More <img src="/icons/arrow_forward.png" alt="Forward Arrow" className={styles.arrowIcon} />
                     </p>}
+                    backText={<p>This is a test</p>}
                 />
                 <FlipCard
                     imageContent={<img className={styles.imageContainer} src="/images/download.png" alt="Download Symbol" />}
@@ -48,6 +64,7 @@ export default function Benefits() {
                     readMore={<p className={styles.readMoreText}>
                         Flip To Read More <img src="/icons/arrow_forward.png" alt="Forward Arrow" className={styles.arrowIcon} />
                     </p>}
+                    backText={<p>This is a test</p>}
                 />
             </div>
         </div>

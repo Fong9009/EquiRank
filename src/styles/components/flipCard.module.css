@@ -7,6 +7,25 @@
     font-family: 'MyCustomFont', sans-serif;
 }
 
+.backText {
+    color: white;
+    font-size: 26px;
+    font-family: 'MyCustomFont', sans-serif;
+    padding-top: 80px;
+    padding-left: 20px;
+    padding-right: 20px;
+    text-align: left;
+}
+
+.dotList {
+    list-style-type: disc;
+    font-family: 'MyCustomFont', sans-serif;
+    padding-left: 20px;
+    margin: 10px 0;
+    color: white;
+    font-size: 26px;
+}
+
 .flipCard {
     background-color: transparent;
     max-width: 500px;
@@ -35,6 +54,7 @@
     flex-direction: column;
     align-items: flex-start;
     text-align: center;
+    cursor: pointer;
 }
 
 .flipCardFront {

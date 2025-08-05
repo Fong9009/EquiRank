@@ -1,7 +1,15 @@
-import {useState} from 'react';
+import {useState, ReactNode} from 'react';
 import styles from "@/styles/components/flipCard.module.css";
 
-export default function FlipCard({imageContent, titleText, paraText, readMore}) {
+interface FlipCardProps {
+    imageContent: ReactNode;
+    titleText: ReactNode;
+    paraText: ReactNode;
+    readMore: ReactNode;
+    backText: ReactNode;
+}
+
+export default function FlipCard({imageContent, titleText, paraText, readMore, backText}: FlipCardProps) {
     const [isFlipped, setIsFlipped] = useState(false);
 
     const handleFlip = () => {
@@ -25,7 +33,9 @@ export default function FlipCard({imageContent, titleText, paraText, readMore}) 
                     </div>
                 </div>
                 <div className={styles.flipCardBack}>
-                    <h2>Back</h2>
+                    <div className={styles.backText}>
+                        {backText}
+                    </div>
                 </div>
             </div>
         </div>
