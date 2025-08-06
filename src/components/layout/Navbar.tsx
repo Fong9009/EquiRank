@@ -36,7 +36,10 @@ export default function Navbar() {
                 <Link className={styles.linkFont} href="/">Home</Link>
                 <Link className={styles.linkFont} href="/about">About Us</Link>
                 <Link className={styles.linkFont} href="/how-it-works">How it Works</Link>
+                {/*
+                For A Later Date TODO
                 <Link className={styles.linkFont} href="/pricing">Pricing</Link>
+                */}
                 <Link className={styles.linkFont} href="/contact-us">Contact</Link>
             </div>
 

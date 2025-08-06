@@ -10,7 +10,6 @@
 .splashImage {
     min-height: 100vh;
     width: 100%;
-    background-image: url('/images/splashCover.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -21,6 +20,29 @@
     color: white;
     text-align: center;
     padding: 0 20px;
+}
+
+
+
+@keyframes fadeInVideo {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.backgroundVideo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    z-index: -1;
+    opacity: 0;
+    animation: fadeInVideo 3s ease-in-out forwards;
 }
 
 .overlay {

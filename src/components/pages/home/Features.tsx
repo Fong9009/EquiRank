@@ -1,12 +1,14 @@
 import styles from "@/styles/pages/home/features.module.css";
 import clsx from "clsx";
+import TitleText from "@/components/common/TitleText"
 import React from "react";
 
 export default function Features() {
     return (
         <div className={styles.featureBox}>
-            <p className={styles.titleText}>The Future Of Investment Is Here</p>
-
+            <TitleText
+                titleText={<p>The Future of Investment is Here</p>}
+            />
             <div className={styles.listContainerGrid}>
                 <div className={styles.listBox} style={{ backgroundImage: "url('/images/pic1.jpg')" }}>
                     <div className={styles.backgroundBox}>

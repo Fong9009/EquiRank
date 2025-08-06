@@ -50,15 +50,6 @@
     width: 220px;
 }
 
-.titleText {
-    color: #AAE66B;
-    font-family: 'MyCustomFont', sans-serif;
-    font-size: 64px;
-    padding-top: 30px;
-    padding-left: 30px;
-    padding-bottom: 30px;
-}
-
 .arrowIcon {
     width: 16px;                 /* adjust based on your design */
     height: 16px;

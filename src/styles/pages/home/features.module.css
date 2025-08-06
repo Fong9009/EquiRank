@@ -34,6 +34,8 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     padding-bottom: 40px;
+    animation: gridFadeIn 3s ease-out forwards;
+    opacity: 0;
 }
 
 .listBox {
@@ -73,15 +75,6 @@
     font-size: 26px;
 }
 
-.titleText {
-    padding-top: 30px;
-    padding-left: 30px;
-    padding-bottom: 30px;
-    font-family: 'MyCustomFont', sans-serif;
-    font-size: 64px;
-    color: #AAE66B;
-}
-
 
 @media (max-width: 768px) {
     .listContainerGrid {
@@ -95,3 +88,15 @@
         text-align: center;
     }
 }
+
+@keyframes gridFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.98); /* optional: subtle zoom */
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
