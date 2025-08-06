@@ -1,0 +1,82 @@
+@font-face {
+    font-family: 'MyCustomFont';
+    src: url('/fonts/Iceland-Regular.ttf') format('truetype');
+}
+
+.customFont {
+    font-family: 'MyCustomFont', sans-serif;
+}
+
+.cardGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 cards in a row */
+    gap: 20px;
+    padding: 20px;
+}
+.dotList {
+    list-style-type: disc;
+    font-family: 'MyCustomFont', sans-serif;
+    padding-left: 20px;
+    margin: 10px 0;
+    color: white;
+    font-size: 26px;
+}
+
+
+.feature-box{
+    margin: 0 auto;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #1f2123;
+}
+
+.readMoreText {
+    align-items: center;
+    background: linear-gradient(270deg, #51C342, #B9EB72, #51C342);
+    border-radius: 34px;
+    color: #323232;
+    cursor: pointer;
+    display: inline-flex;
+    font-weight: 500;
+    font-family: 'MyCustomFont', sans-serif;
+    font-size: 26px;
+    gap: 6px;
+    height: 50px;
+    justify-content: center;
+    width: 220px;
+}
+
+.arrowIcon {
+    width: 16px;                 /* adjust based on your design */
+    height: 16px;
+    display: inline-block;
+    object-fit: contain;
+}
+
+@media (min-width: 769px) and (max-width: 1150px) {
+    .cardGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .titleText {
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .cardGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .titleText {
+        display: flex;
+        flex-direction: column;
+        font-size: 32px;
+        text-align: center;
+    }
+}

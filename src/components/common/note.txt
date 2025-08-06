@@ -1,1 +1,0 @@
-This is for components that can be used for any page
