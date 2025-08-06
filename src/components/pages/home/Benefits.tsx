@@ -8,9 +8,11 @@ import React from "react";
 export default function Benefits() {
     return (
         <div className={styles.featureBox}>
-            <TitleText
-                titleText={<p>Benefits of Using EquiRank</p>}
-            />
+            <div className={styles.titleTextSection}>
+                <TitleText
+                    titleText={<p>Benefits of Using EquiRank</p>}
+                />
+            </div>
             <div className={styles.cardGrid}>
                 <FlipCard
                     imageContent={<img src="/images/books.png" alt="A Shelf Of Books Icon"/>}
@@ -63,12 +65,13 @@ export default function Benefits() {
                 <FlipCard
                     imageContent={<img className={styles.imageContainer} src="/images/lightBulb.png" alt="A Light Bulb" />}
                     titleText={<h1>Give Initiative</h1>}
-                    paraText={<p>With our Data Analysis engine you will be able to make better informed decisions on investments
+                    paraText={<p>With our engine you will be able to take the initiative when an opportunity in investments arrives
+                        ,you can take a leap knowing you have the knowledge.
                     </p>}
                     readMore={<p className={styles.readMoreText}>
                         Flip To Read More <img src="/icons/arrow_forward.png" alt="Forward Arrow" className={styles.arrowIcon} />
                     </p>}
-                    backTitleText={<h1>Give Inititive</h1>}
+                    backTitleText={<h1>Give Initiative</h1>}
                     backText={
                         <>
                             <p>
@@ -85,7 +88,7 @@ export default function Benefits() {
                 <FlipCard
                     imageContent={<img className={styles.imageContainer} src="/images/download.png" alt="Download Symbol" />}
                     titleText={<h1>Import Data?</h1>}
-                    paraText={<p>With our Data Analysis engine you will be able to make better informed decisions on investments
+                    paraText={<p>With our Data Analysis engine you can import your company data to see how your company is fairing and give it a public image in the investment market.
                     </p>}
                     readMore={<p className={styles.readMoreText}>
                         Flip To Read More <img src="/icons/arrow_forward.png" alt="Forward Arrow" className={styles.arrowIcon} />

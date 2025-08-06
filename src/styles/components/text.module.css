@@ -9,7 +9,6 @@
 
 .titleText {
     padding-top: 30px;
-    padding-left: 30px;
     padding-bottom: 30px;
     font-family: 'MyCustomFont', sans-serif;
     font-size: 64px;
@@ -26,4 +25,11 @@
 .slideInLeftVisible {
     opacity: 1;
     transform: translateX(0);
+}
+
+@media (max-width: 768px) {
+    .titleText {
+        font-size: 46px;
+        text-align: center;
+    }
 }
