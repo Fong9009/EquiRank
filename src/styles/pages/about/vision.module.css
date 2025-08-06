@@ -1,4 +1,19 @@
+@font-face {
+    font-family: 'MyCustomFont';
+    src: url('/fonts/Iceland-Regular.ttf') format('truetype');
+}
 
+.customFont {
+    font-family: 'MyCustomFont', sans-serif;
+}
+
+.bottomBanner {
+    background-image: url('/images/hexPattern.svg');
+    display: flex;
+    height: 70px;
+    width: 100%;
+    margin-top: 20px;
+}
 .feature-box {
     margin: 0 auto;
     min-height: 100vh;
@@ -16,12 +31,21 @@
     flex-wrap: wrap;
     justify-content: space-between;
     padding: 60px 40px;
-    gap: 40px;
+    gap: 20px;
 }
 
 .paraTextBox {
     flex: 1;
     max-width: 800px;
+    height: auto;
+    background-color: #1f2123;
+    padding: 40px;
+    border-radius: 8px;
+}
+
+.paraText {
+    font-family: 'MyCustomFont', sans-serif;
+    font-size: 26px;
 }
 
 .imageBox {
@@ -37,8 +61,35 @@
     border-radius: 8px;
 }
 
+.textDivider {
+    width: 100%;
+    border-top: 2px solid #AAE66B;
+    opacity: 0.5;
+    padding-bottom: 20px;
+}
+
 .titleSection {
     padding-left: 30px;
+}
+
+.titleText{
+    font-family: 'MyCustomFont', sans-serif;
+    font-size: 60px;
+}
+
+.wavePattern {
+    width: 100%;
+    height: 50px;
+    overflow: hidden;
+    line-height: 0;
+    margin-top: 40px;
+}
+
+.wavePattern svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    fill: #AAE66B;
 }
 
 @media (max-width: 768px) {
