@@ -1,0 +1,66 @@
+
+.feature-box {
+    margin: 0 auto;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #1f2123;
+}
+
+.splitBox {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 60px 40px;
+    gap: 40px;
+}
+
+.paraTextBox {
+    flex: 1;
+    max-width: 800px;
+}
+
+.imageBox {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.imageBoxImage {
+    width: 100%;
+    max-width: 800px;
+    height: auto;
+    border-radius: 8px;
+}
+
+.titleSection {
+    padding-left: 30px;
+}
+
+@media (max-width: 768px) {
+    .titleSection {
+        text-align: center;
+    }
+    .splitSection {
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .textBox {
+        order: 1;
+        flex:none;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .imageBox {
+        order: 2;
+        flex:none;
+        width: 100%;
+        max-width: 100%;
+    }
+}

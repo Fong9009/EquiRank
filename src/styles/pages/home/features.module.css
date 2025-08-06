@@ -66,6 +66,10 @@
     color: rgba(255, 255, 255, 0.8);
 }
 
+.titleTextSection {
+    padding-left: 30px;
+}
+
 .dotList {
     list-style-type: disc;
     font-family: 'MyCustomFont', sans-serif;

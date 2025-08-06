@@ -50,6 +50,10 @@
     width: 220px;
 }
 
+.titleTextSection {
+    padding-left: 30px;
+}
+
 .arrowIcon {
     width: 16px;                 /* adjust based on your design */
     height: 16px;
