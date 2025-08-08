@@ -22,6 +22,10 @@
     padding: 0 20px;
 }
 
+.spacer {
+    height: 120px;
+}
+
 .splashParaText {
     font-family: 'MyCustomFont', sans-serif;
     font-size: 26px;
@@ -32,7 +36,7 @@
 .titleSplashText {
     color: #AAE66B;
     font-family: 'MyCustomFont', sans-serif;
-    font-size: 150px;
+    font-size: 100px;
     animation: titleFadeIn 2s ease-in;
 }
 
@@ -40,6 +44,11 @@
     font-family: 'MyCustomFont', sans-serif;
     font-size: 60px;
     animation: titleFadeIn 3s ease-in;
+}
+
+.subTextbox {
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 20px;
 }
 
 .splashTextBox {
@@ -66,6 +75,10 @@
         align-items: center;
         justify-content: center;
         width: 100%;
+    }
+
+    .spacer {
+        height: 60px;
     }
 }
 

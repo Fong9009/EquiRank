@@ -28,7 +28,7 @@
 .flipCard {
     background-color: transparent;
     max-width: 500px;
-    min-height: 600px;
+    min-height: 800px;
     perspective: 1000px; /* Enables 3D effect */
 }
 
