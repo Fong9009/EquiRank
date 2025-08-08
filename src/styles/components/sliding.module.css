@@ -1,0 +1,26 @@
+.slide {
+    opacity: 0;
+    transition: all 0.8s ease;
+    position: relative;
+}
+
+.left {
+    transform: translateX(-100px);
+}
+
+.right {
+    transform: translateX(100px);
+}
+
+.top {
+    transform: translateY(-100px);
+}
+
+.bottom {
+    transform: translateY(100px);
+}
+
+.visible {
+    opacity: 1;
+    transform: translate(0, 0);
+}
