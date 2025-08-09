@@ -19,7 +19,19 @@
     align-items: flex-start;
     color: white;
     text-align: center;
-    padding: 0 20px;
+    padding: 60px 20px 0 20px;
+    position: relative;
+}
+
+.splashImage::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1;
 }
 
 .splashParaText {
@@ -27,6 +39,11 @@
     font-size: 26px;
     animation: titleFadeIn 4s ease-in;
     width: 50vw;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    border-radius: 8px;
+    backdrop-filter: blur(5px);
 }
 
 .titleSplashText {
@@ -34,12 +51,14 @@
     font-family: 'MyCustomFont', sans-serif;
     font-size: 150px;
     animation: titleFadeIn 2s ease-in;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .secondTitleText {
     font-family: 'MyCustomFont', sans-serif;
     font-size: 60px;
     animation: titleFadeIn 3s ease-in;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .splashTextBox {
@@ -49,6 +68,8 @@
     justify-content: flex-start;
     text-align: left;
     padding: 40px;
+    position: relative;
+    z-index: 2;
 }
 
 @media (max-width: 768px) {
