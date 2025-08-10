@@ -208,6 +208,17 @@
   border-color: rgba(33, 150, 243, 0.5);
 }
 
+.actionButton.reply {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.actionButton.reply:hover {
+  background: rgba(76, 175, 80, 0.3);
+  border-color: rgba(76, 175, 80, 0.5);
+}
+
 .actionButton.markReplied {
   background: rgba(76, 175, 80, 0.2);
   color: #4caf50;
@@ -228,6 +239,248 @@
 .actionButton.delete:hover {
   background: rgba(244, 67, 54, 0.3);
   border-color: rgba(244, 67, 54, 0.5);
+}
+
+/* Reply Modal Styles */
+.replyModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.replyContent {
+  background: linear-gradient(135deg, #1f2123, #2c2e30);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease;
+}
+
+.replyContent h3 {
+  font-family: 'MyCustomFont', sans-serif;
+  font-size: 28px;
+  color: #ffffff;
+  margin: 0 0 25px 0;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Original Message Context Styles */
+.originalMessage {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 25px;
+}
+
+.originalMessage h4 {
+  color: #ffffff;
+  font-size: 18px;
+  margin: 0 0 15px 0;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 8px;
+}
+
+.messageContext {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 15px;
+}
+
+.messageContext .messageHeader {
+  margin-bottom: 15px;
+}
+
+.messageContext .messageInfo h5 {
+  color: #ffffff;
+  font-size: 16px;
+  margin: 0 0 10px 0;
+  font-weight: 600;
+}
+
+.messageContext .messageMeta {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: #b0b0b0;
+}
+
+.messageContext .messageContent {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  border-left: 3px solid rgba(33, 150, 243, 0.5);
+}
+
+.messageContext .messageContent p {
+  margin: 0;
+  line-height: 1.5;
+  color: #e0e0e0;
+  font-size: 14px;
+}
+
+.replyForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formGroup label {
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.replyInput {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: #ffffff;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.replyInput:focus {
+  outline: none;
+  border-color: rgba(33, 150, 243, 0.6);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.replyInput::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.replyTextarea {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 16px;
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 120px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  font-family: inherit;
+}
+
+.replyTextarea:focus {
+  outline: none;
+  border-color: rgba(33, 150, 243, 0.6);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.replyTextarea::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.replyActions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.sendReplyButton {
+  background: linear-gradient(135deg, #4caf50, #45a049);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 140px;
+}
+
+.sendReplyButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #45a049, #3d8b40);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(76, 175, 80, 0.3);
+}
+
+.sendReplyButton:disabled {
+  background: rgba(76, 175, 80, 0.3);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.cancelReplyButton {
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.cancelReplyButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #d32f2f, #c62828);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(244, 67, 54, 0.3);
+}
+
+.cancelReplyButton:disabled {
+  background: rgba(244, 67, 54, 0.3);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Responsive Design */
@@ -277,5 +530,53 @@
   .actionButton {
     width: 100%;
     text-align: center;
+  }
+
+  /* Reply Modal Mobile Styles */
+  .replyContent {
+    padding: 20px;
+    margin: 20px;
+    width: calc(100% - 40px);
+    max-height: 90vh;
+  }
+
+  .originalMessage {
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+
+  .originalMessage h4 {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+
+  .messageContext {
+    padding: 12px;
+  }
+
+  .messageContext .messageMeta {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .replyContent h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+
+  .replyForm {
+    gap: 15px;
+  }
+
+  .replyActions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .sendReplyButton,
+  .cancelReplyButton {
+    width: 100%;
+    padding: 14px 20px;
+    font-size: 16px;
   }
 }

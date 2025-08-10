@@ -25,12 +25,8 @@ export default function Splash() {
         if (status === 'loading') return 'Start Now';
         if (!session) return 'Start Now';
         
-        // Logged in - different text based on user type
-        if ((session.user as any)?.userType === 'admin') {
-            return 'Admin Dashboard';
-        } else {
-            return 'My Dashboard';
-        }
+        // Logged in - show "My Dashboard" for all users
+        return 'My Dashboard';
     };
 
     return (

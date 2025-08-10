@@ -23,6 +23,7 @@ export default function ContactMessages() {
   const [replyText, setReplyText] = useState('');
   const [adminName, setAdminName] = useState('EquiRank Support Team');
   const [replying, setReplying] = useState(false);
+  const [originalMessage, setOriginalMessage] = useState<ContactMessage | null>(null);
 
   useEffect(() => {
     fetchContactMessages();
@@ -129,8 +130,12 @@ export default function ContactMessages() {
   };
 
   const handleReplyClick = (messageId: number) => {
-    setShowReplyModal(messageId);
-    setReplyText('');
+    const message = messages.find(msg => msg.id === messageId);
+    if (message) {
+      setOriginalMessage(message);
+      setShowReplyModal(messageId);
+      setReplyText('');
+    }
   };
 
   const sendReply = async (messageId: number) => {
@@ -190,6 +195,7 @@ export default function ContactMessages() {
   const cancelReply = () => {
     setShowReplyModal(null);
     setReplyText('');
+    setOriginalMessage(null);
   };
 
   const getStatusBadgeClass = (status: string) => {
@@ -297,6 +303,30 @@ export default function ContactMessages() {
         <div className={styles.replyModal}>
           <div className={styles.replyContent}>
             <h3>Reply to Message</h3>
+            
+            {/* Original Message Context */}
+            {originalMessage && (
+              <div className={styles.originalMessage}>
+                <h4>Original Message</h4>
+                <div className={styles.messageContext}>
+                  <div className={styles.messageHeader}>
+                    <div className={styles.messageInfo}>
+                      <h5>{originalMessage.subject}</h5>
+                      <div className={styles.messageMeta}>
+                        <span className={styles.name}>{originalMessage.name}</span>
+                        <span className={styles.email}>{originalMessage.email}</span>
+                        <span className={styles.date}>
+                          {new Date(originalMessage.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className={styles.messageContent}>
+                    <p>{originalMessage.message}</p>
+                  </div>
+                </div>
+              </div>
+            )}
             
             <div className={styles.replyForm}>
               <div className={styles.formGroup}>

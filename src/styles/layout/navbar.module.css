@@ -82,6 +82,12 @@
     cursor: pointer;
 }
 
+.adminBtn:hover {
+    background: linear-gradient(135deg, #ff5252, #d84315);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 .logoutBtn {
     background: linear-gradient(135deg, #e74c3c, #c0392b);
     color: white;
@@ -94,6 +100,12 @@
     cursor: pointer;
 }
 
+.logoutBtn:hover {
+    background: linear-gradient(135deg, #d32f2f, #b71c1c);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 .joinBtn {
     background: linear-gradient(135deg, #2196f3, #1976d2);
     color: white;
@@ -104,6 +116,12 @@
     transition: all 0.3s ease;
     border: none;
     cursor: pointer;
+}
+
+.joinBtn:hover {
+    background: linear-gradient(135deg, #1976d2, #1565c0);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .loginBtn {
@@ -127,10 +145,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-
-    width: 120px;
     height: 40px;
-
     background-color: #323232;
     border: none;
     border-radius: 34px;
@@ -145,9 +160,50 @@
     background-color: #b0e66e;
 }
 
+.dashboardBtn {
+    background: linear-gradient(135deg, #51C342, #B9EB72);
+    color: #323232;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.dashboardBtnLoggedIn {
+    width: 220px;
+    height: 60px;
+    font-size: 20px;
+}
+
+.dashboardBtnNotLoggedIn {
+    width: 170px;
+    height: 50px;
+    font-size: 16px;
+}
+
+.dashboardBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 @media (min-width: 769px) and (max-width: 1000px) {
     .navButton {
         width: 100px;
+    }
+    
+    .dashboardBtnLoggedIn {
+        width: 200px;
+        height: 55px;
+        font-size: 18px;
+    }
+    
+    .dashboardBtnNotLoggedIn {
+        width: 150px;
+        height: 48px;
+        font-size: 15px;
     }
 }
 
@@ -165,6 +221,18 @@
     .navButton {
         width: 90px;
         font-size: 12px;
+    }
+    
+    .dashboardBtnLoggedIn {
+        width: 180px;
+        height: 50px;
+        font-size: 16px;
+    }
+    
+    .dashboardBtnNotLoggedIn {
+        width: 130px;
+        height: 45px;
+        font-size: 14px;
     }
     
     .logo {

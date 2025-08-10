@@ -42,7 +42,7 @@ export default function Navbar() {
                         </span>
                         {session.user?.userType === 'admin' && (
                             <Link className={clsx(styles.adminBtn, styles.navButton)} href="/admin">
-                                Admin Panel
+                                Admin Panel 
                             </Link>
                         )}
                         <button 
