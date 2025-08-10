@@ -57,9 +57,9 @@ src/
 
 ### Database Schema
 The application uses a **3-user type system**:
-- **🔵 Borrowers** - Companies seeking funding
-- **🟢 Lenders** - Banks/investors providing funding
-- **🔴 Admins** - System administrators
+- **Borrowers** - Companies seeking funding
+- **Lenders** - Banks/investors providing funding
+- **Admins** - System administrators
 
 **Users Table Structure:**
 ```sql
@@ -70,14 +70,24 @@ CREATE TABLE users (
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     user_type ENUM('borrower', 'lender', 'admin') NOT NULL,
+    entity_type ENUM('company', 'individual') NOT NULL,
     company VARCHAR(255),
     phone VARCHAR(20),
     address TEXT,
     is_active BOOLEAN DEFAULT TRUE,
+    is_approved BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 ```
+
+### **Admin Approval Workflow**
+
+1. **User Registration**: New users register through `/register`
+2. **Pending Status**: All new registrations start as `is_approved = false`
+3. **Admin Review**: Admins review pending users at `/admin`
+4. **Approval/Rejection**: Admins can approve or reject users
+5. **Account Activation**: Only approved users can log in to the system
 
 ## 🔌 API Endpoints
 
@@ -87,6 +97,13 @@ CREATE TABLE users (
 - **`GET /api/users/borrowers`** - Get borrowers only
 - **`GET /api/users/lenders`** - Get lenders only
 - **`GET /api/users/admins`** - Get admins only
+
+### Authentication
+- **`POST /api/auth/login`** - User login with approval check
+
+### Admin Operations
+- **`GET /api/admin/pending`** - Get users pending approval
+- **`POST /api/admin/approve`** - Approve or reject a user
 
 ### Database
 - **`GET /api/test-db`** - Test database connection
@@ -116,7 +133,7 @@ npm run dev
 All database functions are available in `src/database/db.ts`:
 
 ```typescript
-import { createUser, getBorrowers, getLenders, getAdmins } from '@/database/db';
+import { createUser, getBorrowers, getLenders, getAdmins, getPendingApprovals, approveUser, rejectUser } from '@/database/db';
 
 // Create a new borrower
 const userId = await createUser(
@@ -125,11 +142,18 @@ const userId = await createUser(
   'John',
   'Doe',
   'borrower',
+  'company',
   'ABC Company'
 );
 
 // Get all lenders
 const lenders = await getLenders();
+
+// Get pending approvals
+const pendingUsers = await getPendingApprovals();
+
+// Approve a user
+const success = await approveUser(userId);
 ```
 
 ## Design System
@@ -145,6 +169,8 @@ The application uses a consistent design system with:
 - **Home** (`/`) - Landing page with features and benefits
 - **About** (`/about`) - Company information and vision
 - **Contact** (`/contact`) - Contact form and information
+- **Login** (`/login`) - User authentication
+- **Admin** (`/admin`) - User approval dashboard (admin only, not publicly accessible)
 
 ## Deployment
 
@@ -168,5 +194,30 @@ Ensure these are set in production:
 - **Authentication**: Basic user management (implement proper auth)
 - **Database**: Use strong passwords and limit user privileges
 - **Environment**: Never commit `.env.local` to version control
+
+## 🔐 Admin Access Control
+
+### Security Features
+- **No Public Access**: Admin panel is not linked in public navigation
+- **Authentication Required**: Admin page checks for valid admin token
+- **Session Management**: Uses localStorage for admin authentication
+- **Automatic Redirects**: Unauthorized users are redirected to login
+
+### Admin Authentication Flow
+1. **Admin Login**: Admins log in through `/login` with admin credentials
+2. **Token Generation**: Admin token is stored in localStorage upon successful login
+3. **Access Control**: Admin page verifies token before displaying dashboard
+4. **Logout**: Admins can logout, clearing the token and redirecting to home
+
+### Accessing Admin Panel
+- **Direct URL**: Navigate directly to `/admin` (requires admin token)
+- **Login Redirect**: Login as admin and get redirected to admin panel
+- **No Public Links**: Admin functionality is completely hidden from public users
+
+### Security Considerations
+- **Token Storage**: Currently uses localStorage (consider httpOnly cookies for production)
+- **Session Expiry**: No automatic expiry (implement token refresh/expiry)
+- **Password Security**: Implement proper password hashing before production
+- **Rate Limiting**: Add API rate limiting for login attempts
 
 
