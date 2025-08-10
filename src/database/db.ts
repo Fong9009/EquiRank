@@ -15,11 +15,17 @@ interface DatabaseConfig {
 
 // Validate required environment variables
 function validateEnvironmentVariables() {
-  const required = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
+  const required = ['DB_HOST', 'DB_USER', 'DB_NAME'];
   const missing = required.filter(key => !process.env[key]);
   
+  // DB_PASSWORD can be empty (no password)
   if (missing.length > 0) {
     throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+  }
+  
+  // Check if DB_PASSWORD exists (even if empty)
+  if (process.env.DB_PASSWORD === undefined) {
+    throw new Error('Missing required environment variables: DB_PASSWORD');
   }
 }
 

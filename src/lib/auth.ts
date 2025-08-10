@@ -17,6 +17,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         try {
+          // Test database connection first
+          const { testConnection } = await import("@/database/db");
+          const isConnected = await testConnection();
+          
+          if (!isConnected) {
+            console.error("Database connection failed during authentication");
+            throw new Error("Database connection failed. Please try again later.");
+          }
+
           const user = await getUserByEmail(credentials.email as string);
           
           if (!user) {
@@ -104,4 +113,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === 'development',
+  // Add error handling to prevent HTML responses
+  logger: {
+    error(code, ...message) {
+      console.error(`[NextAuth] Error ${code}:`, ...message);
+    },
+    warn(code, ...message) {
+      console.warn(`[NextAuth] Warning ${code}:`, ...message);
+    },
+    debug(code, ...message) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[NextAuth] Debug ${code}:`, ...message);
+      }
+    },
+  },
 });
