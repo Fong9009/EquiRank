@@ -1,0 +1,281 @@
+@font-face {
+  font-family: 'MyCustomFont';
+  src: url('/fonts/Iceland-Regular.ttf') format('truetype');
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  color: #ffffff;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+}
+
+.header h2 {
+  font-family: 'MyCustomFont', sans-serif;
+  font-size: 32px;
+  color: #ffffff;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.filters {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.statusFilter {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #ffffff;
+  font-size: 14px;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+}
+
+.statusFilter:focus {
+  outline: none;
+  border-color: rgba(33, 150, 243, 0.5);
+}
+
+.message {
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.success {
+  background: rgba(76, 175, 80, 0.2);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  color: #4caf50;
+}
+
+.error {
+  background: rgba(244, 67, 54, 0.2);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  color: #f44336;
+}
+
+.loading {
+  text-align: center;
+  color: #ffffff;
+  font-size: 18px;
+  padding: 40px;
+}
+
+.emptyState {
+  text-align: center;
+  color: #b0b0b0;
+  font-size: 18px;
+  padding: 40px;
+}
+
+.messageList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.messageCard {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 25px;
+}
+
+.messageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.messageInfo h3 {
+  color: #ffffff;
+  font-size: 20px;
+  margin: 0 0 10px 0;
+  font-family: 'MyCustomFont', sans-serif;
+}
+
+.messageMeta {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  color: #b0b0b0;
+}
+
+.name {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.email {
+  color: #2196f3;
+}
+
+.date {
+  color: #888;
+}
+
+.messageStatus {
+  display: flex;
+  gap: 8px;
+}
+
+.statusBadge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.statusBadge.new {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.statusBadge.read {
+  background: rgba(33, 150, 243, 0.2);
+  color: #2196f3;
+  border: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+.statusBadge.replied {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.messageContent {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  border-left: 4px solid rgba(33, 150, 243, 0.5);
+}
+
+.messageContent p {
+  margin: 0;
+  line-height: 1.6;
+  color: #e0e0e0;
+}
+
+.messageActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.actionButton {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  backdrop-filter: blur(10px);
+}
+
+.actionButton.markRead {
+  background: rgba(33, 150, 243, 0.2);
+  color: #2196f3;
+  border: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+.actionButton.markRead:hover {
+  background: rgba(33, 150, 243, 0.3);
+  border-color: rgba(33, 150, 243, 0.5);
+}
+
+.actionButton.markReplied {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.actionButton.markReplied:hover {
+  background: rgba(76, 175, 80, 0.3);
+  border-color: rgba(76, 175, 80, 0.5);
+}
+
+.actionButton.delete {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.actionButton.delete:hover {
+  background: rgba(244, 67, 54, 0.3);
+  border-color: rgba(244, 67, 54, 0.5);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 15px;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .header h2 {
+    font-size: 28px;
+  }
+
+  .messageCard {
+    padding: 20px;
+  }
+
+  .messageHeader {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .messageMeta {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .messageActions {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .header h2 {
+    font-size: 24px;
+  }
+
+  .messageCard {
+    padding: 15px;
+  }
+
+  .actionButton {
+    width: 100%;
+    text-align: center;
+  }
+}

@@ -99,6 +99,17 @@ export interface User {
   updated_at: Date;
 }
 
+export interface ContactMessage {
+  id: number;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  status: 'new' | 'read' | 'replied';
+  created_at: Date;
+  updated_at: Date;
+}
+
 export async function createUser(
   email: string,
   passwordHash: string,
@@ -222,6 +233,60 @@ export async function rejectUser(userId: number): Promise<boolean> {
     WHERE id = ?
   `;
   const result = await executeSingleQuery(query, [userId]);
+  return result.affectedRows > 0;
+}
+
+// Contact Message Functions
+export async function createContactMessage(
+  name: string,
+  email: string,
+  subject: string,
+  message: string
+): Promise<number> {
+  const query = `
+    INSERT INTO contact_messages (name, email, subject, message)
+    VALUES (?, ?, ?, ?)
+  `;
+  const result = await executeSingleQuery(query, [name, email, subject, message]);
+  return result.insertId;
+}
+
+export async function getAllContactMessages(): Promise<ContactMessage[]> {
+  const query = `
+    SELECT * FROM contact_messages 
+    ORDER BY created_at DESC
+  `;
+  return await executeQuery<ContactMessage>(query);
+}
+
+export async function getContactMessagesByStatus(status: 'new' | 'read' | 'replied'): Promise<ContactMessage[]> {
+  const query = `
+    SELECT * FROM contact_messages 
+    WHERE status = ?
+    ORDER BY created_at DESC
+  `;
+  return await executeQuery<ContactMessage>(query, [status]);
+}
+
+export async function updateContactMessageStatus(
+  messageId: number,
+  status: 'new' | 'read' | 'replied'
+): Promise<boolean> {
+  const query = `
+    UPDATE contact_messages 
+    SET status = ?, updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `;
+  const result = await executeSingleQuery(query, [status, messageId]);
+  return result.affectedRows > 0;
+}
+
+export async function deleteContactMessage(messageId: number): Promise<boolean> {
+  const query = `
+    DELETE FROM contact_messages 
+    WHERE id = ?
+  `;
+  const result = await executeSingleQuery(query, [messageId]);
   return result.affectedRows > 0;
 }
 

@@ -4,10 +4,10 @@ import { getBorrowers, getLenders, getAdmins } from '@/database/db';
 // GET /api/users/[type] - Get users by type
 export async function GET(
   request: NextRequest,
-  { params }: { params: { type: string } }
+  { params }: { params: Promise<{ type: string }> }
 ) {
   try {
-    const { type } = params;
+    const { type } = await params;
     
     let users;
     
@@ -37,9 +37,10 @@ export async function GET(
     return NextResponse.json(safeUsers, { status: 200 });
     
   } catch (error) {
-    console.error(`Error fetching ${params.type}:`, error);
+    const { type } = await params;
+    console.error(`Error fetching ${type}:`, error);
     return NextResponse.json(
-      { error: `Failed to fetch ${params.type}` },
+      { error: `Failed to fetch ${type}` },
       { status: 500 }
     );
   }

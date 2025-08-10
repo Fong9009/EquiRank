@@ -1,14 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { signOut } from 'next-auth/react';
 import styles from '@/styles/pages/admin/approvalDashboard.module.css';
 
-interface PendingUser {
+interface User {
   id: number;
-  email: string;
   first_name: string;
   last_name: string;
-  user_type: 'borrower' | 'lender';
+  email: string;
+  user_type: 'borrower' | 'lender' | 'admin';
   entity_type: 'company' | 'individual';
   company?: string;
   phone?: string;
@@ -17,31 +18,25 @@ interface PendingUser {
 }
 
 export default function ApprovalDashboard() {
-  const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
+  const [pendingUsers, setPendingUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
-    fetchPendingApprovals();
+    fetchPendingUsers();
   }, []);
 
-  const fetchPendingApprovals = async () => {
+  const fetchPendingUsers = async () => {
     try {
       const response = await fetch('/api/admin/pending');
       if (response.ok) {
         const users = await response.json();
         setPendingUsers(users);
       } else {
-        setMessage({
-          type: 'error',
-          text: 'Failed to fetch pending approvals'
-        });
+        setMessage({ type: 'error', text: 'Failed to fetch pending users' });
       }
     } catch (error) {
-      setMessage({
-        type: 'error',
-        text: 'Network error while fetching approvals'
-      });
+      setMessage({ type: 'error', text: 'Error fetching pending users' });
     } finally {
       setLoading(false);
     }
@@ -54,41 +49,27 @@ export default function ApprovalDashboard() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ action, userId }),
+        body: JSON.stringify({ userId, action }),
       });
 
       if (response.ok) {
-        const result = await response.json();
-        setMessage({
-          type: 'success',
-          text: result.message
+        setMessage({ 
+          type: 'success', 
+          text: `User ${action === 'approve' ? 'approved' : 'rejected'} successfully` 
         });
-        
-        // Remove the user from the pending list
-        setPendingUsers(prev => prev.filter(user => user.id !== userId));
-        
-        // Refresh the list after a short delay
-        setTimeout(() => {
-          fetchPendingApprovals();
-        }, 1000);
+        // Refresh the list
+        fetchPendingUsers();
       } else {
         const error = await response.json();
-        setMessage({
-          type: 'error',
-          text: error.error || 'Failed to process approval'
-        });
+        setMessage({ type: 'error', text: error.error || 'Action failed' });
       }
     } catch (error) {
-      setMessage({
-        type: 'error',
-        text: 'Network error while processing approval'
-      });
+      setMessage({ type: 'error', text: 'Error processing request' });
     }
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('adminToken');
-    window.location.href = '/';
+    signOut({ callbackUrl: '/' });
   };
 
   if (loading) {
@@ -104,7 +85,7 @@ export default function ApprovalDashboard() {
       <div className={styles.header}>
         <div className={styles.headerContent}>
           <div>
-            <h1>User Approval Dashboard</h1>
+            <h2>User Approval Dashboard</h2>
             <p>Review and approve new user registrations</p>
           </div>
           <button onClick={handleLogout} className={styles.logoutButton}>
@@ -120,7 +101,7 @@ export default function ApprovalDashboard() {
       )}
 
       {pendingUsers.length === 0 ? (
-        <div className={styles.emptyState}>
+        <div className={styles.noUsers}>
           <p>No users pending approval</p>
         </div>
       ) : (
@@ -128,37 +109,25 @@ export default function ApprovalDashboard() {
           {pendingUsers.map((user) => (
             <div key={user.id} className={styles.userCard}>
               <div className={styles.userInfo}>
-                <div className={styles.userHeader}>
-                  <h3>{user.first_name} {user.last_name}</h3>
-                  <div className={styles.userBadges}>
-                    <span className={`${styles.badge} ${styles[user.user_type]}`}>
-                      {user.user_type}
-                    </span>
-                    <span className={`${styles.badge} ${styles[user.entity_type]}`}>
-                      {user.entity_type}
-                    </span>
-                  </div>
-                </div>
-                
-                <div className={styles.userDetails}>
-                  <p><strong>Email:</strong> {user.email}</p>
-                  {user.company && <p><strong>Company:</strong> {user.company}</p>}
-                  {user.phone && <p><strong>Phone:</strong> {user.phone}</p>}
-                  {user.address && <p><strong>Address:</strong> {user.address}</p>}
-                  <p><strong>Registered:</strong> {new Date(user.created_at).toLocaleDateString()}</p>
-                </div>
+                <h3>{user.first_name} {user.last_name}</h3>
+                <p><strong>Email:</strong> {user.email}</p>
+                <p><strong>Type:</strong> {user.user_type}</p>
+                <p><strong>Entity:</strong> {user.entity_type}</p>
+                {user.company && <p><strong>Company:</strong> {user.company}</p>}
+                {user.phone && <p><strong>Phone:</strong> {user.phone}</p>}
+                {user.address && <p><strong>Address:</strong> {user.address}</p>}
+                <p><strong>Registered:</strong> {new Date(user.created_at).toLocaleDateString()}</p>
               </div>
-
               <div className={styles.actions}>
                 <button
                   onClick={() => handleApproval(user.id, 'approve')}
-                  className={`${styles.actionButton} ${styles.approve}`}
+                  className={styles.approveButton}
                 >
                   Approve
                 </button>
                 <button
                   onClick={() => handleApproval(user.id, 'reject')}
-                  className={`${styles.actionButton} ${styles.reject}`}
+                  className={styles.rejectButton}
                 >
                   Reject
                 </button>

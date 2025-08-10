@@ -1,127 +1,203 @@
-# EquiRank - Investment Technology Platform
+# EquiRank - Financial Marketplace Platform
 
-EquiRank is a modern web application for investment technology and company comparison, built with Next.js and TypeScript.
+A modern, secure financial marketplace platform built with Next.js 14, React 18, TypeScript, and MySQL. The platform connects borrowers and lenders in a transparent, secure environment with comprehensive admin management capabilities.
 
 ## 🚀 Tech Stack
 
-- **Frontend**: Next.js 14, React 18, TypeScript
-- **Styling**: CSS Modules with custom design system
-- **Database**: MySQL 8.0+ with MySQL2 driver
-- **Authentication**: User management system (borrowers, lenders, admins)
-- **Deployment**: Vercel-ready
+### Frontend
+- **Next.js 14** - Full-stack React framework with App Router
+- **React 18** - Modern React with hooks and concurrent features
+- **TypeScript** - Type-safe JavaScript development
+- **CSS Modules** - Scoped styling with custom design system
+- **Glass Morphism UI** - Modern, translucent design aesthetic
 
-## 📁 Project Structure
+### Backend & Database
+- **Next.js API Routes** - Serverless API endpoints
+- **MySQL 8.0+** - Relational database with MySQL2 driver
+- **NextAuth.js v5** - Authentication and session management
+
+### Design System
+- **Custom Typography** - 'Iceland-Regular' font family
+- **Dark Theme** - Consistent color palette and visual hierarchy
+- **Responsive Design** - Mobile-first approach with breakpoints
+- **Glass Morphism** - Translucent backgrounds with backdrop blur
+
+## 🏗️ Project Structure
 
 ```
 src/
 ├── app/                    # Next.js App Router
 │   ├── api/               # API routes
-│   │   ├── users/         # User management endpoints
-│   │   └── test-db/       # Database connection test
+│   │   ├── auth/          # Authentication endpoints
+│   │   ├── users/         # User management
+│   │   └── admin/         # Admin operations
+│   ├── admin/             # Admin dashboard
 │   ├── about/             # About page
-│   ├── contact/           # Contact page
-│   └── globals.css        # Global styles
-├── components/             # React components
-│   ├── common/            # Reusable components
+│   ├── contact-us/        # Contact page
+│   ├── login/             # Login page
+│   ├── register/          # Registration page
+│   └── layout.tsx         # Root layout with providers
+├── components/            # Reusable components
+│   ├── common/            # Shared components
 │   ├── layout/            # Layout components
-│   └── pages/             # Page-specific components
-├── database/               # Database configuration
-│   ├── db.ts              # Database connection and operations
-│   └── schema.sql         # Database schema
-└── styles/                 # CSS Modules
-    ├── components/         # Component styles
-    ├── layout/            # Layout styles
-    └── pages/             # Page styles
+│   ├── pages/             # Page-specific components
+│   └── providers/         # Context providers
+├── database/              # Database configuration
+│   ├── db.ts             # Database operations
+│   └── schema.sql        # Database schema
+└── styles/               # CSS Modules
+    ├── components/       # Component styles
+    ├── layout/          # Layout styles
+    └── pages/           # Page styles
 ```
 
-## 🗄️ Database Setup
+## 🔐 Authentication System
 
-### Prerequisites
-- MySQL Server 8.0+
-- Node.js 18+
-- npm package manager
+### NextAuth.js Integration
+The platform uses **NextAuth.js v5** for secure authentication with the following features:
 
-### Quick Setup
-1. **Install MySQL**: `brew install mysql` (macOS) or download from [mysql.com](https://dev.mysql.com/downloads/mysql/)
-2. **Start MySQL**: `brew services start mysql`
-3. **Install dependencies**: `npm install mysql2`
-4. **Create `.env.local`**:
-   ```env
-   DB_HOST=localhost
-   DB_USER=root
-   DB_PASSWORD=your_password
-   DB_NAME=equirank
-   DB_PORT=3306
-   ```
-5. **Initialize database**: `mysql -u root -p < src/database/schema.sql`
+- **Credentials Provider** - Email/password authentication
+- **JWT Strategy** - Secure session management
+- **Role-based Access Control** - Admin, borrower, and lender roles
+- **Approval Workflow** - Admin approval required for new users
+- **Session Management** - 30-day session duration
 
-### Database Schema
-The application uses a **3-user type system**:
-- **Borrowers** - Companies seeking funding
-- **Lenders** - Banks/investors providing funding
-- **Admins** - System administrators
+### Authentication Flow
+1. **Registration** → User submits registration form
+2. **Admin Review** → Admin reviews and approves/rejects users
+3. **Login** → Approved users can sign in
+4. **Session** → JWT-based session management
+5. **Access Control** → Role-based route protection
 
-**Users Table Structure:**
+### Environment Variables
+```bash
+# NextAuth Configuration
+NEXTAUTH_SECRET=your-secret-key-here-make-it-long-and-random
+NEXTAUTH_URL=http://localhost:3000
+
+# Database Configuration
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=your_username
+DB_PASSWORD=your_password
+DB_NAME=your_database_name
+```
+
+## 🗄️ Database Schema
+
+### Users Table
 ```sql
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
     user_type ENUM('borrower', 'lender', 'admin') NOT NULL,
     entity_type ENUM('company', 'individual') NOT NULL,
-    company VARCHAR(255),
+    company VARCHAR(100),
     phone VARCHAR(20),
     address TEXT,
-    is_active BOOLEAN DEFAULT TRUE,
     is_approved BOOLEAN DEFAULT FALSE,
+    is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 ```
 
-### **Admin Approval Workflow**
+### Contact Messages Table
+```sql
+CREATE TABLE contact_messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    subject VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    status ENUM('new', 'read', 'replied') DEFAULT 'new',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+```
 
-1. **User Registration**: New users register through `/register`
-2. **Pending Status**: All new registrations start as `is_approved = false`
-3. **Admin Review**: Admins review pending users at `/admin`
-4. **Approval/Rejection**: Admins can approve or reject users
-5. **Account Activation**: Only approved users can log in to the system
-
-## 🔌 API Endpoints
-
-### User Management
-- **`POST /api/users`** - Create new user
-- **`GET /api/users`** - Get all users
-- **`GET /api/users/borrowers`** - Get borrowers only
-- **`GET /api/users/lenders`** - Get lenders only
-- **`GET /api/users/admins`** - Get admins only
+## 🌐 API Endpoints
 
 ### Authentication
-- **`POST /api/auth/login`** - User login with approval check
+- `POST /api/auth/[...nextauth]` - NextAuth.js endpoints
+
+### User Management
+- `POST /api/users` - Create new user
+- `GET /api/users/[type]` - Get users by type (borrower/lender)
 
 ### Admin Operations
-- **`GET /api/admin/pending`** - Get users pending approval
-- **`POST /api/admin/approve`** - Approve or reject a user
+- `GET /api/admin/pending` - Get users pending approval
+- `POST /api/admin/approve` - Approve/reject users
+- `GET /api/admin/contact-messages` - Get contact messages
+- `PATCH /api/admin/contact-messages/[id]` - Update message status
+- `DELETE /api/admin/contact-messages/[id]` - Delete message
 
-### Database
-- **`GET /api/test-db`** - Test database connection
+### Contact System
+- `POST /api/contact` - Submit contact form
 
-## 🛠️ Development
+## 🎯 Features
 
-### Getting Started
-```bash
-# Install dependencies
-npm install
+### User Management
+- **Multi-role System** - Borrower, lender, and admin roles
+- **Entity Types** - Company and individual registration options
+- **Admin Approval** - Manual approval workflow for new registrations
+- **Account Status** - Active/inactive and approved/pending states
 
-# Set up environment variables
-cp .env.example .env.local
-# Edit .env.local with your database credentials
+### Contact System
+- **Contact Form** - Public contact submission
+- **Message Management** - Admin dashboard for message handling
+- **Status Tracking** - New, read, and replied message states
 
-# Start development server
-npm run dev
-```
+### Admin Panel
+- **User Approvals** - Review and manage new registrations
+- **Contact Messages** - Handle incoming contact form submissions
+- **Tabbed Interface** - Organized workflow management
+- **Secure Access** - Admin-only authentication required
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+ and npm
+- MySQL 8.0+
+- Git
+
+### Installation
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd team071-app_fit3048
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   ```bash
+   cp env.example .env.local
+   # Edit .env.local with your database credentials
+   ```
+
+4. **Set up database**
+   ```bash
+   # Create database and run schema
+   mysql -u root -p < src/database/schema.sql
+   ```
+
+5. **Run the development server**
+   ```bash
+   npm run dev
+   ```
+
+6. **Access the application**
+   - Main app: http://localhost:3000
+   - Admin panel: http://localhost:3000/admin (admin login required)
+
+## 🔧 Development
 
 ### Available Scripts
 - `npm run dev` - Start development server
@@ -129,95 +205,92 @@ npm run dev
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
 
+### Code Style
+- **TypeScript** - Strict type checking enabled
+- **ESLint** - Code quality and consistency
+- **CSS Modules** - Scoped styling with BEM methodology
+- **Component Structure** - Functional components with hooks
+
 ### Database Operations
-All database functions are available in `src/database/db.ts`:
+All database operations are centralized in `src/database/db.ts`:
+- User CRUD operations
+- Approval workflow management
+- Contact message handling
+- Connection pooling and error handling
 
-```typescript
-import { createUser, getBorrowers, getLenders, getAdmins, getPendingApprovals, approveUser, rejectUser } from '@/database/db';
+## 🛡️ Security Features
 
-// Create a new borrower
-const userId = await createUser(
-  'john@company.com',
-  'hashedPassword',
-  'John',
-  'Doe',
-  'borrower',
-  'company',
-  'ABC Company'
-);
+### Authentication Security
+- **JWT Tokens** - Secure session management
+- **Password Hashing** - Secure password storage (bcrypt)
+- **Role-based Access** - Admin-only routes protected
+- **Session Expiration** - Automatic session cleanup
 
-// Get all lenders
-const lenders = await getLenders();
+### Admin Access Control
+- **Secure Routes** - Admin panel requires authentication
+- **Role Verification** - Admin role required for access
+- **No Public Links** - Admin panel not accessible from public navigation
+- **Session Validation** - Continuous authentication checks
 
-// Get pending approvals
-const pendingUsers = await getPendingApprovals();
+## 📱 Responsive Design
 
-// Approve a user
-const success = await approveUser(userId);
+### Breakpoints
+- **Mobile First** - 320px and up
+- **Tablet** - 768px and up
+- **Desktop** - 1024px and up
+- **Large Desktop** - 1200px and up
+
+### Glass Morphism UI
+- **Translucent Backgrounds** - Modern, layered design
+- **Backdrop Blur** - Smooth visual effects
+- **Border Highlights** - Subtle depth and dimension
+- **Hover States** - Interactive feedback and animations
+
+## 🔄 State Management
+
+### Client-side State
+- **React Hooks** - useState, useEffect, useRouter
+- **NextAuth Session** - Authentication state management
+- **Form State** - Controlled form inputs and validation
+- **Loading States** - User feedback during operations
+
+### Server-side State
+- **Database State** - Persistent data storage
+- **API State** - Server-side data processing
+- **Session State** - Server-side session validation
+
+## 🚀 Deployment
+
+### Production Build
+```bash
+npm run build
+npm run start
 ```
 
-## Design System
+### Environment Configuration
+- Set `NODE_ENV=production`
+- Configure production database credentials
+- Set secure `NEXTAUTH_SECRET`
+- Update `NEXTAUTH_URL` for production domain
 
-The application uses a consistent design system with:
-- **Typography**: Custom font (Iceland-Regular) for headings
-- **Colors**: Dark theme (#1f2123 background)
-- **Components**: Reusable FlipCard, TitleText components
-- **Responsive**: Mobile-first design with CSS media queries
+### Database Migration
+- Export production schema
+- Configure production database
+- Run schema creation scripts
+- Verify data integrity
 
-## Pages
+## 🤝 Contributing
 
-- **Home** (`/`) - Landing page with features and benefits
-- **About** (`/about`) - Company information and vision
-- **Contact** (`/contact`) - Contact form and information
-- **Login** (`/login`) - User authentication
-- **Admin** (`/admin`) - User approval dashboard (admin only, not publicly accessible)
+### Development Workflow
+1. Create feature branch from main
+2. Implement changes with proper TypeScript types
+3. Update documentation as needed
+4. Test thoroughly across different screen sizes
+5. Submit pull request with detailed description
 
-## Deployment
-
-### Vercel (Recommended)
-1. Push code to GitHub
-2. Connect repository to Vercel
-3. Set environment variables in Vercel dashboard
-4. Deploy automatically on push
-
-### Environment Variables
-Ensure these are set in production:
-- `DB_HOST` - Database host
-- `DB_USER` - Database username
-- `DB_PASSWORD` - Database password
-- `DB_NAME` - Database name
-- `DB_PORT` - Database port
-
-## Security Notes
-
-- **Passwords**: Currently stored as-is (NOT production ready)
-- **Authentication**: Basic user management (implement proper auth)
-- **Database**: Use strong passwords and limit user privileges
-- **Environment**: Never commit `.env.local` to version control
-
-## 🔐 Admin Access Control
-
-### Security Features
-- **No Public Access**: Admin panel is not linked in public navigation
-- **Authentication Required**: Admin page checks for valid admin token
-- **Session Management**: Uses localStorage for admin authentication
-- **Automatic Redirects**: Unauthorized users are redirected to login
-
-### Admin Authentication Flow
-1. **Admin Login**: Admins log in through `/login` with admin credentials
-2. **Token Generation**: Admin token is stored in localStorage upon successful login
-3. **Access Control**: Admin page verifies token before displaying dashboard
-4. **Logout**: Admins can logout, clearing the token and redirecting to home
-
-### Accessing Admin Panel
-- **Direct URL**: Navigate directly to `/admin` (requires admin token)
-- **Login Redirect**: Login as admin and get redirected to admin panel
-- **No Public Links**: Admin functionality is completely hidden from public users
-
-### Security Considerations
-- **Token Storage**: Currently uses localStorage (consider httpOnly cookies for production)
-- **Session Expiry**: No automatic expiry (implement token refresh/expiry)
-- **Password Security**: Implement proper password hashing before production
-- **Rate Limiting**: Add API rate limiting for login attempts
-
-
+### Code Standards
+- Follow TypeScript best practices
+- Maintain consistent component structure
+- Use CSS Modules for styling
+- Include proper error handling
+- Add loading states for async operations

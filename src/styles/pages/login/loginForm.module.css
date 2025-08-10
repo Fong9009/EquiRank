@@ -3,191 +3,142 @@
     src: url('/fonts/Iceland-Regular.ttf') format('truetype');
 }
 
-.loginContainer {
-    min-height: 100vh;
-    width: 100%;
-    background: linear-gradient(135deg, #1f2123 0%, #2c3e50 100%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
+.loginForm {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
 }
 
-.loginBox {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    padding: 40px;
-    width: 100%;
-    max-width: 450px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+.formContainer {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
 }
 
-.header {
-    text-align: center;
-    margin-bottom: 30px;
+.formContainer h2 {
+  color: white;
+  font-size: 2rem;
+  margin-bottom: 10px;
+  font-weight: 600;
 }
 
-.header h1 {
-    font-family: 'MyCustomFont', sans-serif;
-    font-size: 36px;
-    color: #ffffff;
-    margin: 0 0 10px 0;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+.formContainer p {
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 30px;
+  font-size: 1rem;
 }
 
-.header p {
-    color: #b0b0b0;
-    font-size: 16px;
-    margin: 0;
+.formGroup {
+  margin-bottom: 20px;
+  text-align: left;
 }
 
-.message {
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    text-align: center;
-    font-weight: 500;
+.formGroup label {
+  display: block;
+  color: white;
+  margin-bottom: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
 }
 
-.success {
-    background: rgba(76, 175, 80, 0.2);
-    border: 1px solid rgba(76, 175, 80, 0.3);
-    color: #4caf50;
+.formGroup input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
 }
 
-.error {
-    background: rgba(244, 67, 54, 0.2);
-    border: 1px solid rgba(244, 67, 54, 0.3);
-    color: #f44336;
+.formGroup input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
 }
 
-.form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.inputGroup {
-    display: flex;
-    flex-direction: column;
-}
-
-.label {
-    color: #ffffff;
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
-
-.input {
-    padding: 15px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    color: #ffffff;
-    font-size: 16px;
-    transition: all 0.3s ease;
-}
-
-.input::placeholder {
-    color: rgba(255, 255, 255, 0.6);
-}
-
-.input:focus {
-    outline: none;
-    border-color: rgba(33, 150, 243, 0.5);
-    background: rgba(255, 255, 255, 0.15);
-}
-
-.input.errorInput {
-    border-color: rgba(244, 67, 54, 0.5);
-    background: rgba(244, 67, 54, 0.1);
-}
-
-.error {
-    color: #f44336;
-    font-size: 14px;
-    margin-top: 5px;
+.formGroup input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
 }
 
 .submitButton {
-    padding: 15px;
-    background: linear-gradient(135deg, #2196f3, #1976d2);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 10px;
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
 }
 
 .submitButton:hover:not(:disabled) {
-    background: linear-gradient(135deg, #1976d2, #1565c0);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 }
 
 .submitButton:disabled {
-    background: rgba(255, 255, 255, 0.2);
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
 }
 
-.footer {
-    text-align: center;
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+.errorMessage {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fecaca;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  font-size: 0.9rem;
 }
 
-.footer p {
-    color: #b0b0b0;
-    font-size: 14px;
-    margin: 8px 0;
+.formFooter {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.link {
-    color: #2196f3;
-    text-decoration: none;
-    font-weight: 600;
-    transition: color 0.3s ease;
+.formFooter p {
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+  font-size: 0.9rem;
 }
 
-.link:hover {
-    color: #1976d2;
-    text-decoration: underline;
+.formFooter a {
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
 }
 
-/* Responsive Design */
+.formFooter a:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Responsive design */
 @media (max-width: 480px) {
-    .loginContainer {
-        padding: 15px;
-    }
-
-    .loginBox {
-        padding: 30px 25px;
-    }
-
-    .header h1 {
-        font-size: 32px;
-    }
-
-    .header p {
-        font-size: 15px;
-    }
-
-    .input {
-        padding: 12px;
-        font-size: 16px;
-    }
-
-    .submitButton {
-        padding: 12px;
-        font-size: 16px;
-    }
+  .formContainer {
+    padding: 30px 20px;
+    margin: 10px;
+  }
+  
+  .formContainer h2 {
+    font-size: 1.75rem;
+  }
 }

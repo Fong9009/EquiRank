@@ -1,51 +1,35 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import ApprovalDashboard from '@/components/pages/admin/ApprovalDashboard';
+import ContactMessages from '@/components/pages/admin/ContactMessages';
+import styles from '@/styles/pages/admin/adminPage.module.css';
 
 export default function AdminPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: session, status } = useSession();
+  const [activeTab, setActiveTab] = useState<'approvals' | 'messages'>('approvals');
   const router = useRouter();
 
   useEffect(() => {
-    // Check if user is authenticated as admin
-    const checkAuth = async () => {
-      try {
-        // For now, we'll use a simple session check
-        // In a real application, you'd want proper JWT tokens or session management
-        const adminToken = localStorage.getItem('adminToken');
-        
-        if (!adminToken) {
-          // Redirect to login if no admin token
-          router.push('/login?redirect=/admin');
-          return;
-        }
+    if (status === 'loading') return;
+    
+    if (!session?.user || (session.user as any).userType !== 'admin') {
+      router.push('/login?redirect=/admin');
+    }
+  }, [session, status, router]);
 
-        // Verify admin token (this would be a proper API call in production)
-        // For now, we'll assume the token is valid
-        setIsAuthenticated(true);
-      } catch (error) {
-        console.error('Authentication error:', error);
-        router.push('/login?redirect=/admin');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, [router]);
-
-  if (isLoading) {
+  if (status === 'loading') {
     return (
-      <div className="adminPage">
+      <div className={styles.adminPage}>
         <div style={{ 
           display: 'flex', 
           justifyContent: 'center', 
           alignItems: 'center', 
           height: '100vh',
-          fontSize: '18px'
+          fontSize: '1.2rem',
+          color: '#666'
         }}>
           Loading admin panel...
         </div>
@@ -53,13 +37,31 @@ export default function AdminPage() {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!session?.user || (session.user as any).userType !== 'admin') {
     return null; // Will redirect
   }
 
   return (
-    <div className="adminPage">
-      <ApprovalDashboard />
+    <div className={styles.adminPage}>
+      <div className={styles.tabContainer}>
+        <button
+          className={`${styles.tabButton} ${activeTab === 'approvals' ? styles.active : ''}`}
+          onClick={() => setActiveTab('approvals')}
+        >
+          User Approvals
+        </button>
+        <button
+          className={`${styles.tabButton} ${activeTab === 'messages' ? styles.active : ''}`}
+          onClick={() => setActiveTab('messages')}
+        >
+          Contact Messages
+        </button>
+      </div>
+
+      <div className={styles.tabContent}>
+        {activeTab === 'approvals' && <ApprovalDashboard />}
+        {activeTab === 'messages' && <ContactMessages />}
+      </div>
     </div>
   );
 }
