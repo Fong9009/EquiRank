@@ -70,8 +70,8 @@ export default function LoginForm() {
   return (
     <div className={styles.loginForm}>
       <div className={styles.formContainer}>
-        <h2>Welcome Back</h2>
-        <p>Sign in to your account</p>
+        <h2>Welcome to EquiRank</h2>
+        <p>Access your investment dashboard</p>
         
         {error && (
           <div className={styles.errorMessage}>
