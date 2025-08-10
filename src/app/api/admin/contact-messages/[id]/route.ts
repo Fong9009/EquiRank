@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getContactMessageById, updateContactMessageStatus, deleteContactMessage } from '@/database/db';
+import { getContactMessageById, updateContactMessageStatus, deleteContactMessage, createAdminReply } from '@/database/db';
 import { sendAdminReplyEmail } from '@/lib/email';
 
 // GET /api/admin/contact-messages/[id] - Get a specific contact message
@@ -73,15 +73,26 @@ export async function POST(
       );
     }
 
+    // Create admin reply in conversation thread
+    const adminReplyId = await createAdminReply(
+      message.conversation_id,
+      adminName,
+      'admin@equirank.com', // Admin email
+      `Re: ${message.subject}`,
+      adminReply,
+      messageId
+    );
+
     // Send email reply
     const emailSent = await sendAdminReplyEmail(
       message.email,
       message.name,
       adminReply,
-      message.subject
+      message.subject,
+      message.message
     );
 
-    // Update message status to 'replied'
+    // Update original message status to 'replied'
     const updateSuccess = await updateContactMessageStatus(messageId, 'replied');
 
     if (emailSent && updateSuccess) {
@@ -128,9 +139,9 @@ export async function PATCH(
     const body = await request.json();
     const { status } = body;
 
-    if (!status || !['new', 'read', 'replied'].includes(status)) {
+    if (!status || !['new', 'read', 'replied', 'closed'].includes(status)) {
       return NextResponse.json(
-        { error: 'Invalid status. Must be new, read, or replied' },
+        { error: 'Invalid status. Must be new, read, replied, or closed' },
         { status: 400 }
       );
     }

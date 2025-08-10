@@ -1,4 +1,5 @@
 import mysql from 'mysql2/promise';
+import crypto from 'crypto';
 
 /* DATABASE CONNECTION & CONFIGURATION */
 
@@ -120,11 +121,14 @@ export interface User {
 
 export interface ContactMessage {
   id: number;
+  conversation_id: string;
   name: string;
   email: string;
   subject: string;
   message: string;
-  status: 'new' | 'read' | 'replied';
+  message_type: 'user_message' | 'admin_reply';
+  parent_message_id?: number;
+  status: 'new' | 'read' | 'replied' | 'closed';
   created_at: Date;
   updated_at: Date;
 }
@@ -282,11 +286,12 @@ export async function createContactMessage(
   subject: string,
   message: string
 ): Promise<number> {
+  const conversationId = crypto.randomUUID();
   const query = `
-    INSERT INTO contact_messages (name, email, subject, message)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO contact_messages (conversation_id, name, email, subject, message, message_type)
+    VALUES (?, ?, ?, ?, ?, 'user_message')
   `;
-  const result = await executeSingleQuery(query, [name, email, subject, message]);
+  const result = await executeSingleQuery(query, [conversationId, name, email, subject, message]);
   return result.insertId;
 }
 
@@ -298,7 +303,7 @@ export async function getAllContactMessages(): Promise<ContactMessage[]> {
   return await executeQuery<ContactMessage>(query);
 }
 
-export async function getContactMessagesByStatus(status: 'new' | 'read' | 'replied'): Promise<ContactMessage[]> {
+export async function getContactMessagesByStatus(status: 'new' | 'read' | 'replied' | 'closed'): Promise<ContactMessage[]> {
   const query = `
     SELECT * FROM contact_messages 
     WHERE status = ?
@@ -318,7 +323,7 @@ export async function getContactMessageById(messageId: number): Promise<ContactM
 
 export async function updateContactMessageStatus(
   messageId: number,
-  status: 'new' | 'read' | 'replied'
+  status: 'new' | 'read' | 'replied' | 'closed'
 ): Promise<boolean> {
   const query = `
     UPDATE contact_messages 
@@ -336,6 +341,47 @@ export async function deleteContactMessage(messageId: number): Promise<boolean> 
   `;
   const result = await executeSingleQuery(query, [messageId]);
   return result.affectedRows > 0;
+}
+
+// Conversation Management Functions
+export async function createAdminReply(
+  conversationId: string,
+  adminName: string,
+  adminEmail: string,
+  subject: string,
+  message: string,
+  parentMessageId: number
+): Promise<number> {
+  const query = `
+    INSERT INTO contact_messages (conversation_id, name, email, subject, message, message_type, parent_message_id)
+    VALUES (?, ?, ?, ?, ?, 'admin_reply', ?)
+  `;
+  const result = await executeSingleQuery(query, [conversationId, adminName, adminEmail, subject, message, parentMessageId]);
+  return result.insertId;
+}
+
+export async function getConversationThread(conversationId: string): Promise<ContactMessage[]> {
+  const query = `
+    SELECT * FROM contact_messages 
+    WHERE conversation_id = ?
+    ORDER BY created_at ASC
+  `;
+  return await executeQuery<ContactMessage>(query, [conversationId]);
+}
+
+export async function getConversations(): Promise<{ conversation_id: string; subject: string; last_message: Date; status: string; message_count: number }[]> {
+  const query = `
+    SELECT 
+      cm1.conversation_id,
+      cm1.subject,
+      MAX(cm1.created_at) as last_message,
+      cm1.status,
+      COUNT(*) as message_count
+    FROM contact_messages cm1
+    GROUP BY cm1.conversation_id, cm1.subject, cm1.status
+    ORDER BY last_message DESC
+  `;
+  return await executeQuery(query);
 }
 
 // Export the pool as default

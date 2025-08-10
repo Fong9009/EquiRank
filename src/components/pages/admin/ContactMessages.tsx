@@ -5,11 +5,14 @@ import styles from '@/styles/pages/admin/contactMessages.module.css';
 
 interface ContactMessage {
   id: number;
+  conversation_id: string;
   name: string;
   email: string;
   subject: string;
   message: string;
-  status: 'new' | 'read' | 'replied';
+  message_type: 'user_message' | 'admin_reply';
+  parent_message_id?: number;
+  status: 'new' | 'read' | 'replied' | 'closed';
   created_at: string;
   updated_at: string;
 }
@@ -18,12 +21,17 @@ export default function ContactMessages() {
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [statusFilter, setStatusFilter] = useState<'all' | 'new' | 'read' | 'replied'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'new' | 'read' | 'replied' | 'closed'>('all');
   const [showReplyModal, setShowReplyModal] = useState<number | null>(null);
   const [replyText, setReplyText] = useState('');
   const [adminName, setAdminName] = useState('EquiRank Support Team');
   const [replying, setReplying] = useState(false);
   const [originalMessage, setOriginalMessage] = useState<ContactMessage | null>(null);
+  const [conversationThreads, setConversationThreads] = useState<{ [key: string]: ContactMessage[] }>({});
+  const [expandedConversations, setExpandedConversations] = useState<Set<string>>(new Set());
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState<'date' | 'name' | 'subject'>('date');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   useEffect(() => {
     fetchContactMessages();
@@ -39,6 +47,24 @@ export default function ContactMessages() {
       if (response.ok) {
         const data = await response.json();
         setMessages(data);
+        
+        // Group messages by conversation_id
+        const threads: { [key: string]: ContactMessage[] } = {};
+        data.forEach((msg: ContactMessage) => {
+          if (!threads[msg.conversation_id]) {
+            threads[msg.conversation_id] = [];
+          }
+          threads[msg.conversation_id].push(msg);
+        });
+        
+        // Sort each thread by creation date
+        Object.keys(threads).forEach(conversationId => {
+          threads[conversationId].sort((a, b) => 
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          );
+        });
+        
+        setConversationThreads(threads);
       } else {
         setMessage({
           type: 'error',
@@ -55,7 +81,7 @@ export default function ContactMessages() {
     }
   };
 
-  const updateMessageStatus = async (messageId: number, newStatus: 'read' | 'replied') => {
+  const updateMessageStatus = async (messageId: number, newStatus: 'read' | 'replied' | 'closed') => {
     try {
       const response = await fetch(`/api/admin/contact-messages/${messageId}`, {
         method: 'PATCH',
@@ -198,12 +224,103 @@ export default function ContactMessages() {
     setOriginalMessage(null);
   };
 
+  const toggleConversation = (conversationId: string) => {
+    setExpandedConversations(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(conversationId)) {
+        newSet.delete(conversationId);
+      } else {
+        newSet.add(conversationId);
+      }
+      return newSet;
+    });
+  };
+
+  const filteredAndSortedThreads = () => {
+    let filtered = Object.entries(conversationThreads);
+    
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter(([conversationId, thread]) => {
+        const firstMessage = thread[0];
+        return (
+          firstMessage.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          firstMessage.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          firstMessage.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          firstMessage.message.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      });
+    }
+    
+    // Apply sorting
+    filtered.sort(([conversationIdA, threadA], [conversationIdB, threadB]) => {
+      const firstMessageA = threadA[0];
+      const firstMessageB = threadB[0];
+      
+      let comparison = 0;
+      switch (sortBy) {
+        case 'date':
+          comparison = new Date(firstMessageA.created_at).getTime() - new Date(firstMessageB.created_at).getTime();
+          break;
+        case 'name':
+          comparison = firstMessageA.name.localeCompare(firstMessageB.name);
+          break;
+        case 'subject':
+          comparison = firstMessageA.subject.localeCompare(firstMessageB.subject);
+          break;
+      }
+      
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+    
+    return filtered;
+  };
+
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
       case 'new': return styles.new;
       case 'read': return styles.read;
       case 'replied': return styles.replied;
       default: return '';
+    }
+  };
+
+  const markAllAsRead = async () => {
+    if (!confirm('Are you sure you want to mark all new messages as read?')) {
+      return;
+    }
+
+    try {
+      const newMessages = messages.filter(msg => msg.status === 'new');
+      if (newMessages.length === 0) {
+        setMessage({
+          type: 'success',
+          text: 'No new messages to mark as read'
+        });
+        return;
+      }
+
+      // Update all new messages to read status
+      const updatePromises = newMessages.map(msg => 
+        updateMessageStatus(msg.id, 'read')
+      );
+
+      await Promise.all(updatePromises);
+
+      setMessage({
+        type: 'success',
+        text: `Marked ${newMessages.length} messages as read`
+      });
+
+      // Refresh messages to update the UI
+      fetchContactMessages();
+
+      setTimeout(() => setMessage(null), 3000);
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        text: 'Failed to mark messages as read'
+      });
     }
   };
 
@@ -218,8 +335,41 @@ export default function ContactMessages() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h2>Contact Messages</h2>
+        <div className={styles.headerTop}>
+          <h2>Contact Messages</h2>
+          <div className={styles.messageStats}>
+            <span className={styles.statItem}>
+              <span className={styles.statLabel}>Total:</span>
+              <span className={styles.statValue}>{Object.keys(conversationThreads).length}</span>
+            </span>
+            <span className={styles.statItem}>
+              <span className={styles.statLabel}>New:</span>
+              <span className={styles.statValue}>
+                {Object.values(conversationThreads).filter(thread => 
+                  thread.some(msg => msg.status === 'new')
+                ).length}
+              </span>
+            </span>
+            <span className={styles.statItem}>
+              <span className={styles.statLabel}>Unread:</span>
+              <span className={styles.statValue}>
+                {Object.values(conversationThreads).filter(thread => 
+                  thread.some(msg => msg.status === 'new' || msg.status === 'read')
+                ).length}
+              </span>
+            </span>
+          </div>
+        </div>
         <div className={styles.filters}>
+          <div className={styles.searchContainer}>
+            <input
+              type="text"
+              placeholder="Search messages..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.searchInput}
+            />
+          </div>
           <select 
             value={statusFilter} 
             onChange={(e) => setStatusFilter(e.target.value as any)}
@@ -229,7 +379,35 @@ export default function ContactMessages() {
             <option value="new">New</option>
             <option value="read">Read</option>
             <option value="replied">Replied</option>
+            <option value="closed">Closed</option>
           </select>
+          <div className={styles.sortContainer}>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className={styles.sortSelect}
+            >
+              <option value="date">Sort by Date</option>
+              <option value="name">Sort by Name</option>
+              <option value="subject">Sort by Subject</option>
+            </select>
+            <button
+              onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+              className={styles.sortOrderButton}
+              title={sortOrder === 'asc' ? 'Sort Descending' : 'Sort Ascending'}
+            >
+              {sortOrder === 'asc' ? '↑' : '↓'}
+            </button>
+          </div>
+          {messages.some(msg => msg.status === 'new') && (
+            <button
+              onClick={markAllAsRead}
+              className={styles.markAllReadButton}
+              title="Mark all new messages as read"
+            >
+              Mark All as Read
+            </button>
+          )}
         </div>
       </div>
 
@@ -239,62 +417,87 @@ export default function ContactMessages() {
         </div>
       )}
 
-      {messages.length === 0 ? (
+      {Object.keys(conversationThreads).length === 0 ? (
         <div className={styles.emptyState}>
           <p>No contact messages found</p>
         </div>
       ) : (
         <div className={styles.messageList}>
-          {messages.map((msg) => (
-            <div key={msg.id} className={styles.messageCard}>
-              <div className={styles.messageHeader}>
-                <div className={styles.messageInfo}>
-                  <h3>{msg.subject}</h3>
-                  <div className={styles.messageMeta}>
-                    <span className={styles.name}>{msg.name}</span>
-                    <span className={styles.email}>{msg.email}</span>
-                    <span className={styles.date}>
-                      {new Date(msg.created_at).toLocaleDateString()}
+          {filteredAndSortedThreads().map(([conversationId, thread]) => {
+            const firstMessage = thread[0];
+            const lastMessage = thread[thread.length - 1];
+            const isExpanded = expandedConversations.has(conversationId);
+            
+            return (
+              <div key={conversationId} className={styles.conversationCard}>
+                <div className={styles.conversationHeader} onClick={() => toggleConversation(conversationId)}>
+                  <div className={styles.conversationInfo}>
+                    <h3>{firstMessage.subject}</h3>
+                    <div className={styles.conversationMeta}>
+                      <span className={styles.name}>{firstMessage.name}</span>
+                      <span className={styles.email}>{firstMessage.email}</span>
+                      <span className={styles.date}>
+                        {new Date(lastMessage.created_at).toLocaleDateString()}
+                      </span>
+                      <span className={styles.messageCount}>
+                        {thread.length} message{thread.length !== 1 ? 's' : ''}
+                      </span>
+                    </div>
+                  </div>
+                  <div className={styles.conversationStatus}>
+                    <span className={`${styles.statusBadge} ${getStatusBadgeClass(lastMessage.status)}`}>
+                      {lastMessage.status}
                     </span>
+                    <button className={styles.expandButton}>
+                      {isExpanded ? '▼' : '▶'}
+                    </button>
                   </div>
                 </div>
-                <div className={styles.messageStatus}>
-                  <span className={`${styles.statusBadge} ${getStatusBadgeClass(msg.status)}`}>
-                    {msg.status}
-                  </span>
-                </div>
-              </div>
-              
-              <div className={styles.messageContent}>
-                <p>{msg.message}</p>
-              </div>
+                
+                {isExpanded && (
+                  <div className={styles.conversationThread}>
+                    {thread.map((msg) => (
+                      <div key={msg.id} className={`${styles.messageItem} ${msg.message_type === 'admin_reply' ? styles.adminMessage : styles.userMessage}`}>
+                        <div className={styles.messageLabel}>
+                          {msg.message_type === 'admin_reply' ? 'Admin Reply' : 'Message:'}
+                        </div>
+                        <div className={styles.messageContent}>
+                          {msg.message}
+                        </div>
 
-              <div className={styles.messageActions}>
-                {msg.status === 'new' && (
-                  <button
-                    onClick={() => updateMessageStatus(msg.id, 'read')}
-                    className={`${styles.actionButton} ${styles.markRead}`}
-                  >
-                    Mark as Read
-                  </button>
+                        {msg.message_type === 'user_message' && (
+                          <div className={styles.messageActions}>
+                            {msg.status === 'new' && (
+                              <button
+                                onClick={() => updateMessageStatus(msg.id, 'read')}
+                                className={`${styles.actionButton} ${styles.markRead}`}
+                              >
+                                Mark as Read
+                              </button>
+                            )}
+                            {msg.status !== 'replied' && (
+                              <button
+                                onClick={() => handleReplyClick(msg.id)}
+                                className={`${styles.actionButton} ${styles.reply}`}
+                              >
+                                Reply
+                              </button>
+                              )}
+                            <button
+                              onClick={() => deleteMessage(msg.id)}
+                              className={`${styles.actionButton} ${styles.delete}`}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 )}
-                {msg.status !== 'replied' && (
-                  <button
-                    onClick={() => handleReplyClick(msg.id)}
-                    className={`${styles.actionButton} ${styles.reply}`}
-                  >
-                    Reply
-                  </button>
-                )}
-                <button
-                  onClick={() => deleteMessage(msg.id)}
-                  className={`${styles.actionButton} ${styles.delete}`}
-                >
-                  Delete
-                </button>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

@@ -122,9 +122,11 @@ SELECT id, email, first_name, last_name, user_type, company, is_active, created_
 ### Sample Data
 
 The schema includes sample users:
-- **Admin**: admin@equirank.com (EquiRank)
-- **Borrower**: borrower@example.com (ABC Company)
-- **Lender**: lender@example.com (XYZ Bank)
+- **Admin**: admin@equirank.com (EquiRank) - Password: Test123!
+- **Borrower**: borrower1@company.com (Tech Startup Inc) - Password: Test123!
+- **Lender**: lender1@bank.com (Investment Bank Ltd) - Password: Test123!
+- **Borrower**: borrower2@individual.com (Individual) - Password: Test123!
+- **Lender**: lender2@investor.com (Individual Investor) - Password: Test123!
 
 ## API Endpoints
 

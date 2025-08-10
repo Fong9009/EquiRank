@@ -31,18 +31,23 @@ CREATE TABLE IF NOT EXISTS users (
 -- Contact Messages table for storing contact form submissions
 CREATE TABLE IF NOT EXISTS contact_messages (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    conversation_id VARCHAR(36) NOT NULL COMMENT 'UUID for conversation threading',
     name VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL,
     subject VARCHAR(255) NOT NULL,
     message TEXT NOT NULL,
-    status ENUM('new', 'read', 'replied') DEFAULT 'new',
+    message_type ENUM('user_message', 'admin_reply') DEFAULT 'user_message' COMMENT 'Type of message in conversation',
+    parent_message_id INT NULL COMMENT 'Reference to parent message for replies',
+    status ENUM('new', 'read', 'replied', 'closed') DEFAULT 'new',
     ip_address VARCHAR(45) COMMENT 'Store IP for rate limiting',
     user_agent TEXT COMMENT 'Store user agent for security',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
     -- Email format validation
-    CONSTRAINT chk_contact_email_format CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
+    CONSTRAINT chk_contact_email_format CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
+    -- Foreign key for parent message (self-referencing)
+    CONSTRAINT fk_parent_message FOREIGN KEY (parent_message_id) REFERENCES contact_messages(id) ON DELETE SET NULL
 );
 
 -- Essential indexes for performance and security
@@ -56,15 +61,18 @@ CREATE INDEX IF NOT EXISTS idx_users_account_locked_until ON users(account_locke
 -- Contact messages indexes
 CREATE INDEX IF NOT EXISTS idx_contact_messages_status ON contact_messages(status);
 CREATE INDEX IF NOT EXISTS idx_contact_messages_created_at ON contact_messages(created_at);
+CREATE INDEX IF NOT EXISTS idx_contact_messages_conversation_id ON contact_messages(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_contact_messages_message_type ON contact_messages(message_type);
+CREATE INDEX IF NOT EXISTS idx_contact_messages_parent_message_id ON contact_messages(parent_message_id);
 
 -- Sample users with bcrypt hashed passwords (12 rounds)
 -- Password for all users is: Test123!
 INSERT IGNORE INTO users (email, password_hash, first_name, last_name, user_type, entity_type, company, phone, address, is_approved, is_active) VALUES
-('admin@equirank.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4J/8KqHh6O', 'Admin', 'User', 'admin', 'company', 'EquiRank Admin', '+1234567890', '123 Admin St, Admin City', true, true),
-('borrower1@company.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4J/8KqHh6O', 'John', 'Smith', 'borrower', 'company', 'Tech Startup Inc', '+1234567891', '456 Business Ave, Tech City', true, true),
-('lender1@bank.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4J/8KqHh6O', 'Jane', 'Doe', 'lender', 'company', 'Investment Bank Ltd', '+1234567892', '789 Finance Blvd, Bank City', true, true),
-('borrower2@individual.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4J/8KqHh6O', 'Mike', 'Johnson', 'borrower', 'individual', NULL, '+1234567893', '321 Personal St, Individual City', false, true),
-('lender2@investor.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4J/8KqHh6O', 'Sarah', 'Wilson', 'lender', 'individual', NULL, '+1234567894', '654 Investor Ave, Investment City', false, true);
+('admin@equirank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Admin', 'User', 'admin', 'company', 'EquiRank Admin', '+1234567890', '123 Admin St, Admin City', true, true),
+('borrower1@company.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'John', 'Smith', 'borrower', 'company', 'Tech Startup Inc', '+1234567891', '456 Business Ave, Tech City', true, true),
+('lender1@bank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Jane', 'Doe', 'lender', 'company', 'Investment Bank Ltd', '+1234567892', '789 Finance Blvd, Bank City', true, true),
+('borrower2@individual.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Mike', 'Johnson', 'borrower', 'individual', NULL, '+1234567893', '321 Personal St, Individual City', true, true),
+('lender2@investor.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Sarah', 'Wilson', 'lender', 'individual', NULL, '+1234567894', '654 Investor Ave, Investment City', false, false);
 
 -- Success message
 SELECT 'Database schema created successfully!' as status;

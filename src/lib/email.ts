@@ -31,7 +31,7 @@ const createTransporter = () => {
     }
   };
 
-  return nodemailer.createTransporter(config);
+  return nodemailer.createTransport(config);
 };
 
 // Send email function
@@ -112,7 +112,7 @@ export const emailTemplates = {
   }),
 
   // Admin reply to contact message
-  adminReply: (userName: string, userEmail: string, adminMessage: string, originalSubject: string) => ({
+  adminReply: (userName: string, userEmail: string, adminMessage: string, originalSubject: string, originalMessage: string) => ({
     subject: `Re: ${originalSubject} - EquiRank Support`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
@@ -134,7 +134,15 @@ export const emailTemplates = {
           </p>
           
           <div style="background-color: #f8f9fa; padding: 20px; border-left: 4px solid #51C342; margin: 20px 0;">
-            <p style="color: #333; line-height: 1.6; margin: 0; font-style: italic;">
+            <h4 style="color: #333; margin: 0 0 15px 0; font-size: 16px;">Your Original Message:</h4>
+            <p style="color: #333; line-height: 1.6; margin: 0; font-style: italic; background-color: white; padding: 15px; border-radius: 8px; border: 1px solid #e0e0e0;">
+              "${originalMessage}"
+            </p>
+          </div>
+          
+          <div style="background-color: #e8f5e8; padding: 20px; border-left: 4px solid #51C342; margin: 20px 0;">
+            <h4 style="color: #333; margin: 0 0 15px 0; font-size: 16px;">Our Response:</h4>
+            <p style="color: #333; line-height: 1.6; margin: 0;">
               "${adminMessage}"
             </p>
           </div>
@@ -204,6 +212,51 @@ export const emailTemplates = {
         </div>
       </div>
     `
+  }),
+
+  // Follow-up notification email for admins
+  followUpNotification: (conversationId: string, userName: string, userEmail: string, message: string, originalSubject: string) => ({
+    subject: `Follow-up: ${originalSubject}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #51C342; margin: 0;">EquiRank</h1>
+          <p style="color: #666; margin: 10px 0;">Powering The Next Generation Of Investment</p>
+        </div>
+        
+        <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+          <h2 style="color: #333; margin-bottom: 20px;">📬 New Follow-up Message</h2>
+          
+          <p style="color: #555; line-height: 1.6; margin-bottom: 20px;">
+            A user has sent a follow-up message to an existing conversation.
+          </p>
+          
+          <div style="background-color: #e8f5e8; padding: 20px; border-left: 4px solid #51C342; margin: 20px 0;">
+            <h4 style="color: #333; margin: 0 0 15px 0; font-size: 16px;">Follow-up Details:</h4>
+            <p style="color: #333; line-height: 1.6; margin: 0 0 10px 0;"><strong>From:</strong> ${userName} (${userEmail})</p>
+            <p style="color: #333; line-height: 1.6; margin: 0 0 10px 0;"><strong>Subject:</strong> ${originalSubject}</p>
+            <p style="color: #333; line-height: 1.6; margin: 0 0 10px 0;"><strong>Conversation ID:</strong> ${conversationId}</p>
+            <p style="color: #333; line-height: 1.6; margin: 0;"><strong>Message:</strong></p>
+            <div style="background-color: white; padding: 15px; border-radius: 8px; border: 1px solid #e0e0e0; margin-top: 10px;">
+              <p style="color: #333; line-height: 1.6; margin: 0; font-style: italic;">"${message}"</p>
+            </div>
+          </div>
+          
+          <p style="color: #555; line-height: 1.6; margin-bottom: 20px;">
+            Please review this follow-up message and respond accordingly. You can view the full conversation thread in the admin panel.
+          </p>
+          
+          <div style="text-align: center; margin-top: 25px;">
+            <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/admin" style="background-color: #51C342; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">View in Admin Panel</a>
+          </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+          <p>This is an automated notification. Please do not reply to this email.</p>
+          <p>&copy; 2024 EquiRank. All rights reserved.</p>
+        </div>
+      </div>
+    `
   })
 };
 
@@ -220,9 +273,10 @@ export const sendAdminReplyEmail = async (
   userEmail: string, 
   userName: string, 
   adminMessage: string, 
-  originalSubject: string
+  originalSubject: string,
+  originalMessage: string
 ): Promise<boolean> => {
-  const emailContent = emailTemplates.adminReply(userName, userEmail, adminMessage, originalSubject);
+  const emailContent = emailTemplates.adminReply(userName, userEmail, adminMessage, originalSubject, originalMessage);
   return await sendEmail({
     to: userEmail,
     ...emailContent
@@ -237,6 +291,22 @@ export const sendAccountRejectionEmail = async (
   const emailContent = emailTemplates.accountRejected(userName, userEmail, reason);
   return await sendEmail({
     to: userEmail,
+    ...emailContent
+  });
+};
+
+export const sendFollowUpEmail = async (
+  conversationId: string,
+  userName: string,
+  userEmail: string,
+  message: string,
+  originalSubject: string
+): Promise<boolean> => {
+  // Send to admin email (you can configure this in .env)
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@equirank.com';
+  const emailContent = emailTemplates.followUpNotification(conversationId, userName, userEmail, message, originalSubject);
+  return await sendEmail({
+    to: adminEmail,
     ...emailContent
   });
 };
