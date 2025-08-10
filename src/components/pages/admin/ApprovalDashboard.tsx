@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { signOut } from 'next-auth/react';
 import styles from '@/styles/pages/admin/approvalDashboard.module.css';
 
 interface User {
@@ -68,10 +67,6 @@ export default function ApprovalDashboard() {
     }
   };
 
-  const handleLogout = () => {
-    signOut({ callbackUrl: '/' });
-  };
-
   if (loading) {
     return (
       <div className={styles.container}>
@@ -88,9 +83,6 @@ export default function ApprovalDashboard() {
             <h2>User Approval Dashboard</h2>
             <p>Review and approve new user registrations</p>
           </div>
-          <button onClick={handleLogout} className={styles.logoutButton}>
-            Logout
-          </button>
         </div>
       </div>
 

@@ -351,6 +351,14 @@ export default function RegistrationForm() {
                   className={`${styles.input} ${errors.password ? styles.errorInput : ''}`}
                   placeholder="Create a password"
                 />
+                <div className={styles.passwordRequirements}>
+                  <small>Password must contain:</small>
+                  <ul>
+                    <li>At least 6 characters</li>
+                    <li>Letters and numbers</li>
+                    <li>Special characters recommended</li>
+                  </ul>
+                </div>
                 {errors.password && <span className={styles.error}>{errors.password}</span>}
               </div>
 

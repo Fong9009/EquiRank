@@ -206,7 +206,43 @@
 
 .errorInput:focus {
     border-color: #f44336;
-    box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.1);
+    box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.2);
+}
+
+.passwordRequirements {
+    margin-top: 8px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    font-size: 12px;
+    color: #b0b0b0;
+}
+
+.passwordRequirements small {
+    display: block;
+    margin-bottom: 6px;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.passwordRequirements ul {
+    margin: 0;
+    padding-left: 16px;
+    list-style-type: none;
+}
+
+.passwordRequirements li {
+    margin-bottom: 4px;
+    position: relative;
+}
+
+.passwordRequirements li:before {
+    content: "•";
+    color: #AAE66B;
+    font-weight: bold;
+    position: absolute;
+    left: -12px;
 }
 
 .textarea {

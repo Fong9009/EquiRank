@@ -10,16 +10,24 @@ export default function ContactForm() {
         subject: '',
         message: ''
     });
+    const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
         });
+        // Clear any existing message when user starts typing
+        if (message) {
+            setMessage(null);
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsSubmitting(true);
+        setMessage(null);
         
         try {
             const response = await fetch('/api/contact', {
@@ -32,7 +40,10 @@ export default function ContactForm() {
 
             if (response.ok) {
                 const result = await response.json();
-                alert('Message sent successfully! We\'ll get back to you soon.');
+                setMessage({ 
+                    type: 'success', 
+                    text: 'Message sent successfully! We\'ll get back to you soon.' 
+                });
                 // Reset form
                 setFormData({
                     name: '',
@@ -42,11 +53,13 @@ export default function ContactForm() {
                 });
             } else {
                 const error = await response.json();
-                alert(`Error: ${error.error}`);
+                setMessage({ type: 'error', text: `Error: ${error.error}` });
             }
         } catch (error) {
             console.error('Error submitting form:', error);
-            alert('Error sending message. Please try again.');
+            setMessage({ type: 'error', text: 'Error sending message. Please try again.' });
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -62,6 +75,12 @@ export default function ContactForm() {
                 <div className={styles.formBox}>
                     <h2 className={styles.formTitle}>Send Us a Message</h2>
                     <hr className={styles.textDivider}></hr>
+                    
+                    {message && (
+                        <div className={`${styles.message} ${styles[message.type]}`}>
+                            {message.text}
+                        </div>
+                    )}
                     
                     <form onSubmit={handleSubmit} className={styles.contactForm}>
                         <div className={styles.formGroup}>
@@ -122,8 +141,12 @@ export default function ContactForm() {
                             />
                         </div>
                         
-                        <button type="submit" className={styles.submitBtn}>
-                            Send Message
+                        <button 
+                            type="submit" 
+                            className={styles.submitBtn}
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? 'Sending...' : 'Send Message'}
                         </button>
                     </form>
                 </div>

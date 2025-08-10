@@ -29,31 +29,22 @@ export default function LoginForm() {
       });
 
       if (result?.error) {
-        // Handle specific error messages
-        switch (result.error) {
-          case 'Email and password are required':
-            setError('Please enter both email and password.');
-            break;
-          case 'Invalid email or password':
-            setError('Invalid email or password. Please check your credentials and try again.');
-            break;
-          case 'Account is deactivated. Please contact support.':
-            setError('Your account has been deactivated. Please contact support for assistance.');
-            break;
-          case 'Account is pending admin approval. Please wait for approval or contact support.':
-            setError('Your account is pending approval. You will be notified once approved.');
-            break;
-          case 'Authentication failed. Please try again.':
-            setError('Authentication failed. Please try again or contact support if the problem persists.');
-            break;
-          default:
-            setError(result.error);
-        }
+        // Handle NextAuth specific errors
+        setError('Invalid email or password. Please check your credentials and try again.');
       } else if (result?.ok) {
         // Redirect based on user type or specified redirect
         router.push(redirect);
+      } else {
+        // This means authentication failed (result is null or undefined)
+        // Provide a helpful error message
+        if (!formData.email || !formData.password) {
+          setError('Please enter both email and password.');
+        } else {
+          setError('Invalid email or password. Please check your credentials and try again.');
+        }
       }
     } catch (error) {
+      console.error('Login error:', error);
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
@@ -65,6 +56,10 @@ export default function LoginForm() {
       ...formData,
       [e.target.name]: e.target.value
     });
+    // Clear error when user starts typing
+    if (error) {
+      setError('');
+    }
   };
 
   return (

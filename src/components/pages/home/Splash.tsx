@@ -1,9 +1,38 @@
+'use client';
+
 import styles from "@/styles/pages/home/splash.module.css";
 import clsx from "clsx";
 import Link from "next/link";
 import React from "react";
+import { useSession } from "next-auth/react";
 
 export default function Splash() {
+    const { data: session, status } = useSession();
+
+    const getStartNowRoute = () => {
+        if (status === 'loading') return '/register'; // Default while loading
+        if (!session) return '/register'; // Not logged in
+        
+        // Logged in - route based on user type
+        if ((session.user as any)?.userType === 'admin') {
+            return '/admin';
+        } else {
+            return '/dashboard';
+        }
+    };
+
+    const getStartNowText = () => {
+        if (status === 'loading') return 'Start Now';
+        if (!session) return 'Start Now';
+        
+        // Logged in - different text based on user type
+        if ((session.user as any)?.userType === 'admin') {
+            return 'Admin Dashboard';
+        } else {
+            return 'My Dashboard';
+        }
+    };
+
     return (
         <div className={styles.splashImage}>
             <video
@@ -29,7 +58,9 @@ export default function Splash() {
 
                 {/*Splash Buttons*/}
                 <div className={styles.buttonBox}>
-                    <Link className={clsx(styles.startBtn, styles.fadeIn)} href="/join">Start Now</Link>
+                    <Link className={clsx(styles.startBtn, styles.fadeIn)} href={getStartNowRoute()}>
+                        {getStartNowText()}
+                    </Link>
                     <Link className={clsx(styles.learnBtn, styles.fadeIn)} href="/how-it-works">Learn More</Link>
                 </div>
             </div>

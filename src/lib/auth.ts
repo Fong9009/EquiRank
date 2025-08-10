@@ -13,7 +13,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Email and password are required");
+          return null;
         }
 
         try {
@@ -23,13 +23,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           
           if (!isConnected) {
             console.error("Database connection failed during authentication");
-            throw new Error("Database connection failed. Please try again later.");
+            return null;
           }
 
           const user = await getUserByEmail(credentials.email as string);
           
           if (!user) {
-            throw new Error("Invalid email or password");
+            return null;
           }
 
           // Type assertion to ensure user has the expected properties
@@ -37,19 +37,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           // Check if user is active
           if (!typedUser.is_active) {
-            throw new Error("Account is deactivated. Please contact support.");
+            return null;
           }
 
           // Check if user is approved (except for admins)
           if (typedUser.user_type !== 'admin' && !typedUser.is_approved) {
-            throw new Error("Account is pending admin approval. Please wait for approval or contact support.");
+            return null;
           }
 
           // Verify password using bcrypt
           const isPasswordValid = await verifyPassword(credentials.password as string, typedUser.password_hash);
           
           if (!isPasswordValid) {
-            throw new Error("Invalid email or password");
+            return null;
           }
 
           return {
@@ -64,12 +64,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           };
         } catch (error) {
           console.error("Auth error:", error);
-          // Re-throw the error with a custom message if it's not already an Error object
-          if (error instanceof Error) {
-            throw error;
-          } else {
-            throw new Error("Authentication failed. Please try again.");
-          }
+          return null;
         }
       }
     })
