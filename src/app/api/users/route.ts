@@ -32,23 +32,32 @@ export async function POST(request: NextRequest) {
       firstName, 
       lastName, 
       userType, 
+      entityType,
       company, 
       phone, 
       address 
     } = body;
 
     // Validate required fields
-    if (!email || !password || !firstName || !lastName || !userType) {
+    if (!email || !password || !firstName || !lastName || !userType || !entityType) {
       return NextResponse.json(
-        { error: 'Missing required fields: email, password, firstName, lastName, userType' },
+        { error: 'Missing required fields: email, password, firstName, lastName, userType, entityType' },
         { status: 400 }
       );
     }
 
-    // Validate user type
-    if (!['borrower', 'lender', 'admin'].includes(userType)) {
+    // Validate user type - only allow borrower and lender registration
+    if (!['borrower', 'lender'].includes(userType)) {
       return NextResponse.json(
-        { error: 'Invalid user type. Must be: borrower, lender, or admin' },
+        { error: 'Invalid user type. Only borrowers and lenders can register publicly. Admin accounts must be created by existing administrators.' },
+        { status: 400 }
+      );
+    }
+
+    // Validate entity type
+    if (!['company', 'individual'].includes(entityType)) {
+      return NextResponse.json(
+        { error: 'Invalid entity type. Must be: company or individual' },
         { status: 400 }
       );
     }
@@ -73,6 +82,7 @@ export async function POST(request: NextRequest) {
       firstName, 
       lastName, 
       userType, 
+      entityType,
       company, 
       phone, 
       address

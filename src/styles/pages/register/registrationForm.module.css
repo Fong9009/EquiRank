@@ -1,0 +1,342 @@
+@font-face {
+    font-family: 'MyCustomFont';
+    src: url('/fonts/Iceland-Regular.ttf') format('truetype');
+}
+
+.customFont {
+    font-family: 'MyCustomFont', sans-serif;
+}
+
+.registerContainer {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #1f2123;
+    padding: 20px;
+}
+
+.registerBox {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 40px;
+    margin-top: 80px;
+    margin-bottom: 40px;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.title {
+    font-family: 'MyCustomFont', sans-serif;
+    font-size: 48px;
+    color: #ffffff;
+    margin: 0 0 10px 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.subtitle {
+    color: #b0b0b0;
+    font-size: 18px;
+    margin: 0;
+}
+
+.message {
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.success {
+    background: rgba(76, 175, 80, 0.2);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    color: #4caf50;
+}
+
+.error {
+    background: rgba(244, 67, 54, 0.2);
+    border: 1px solid rgba(244, 67, 54, 0.3);
+    color: #f44336;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+/* User Type Selection */
+.userTypeSection {
+    margin-bottom: 10px;
+}
+
+/* Entity Type Selection */
+.entityTypeSection {
+    margin-bottom: 10px;
+}
+
+.sectionLabel {
+    display: block;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.userTypeOptions, .entityTypeOptions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.userTypeOption, .entityTypeOption {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.userTypeOption:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.radioInput {
+    margin-right: 15px;
+    transform: scale(1.2);
+    accent-color: #4caf50;
+}
+
+.radioContent {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.radioLabel {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.radioDescription {
+    color: #b0b0b0;
+    font-size: 14px;
+}
+
+/* Form Sections */
+.formSection {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 15px;
+    padding: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sectionTitle {
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 20px 0;
+    font-family: 'MyCustomFont', sans-serif;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.inputGroup:last-child {
+    margin-bottom: 0;
+}
+
+.label {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.input, .textarea {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: #ffffff;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.input::placeholder, .textarea::placeholder {
+    color: #888888;
+}
+
+.input:focus, .textarea:focus {
+    outline: none;
+    border-color: #4caf50;
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.errorInput {
+    border-color: #f44336;
+    background: rgba(244, 67, 54, 0.1);
+}
+
+.errorInput:focus {
+    border-color: #f44336;
+    box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.1);
+}
+
+.textarea {
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+}
+
+/* Error Messages */
+.error {
+    color: #f44336;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+
+/* Submit Section */
+.submitSection {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.submitButton {
+    background: linear-gradient(135deg, #4caf50, #45a049);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 16px 32px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 200px;
+}
+
+.submitButton:hover:not(:disabled) {
+    background: linear-gradient(135deg, #45a049, #3d8b40);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+}
+
+.submitButton:disabled {
+    background: #666666;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Login Link */
+.loginLink {
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 25px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.loginLink p {
+    color: #b0b0b0;
+    margin: 0;
+}
+
+.link {
+    color: #4caf50;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.link:hover {
+    color: #45a049;
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .registerBox {
+        padding: 30px 20px;
+        margin: 20px;
+    }
+    
+    .title {
+        font-size: 36px;
+    }
+    
+    .subtitle {
+        font-size: 16px;
+    }
+    
+    .row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+    
+    .formSection {
+        padding: 20px;
+    }
+    
+    .userTypeOption {
+        padding: 12px;
+    }
+    
+    .radioLabel {
+        font-size: 15px;
+    }
+    
+    .radioDescription {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .registerContainer {
+        padding: 10px;
+    }
+    
+    .registerBox {
+        padding: 25px 15px;
+    }
+    
+    .title {
+        font-size: 32px;
+    }
+    
+    .formSection {
+        padding: 15px;
+    }
+    
+    .submitButton {
+        min-width: 100%;
+        padding: 14px 20px;
+        font-size: 16px;
+    }
+}
