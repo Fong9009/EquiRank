@@ -112,9 +112,6 @@ export default function LoginForm() {
 
         <div className={styles.formFooter}>
           <p>Don't have an account? <a href="/register">Sign up</a></p>
-          <p style={{ marginTop: '10px', fontSize: '0.8rem', opacity: 0.7 }}>
-            Demo accounts available - check the documentation
-          </p>
         </div>
       </div>
     </div>

@@ -85,9 +85,11 @@
     font-family: 'MyCustomFont', sans-serif;
     justify-content: center;
     transition: color 0.25s ease-in, background-position 0.5s ease;
-    height: 50px;
+    height: 70px;
     width: 170px;
     z-index: 1;
+    flex-direction: column;
+    line-height: 1.2;
 }
 
 .learnBtn {
@@ -281,7 +283,7 @@
         max-width: 100%;    /* Full width of container */
         font-size: 32px;    /* Smaller font size for mobile */
         width: 300px;
-        height: 40px;       /* Smaller height */
+        height: 60px;       /* Increased height for two-line text */
         min-width: auto;    /* Remove min-width to allow shrinking */
     }
     .listBoxContainer {
