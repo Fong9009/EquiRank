@@ -1,105 +1,177 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllUsers, createUser } from '@/database/db';
+import { createUser, emailExists } from '@/database/db';
+import { hashPassword, validatePassword, validateEmail } from '@/lib/security';
 
-// GET /api/users - Get all users (admin only)
-export async function GET() {
-  try {
-    const users = await getAllUsers();
-    
-    // Remove password hashes from response for security
-    const safeUsers = users.map(user => {
-      const { password_hash, ...safeUser } = user;
-      return safeUser;
-    });
-    
-    return NextResponse.json(safeUsers, { status: 200 });
-  } catch (error) {
-    console.error('Error fetching users:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch users' },
-      { status: 500 }
-    );
-  }
-}
-
-// POST /api/users - Create a new user
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { 
-      email, 
-      password, 
-      firstName, 
-      lastName, 
-      userType, 
-      entityType,
-      company, 
-      phone, 
-      address 
-    } = body;
+    const { email, password, firstName, lastName, userType, entityType, company, phone, address } = body;
 
-    // Validate required fields
+    // Input validation
     if (!email || !password || !firstName || !lastName || !userType || !entityType) {
       return NextResponse.json(
-        { error: 'Missing required fields: email, password, firstName, lastName, userType, entityType' },
+        { error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
-    // Validate user type - only allow borrower and lender registration
-    if (!['borrower', 'lender'].includes(userType)) {
+    // Enhanced email validation
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
       return NextResponse.json(
-        { error: 'Invalid user type. Only borrowers and lenders can register publicly. Admin accounts must be created by existing administrators.' },
+        { 
+          error: 'Invalid email address',
+          details: emailValidation.errors,
+          code: 'INVALID_EMAIL'
+        },
         { status: 400 }
       );
     }
 
-    // Validate entity type
+    // Email validation - uniqueness check (proactive)
+    const emailAlreadyExists = await emailExists(email);
+    if (emailAlreadyExists) {
+      return NextResponse.json(
+        { 
+          error: 'Email already registered',
+          code: 'EMAIL_EXISTS',
+          suggestion: 'Please use a different email address or try logging in instead'
+        },
+        { status: 409 }
+      );
+    }
+
+    // Password validation
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
+      return NextResponse.json(
+        { error: 'Password does not meet requirements', details: passwordValidation.errors },
+        { status: 400 }
+      );
+    }
+
+    // User type validation
+    if (!['borrower', 'lender', 'admin'].includes(userType)) {
+      return NextResponse.json(
+        { error: 'Invalid user type' },
+        { status: 400 }
+      );
+    }
+
+    // Entity type validation
     if (!['company', 'individual'].includes(entityType)) {
       return NextResponse.json(
-        { error: 'Invalid entity type. Must be: company or individual' },
+        { error: 'Invalid entity type' },
         { status: 400 }
       );
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: 'Invalid email format' },
-        { status: 400 }
-      );
-    }
-
-    // TODO: Hash the password before storing
-    // For now, we'll store it as-is (NOT recommended for production!)
-    const passwordHash = password;
+    // Hash password
+    const hashedPassword = await hashPassword(password);
 
     // Create user
     const userId = await createUser(
-      email, 
-      passwordHash, 
-      firstName, 
-      lastName, 
-      userType, 
+      email,
+      hashedPassword,
+      firstName,
+      lastName,
+      userType,
       entityType,
-      company, 
-      phone, 
+      company,
+      phone,
       address
     );
 
     return NextResponse.json(
       { 
         message: 'User created successfully',
-        userId: userId
+        userId,
+        userType,
+        entityType,
+        isApproved: false, // New users need admin approval
+        email: email // Return email for confirmation
       },
       { status: 201 }
     );
 
-  } catch (error) {
-    console.error('Error creating user:', error);
+  } catch (error: any) {
+    console.error('User creation error:', error);
+    
+    // Handle duplicate email error (fallback protection)
+    if (error.code === 'ER_DUP_ENTRY' && error.message.includes('email')) {
+      return NextResponse.json(
+        { 
+          error: 'Email already exists',
+          code: 'EMAIL_EXISTS',
+          suggestion: 'Please use a different email address or try logging in instead'
+        },
+        { status: 409 }
+      );
+    }
+
+    // Handle other database constraints
+    if (error.code === 'ER_CHECK_CONSTRAINT_VIOLATION') {
+      if (error.message.includes('password_hash')) {
+        return NextResponse.json(
+          { error: 'Password validation failed' },
+          { status: 400 }
+        );
+      }
+      if (error.message.includes('email')) {
+        return NextResponse.json(
+          { error: 'Invalid email format' },
+          { status: 400 }
+        );
+      }
+    }
+
     return NextResponse.json(
-      { error: 'Failed to create user' },
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+// Check email availability
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const email = searchParams.get('email');
+
+    if (!email) {
+      return NextResponse.json(
+        { error: 'Email parameter is required' },
+        { status: 400 }
+      );
+    }
+
+    // Enhanced email validation
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
+      return NextResponse.json(
+        { 
+          available: false,
+          error: 'Invalid email format',
+          details: emailValidation.errors,
+          code: 'INVALID_FORMAT'
+        },
+        { status: 200 }
+      );
+    }
+
+    // Check if email exists
+    const emailAlreadyExists = await emailExists(email);
+    
+    return NextResponse.json({
+      available: !emailAlreadyExists,
+      email: email,
+      message: emailAlreadyExists ? 'Email is already registered' : 'Email is available'
+    }, { status: 200 });
+
+  } catch (error) {
+    console.error('Email availability check error:', error);
+    return NextResponse.json(
+      { error: 'Failed to check email availability' },
       { status: 500 }
     );
   }

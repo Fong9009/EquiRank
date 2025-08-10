@@ -138,6 +138,26 @@ export async function getUserByEmail(email: string): Promise<User | null> {
   return results.length > 0 ? results[0] : null;
 }
 
+// Check if email exists (including inactive users)
+export async function emailExists(email: string): Promise<boolean> {
+  const query = `
+    SELECT COUNT(*) as count FROM users 
+    WHERE email = ?
+  `;
+  const results = await executeQuery<{count: number}>(query, [email]);
+  return results[0]?.count > 0;
+}
+
+// Check if email exists for active users only
+export async function activeEmailExists(email: string): Promise<boolean> {
+  const query = `
+    SELECT COUNT(*) as count FROM users 
+    WHERE email = ? AND is_active = true
+  `;
+  const results = await executeQuery<{count: number}>(query, [email]);
+  return results[0]?.count > 0;
+}
+
 export async function getUserById(id: number): Promise<User | null> {
   const query = `
     SELECT * FROM users 
