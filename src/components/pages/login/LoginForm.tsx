@@ -99,6 +99,9 @@ export default function LoginForm() {
               required
               placeholder="Enter your password"
             />
+            <div className={styles.forgotPassword}>
+              <a href="/forgot-password">Forgot Password?</a>
+            </div>
           </div>
 
           <button 

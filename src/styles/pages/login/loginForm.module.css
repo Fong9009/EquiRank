@@ -74,6 +74,24 @@
   box-shadow: 0 0 0 3px rgba(176, 230, 110, 0.1);
 }
 
+.forgotPassword {
+  text-align: right;
+  margin-top: 8px;
+}
+
+.forgotPassword a {
+  color: #AAE66B;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.forgotPassword a:hover {
+  color: #B9EB72;
+  text-decoration: underline;
+}
+
 .submitButton {
   width: 100%;
   padding: 14px;

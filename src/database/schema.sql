@@ -28,6 +28,21 @@ CREATE TABLE IF NOT EXISTS users (
     CONSTRAINT chk_email_format CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
 );
 
+-- Password reset tokens table for forgot password functionality
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    token VARCHAR(255) UNIQUE NOT NULL COMMENT 'Secure random token for password reset',
+    expires_at TIMESTAMP NOT NULL COMMENT 'Token expiration timestamp',
+    used BOOLEAN DEFAULT FALSE COMMENT 'Whether token has been used',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Foreign key to users table
+    CONSTRAINT fk_password_reset_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    -- Token should be at least 32 characters
+    CONSTRAINT chk_token_length CHECK (LENGTH(token) >= 32)
+);
+
 -- Contact Messages table for storing contact form submissions
 CREATE TABLE IF NOT EXISTS contact_messages (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -57,6 +72,12 @@ CREATE INDEX IF NOT EXISTS idx_users_is_active ON users(is_active);
 CREATE INDEX IF NOT EXISTS idx_users_is_approved ON users(is_approved);
 CREATE INDEX IF NOT EXISTS idx_users_failed_login_attempts ON users(failed_login_attempts);
 CREATE INDEX IF NOT EXISTS idx_users_account_locked_until ON users(account_locked_until);
+
+-- Password reset tokens indexes
+CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_token ON password_reset_tokens(token);
+CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_user_id ON password_reset_tokens(user_id);
+CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_expires_at ON password_reset_tokens(expires_at);
+CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_used ON password_reset_tokens(used);
 
 -- Contact messages indexes
 CREATE INDEX IF NOT EXISTS idx_contact_messages_status ON contact_messages(status);

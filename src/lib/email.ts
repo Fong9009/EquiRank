@@ -257,6 +257,65 @@ export const emailTemplates = {
         </div>
       </div>
     `
+  }),
+
+  // Password reset email
+  passwordReset: (userName: string, resetLink: string) => ({
+    subject: 'Reset Your EquiRank Password 🔐',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #51C342; margin: 0;">EquiRank</h1>
+          <p style="color: #666; margin: 10px 0;">Powering The Next Generation Of Investment</p>
+        </div>
+        
+        <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+          <h2 style="color: #333; margin-bottom: 20px;">🔐 Password Reset Request</h2>
+          
+          <p style="color: #555; line-height: 1.6; margin-bottom: 20px;">
+            Dear <strong>${userName}</strong>,
+          </p>
+          
+          <p style="color: #555; line-height: 1.6; margin-bottom: 20px;">
+            We received a request to reset your EquiRank account password. 
+            If you didn't make this request, you can safely ignore this email.
+          </p>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${resetLink}" 
+               style="background: linear-gradient(135deg, #51C342, #B9EB72); 
+                      color: white; 
+                      padding: 15px 30px; 
+                      text-decoration: none; 
+                      border-radius: 25px; 
+                      font-weight: bold; 
+                      display: inline-block;">
+              Reset Your Password
+            </a>
+          </div>
+          
+          <p style="color: #555; line-height: 1.6; margin-bottom: 20px;">
+            <strong>Important:</strong> This link will expire in 1 hour for security reasons. 
+            If you need more time, you can request a new password reset link.
+          </p>
+          
+          <p style="color: #555; line-height: 1.6; margin-bottom: 20px;">
+            If you have any questions or need assistance, please 
+            <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/contact-us" style="color: #51C342;">contact our support team</a>.
+          </p>
+          
+          <p style="color: #555; line-height: 1.6; margin-bottom: 0;">
+            Best regards,<br>
+            The EquiRank Team
+          </p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+          <p>This is an automated message. Please do not reply to this email.</p>
+          <p>&copy; 2024 EquiRank. All rights reserved.</p>
+        </div>
+      </div>
+    `
   })
 };
 
@@ -307,6 +366,18 @@ export const sendFollowUpEmail = async (
   const emailContent = emailTemplates.followUpNotification(conversationId, userName, userEmail, message, originalSubject);
   return await sendEmail({
     to: adminEmail,
+    ...emailContent
+  });
+};
+
+export const sendPasswordResetEmail = async (
+  userEmail: string,
+  userName: string,
+  resetLink: string
+): Promise<boolean> => {
+  const emailContent = emailTemplates.passwordReset(userName, resetLink);
+  return await sendEmail({
+    to: userEmail,
     ...emailContent
   });
 };
