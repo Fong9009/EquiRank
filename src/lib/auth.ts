@@ -13,14 +13,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null;
+          throw new Error("Email and password are required");
         }
 
         try {
           const user = await getUserByEmail(credentials.email as string);
           
           if (!user) {
-            return null;
+            throw new Error("Invalid email or password");
           }
 
           // Type assertion to ensure user has the expected properties
@@ -28,19 +28,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           // Check if user is active
           if (!typedUser.is_active) {
-            throw new Error("Account is deactivated");
+            throw new Error("Account is deactivated. Please contact support.");
           }
 
           // Check if user is approved (except for admins)
           if (typedUser.user_type !== 'admin' && !typedUser.is_approved) {
-            throw new Error("Account is pending admin approval");
+            throw new Error("Account is pending admin approval. Please wait for approval or contact support.");
           }
 
           // Verify password using bcrypt
           const isPasswordValid = await verifyPassword(credentials.password as string, typedUser.password_hash);
           
           if (!isPasswordValid) {
-            return null;
+            throw new Error("Invalid email or password");
           }
 
           return {
@@ -55,7 +55,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           };
         } catch (error) {
           console.error("Auth error:", error);
-          throw error;
+          // Re-throw the error with a custom message if it's not already an Error object
+          if (error instanceof Error) {
+            throw error;
+          } else {
+            throw new Error("Authentication failed. Please try again.");
+          }
         }
       }
     })

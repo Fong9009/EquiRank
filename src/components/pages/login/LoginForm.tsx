@@ -29,7 +29,26 @@ export default function LoginForm() {
       });
 
       if (result?.error) {
-        setError(result.error);
+        // Handle specific error messages
+        switch (result.error) {
+          case 'Email and password are required':
+            setError('Please enter both email and password.');
+            break;
+          case 'Invalid email or password':
+            setError('Invalid email or password. Please check your credentials and try again.');
+            break;
+          case 'Account is deactivated. Please contact support.':
+            setError('Your account has been deactivated. Please contact support for assistance.');
+            break;
+          case 'Account is pending admin approval. Please wait for approval or contact support.':
+            setError('Your account is pending approval. You will be notified once approved.');
+            break;
+          case 'Authentication failed. Please try again.':
+            setError('Authentication failed. Please try again or contact support if the problem persists.');
+            break;
+          default:
+            setError(result.error);
+        }
       } else if (result?.ok) {
         // Redirect based on user type or specified redirect
         router.push(redirect);
@@ -98,6 +117,9 @@ export default function LoginForm() {
 
         <div className={styles.formFooter}>
           <p>Don't have an account? <a href="/register">Sign up</a></p>
+          <p style={{ marginTop: '10px', fontSize: '0.8rem', opacity: 0.7 }}>
+            Demo accounts available - check the documentation
+          </p>
         </div>
       </div>
     </div>

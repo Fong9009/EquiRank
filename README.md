@@ -16,6 +16,13 @@ A modern, secure financial marketplace platform built with Next.js 14, React 18,
 - **MySQL 8.0+** - Relational database with MySQL2 driver
 - **NextAuth.js v5** - Authentication and session management
 
+### Security & Authentication
+- **bcryptjs** - Secure password hashing (12 salt rounds)
+- **jsonwebtoken** - JWT token generation and verification
+- **NextAuth.js** - Comprehensive authentication solution
+- **Rate Limiting** - API protection against abuse
+- **Security Headers** - XSS, CSRF, and clickjacking protection
+
 ### Design System
 - **Custom Typography** - 'Iceland-Regular' font family
 - **Dark Theme** - Consistent color palette and visual hierarchy
@@ -45,6 +52,10 @@ src/
 ├── database/              # Database configuration
 │   ├── db.ts             # Database operations
 │   └── schema.sql        # Database schema
+├── lib/                  # Utility libraries
+│   ├── auth.ts           # NextAuth configuration
+│   └── security.ts       # Security utilities
+├── middleware.ts         # Global security middleware
 └── styles/               # CSS Modules
     ├── components/       # Component styles
     ├── layout/          # Layout styles
@@ -61,26 +72,47 @@ The platform uses **NextAuth.js v5** for secure authentication with the followin
 - **Role-based Access Control** - Admin, borrower, and lender roles
 - **Approval Workflow** - Admin approval required for new users
 - **Session Management** - 30-day session duration
+- **Enhanced Security** - bcrypt password hashing, JWT tokens
 
 ### Authentication Flow
-1. **Registration** → User submits registration form
+1. **Registration** → User submits registration form with validation
 2. **Admin Review** → Admin reviews and approves/rejects users
-3. **Login** → Approved users can sign in
-4. **Session** → JWT-based session management
-5. **Access Control** → Role-based route protection
+3. **Login** → Approved users can sign in with secure authentication
+4. **Session** → JWT-based session management with security headers
+5. **Access Control** → Role-based route protection and middleware
+
+### Demo Accounts
+For testing purposes, the following demo accounts are available:
+
+| Email | Password | Role | Status |
+|-------|----------|------|---------|
+| `admin@equirank.com` | `Test123!` | Admin | Approved |
+| `borrower1@company.com` | `Test123!` | Borrower | Approved |
+| `lender1@bank.com` | `Test123!` | Lender | Approved |
+| `borrower2@individual.com` | `Test123!` | Borrower | Pending |
+| `lender2@investor.com` | `Test123!` | Lender | Pending |
+
+**Note:** All demo accounts use the same password for testing convenience.
 
 ### Environment Variables
 ```bash
 # NextAuth Configuration
-NEXTAUTH_SECRET=your-secret-key-here-make-it-long-and-random
+NEXTAUTH_SECRET=your-super-secret-key-here
 NEXTAUTH_URL=http://localhost:3000
 
 # Database Configuration
 DB_HOST=localhost
+DB_USER=your_mysql_username
+DB_PASSWORD=your_mysql_password
+DB_NAME=equirank
 DB_PORT=3306
-DB_USER=your_username
-DB_PASSWORD=your_password
-DB_NAME=your_database_name
+
+# Security Configuration
+JWT_SECRET=your-jwt-secret-key-here
+BCRYPT_SALT_ROUNDS=12
+
+# Environment
+NODE_ENV=development
 ```
 
 ## 🗄️ Database Schema
@@ -125,7 +157,7 @@ CREATE TABLE contact_messages (
 - `POST /api/auth/[...nextauth]` - NextAuth.js endpoints
 
 ### User Management
-- `POST /api/users` - Create new user
+- `POST /api/users` - Create new user with password hashing
 - `GET /api/users/[type]` - Get users by type (borrower/lender)
 
 ### Admin Operations
@@ -145,9 +177,10 @@ CREATE TABLE contact_messages (
 - **Entity Types** - Company and individual registration options
 - **Admin Approval** - Manual approval workflow for new registrations
 - **Account Status** - Active/inactive and approved/pending states
+- **Enhanced Security** - bcrypt password hashing, JWT tokens
 
 ### Contact System
-- **Contact Form** - Public contact submission
+- **Contact Form** - Public contact submission with validation
 - **Message Management** - Admin dashboard for message handling
 - **Status Tracking** - New, read, and replied message states
 
@@ -179,21 +212,30 @@ CREATE TABLE contact_messages (
 3. **Set up environment variables**
    ```bash
    cp env.example .env.local
-   # Edit .env.local with your database credentials
+   # Edit .env.local with your database credentials and secrets
    ```
 
-4. **Set up database**
+4. **Generate security secrets**
+   ```bash
+   # Generate NextAuth secret
+   openssl rand -base64 32
+   
+   # Generate JWT secret
+   openssl rand -base64 32
+   ```
+
+5. **Set up database**
    ```bash
    # Create database and run schema
    mysql -u root -p < src/database/schema.sql
    ```
 
-5. **Run the development server**
+6. **Run the development server**
    ```bash
    npm run dev
    ```
 
-6. **Access the application**
+7. **Access the application**
    - Main app: http://localhost:3000
    - Admin panel: http://localhost:3000/admin (admin login required)
 
@@ -213,7 +255,7 @@ CREATE TABLE contact_messages (
 
 ### Database Operations
 All database operations are centralized in `src/database/db.ts`:
-- User CRUD operations
+- User CRUD operations with security
 - Approval workflow management
 - Contact message handling
 - Connection pooling and error handling
@@ -221,10 +263,18 @@ All database operations are centralized in `src/database/db.ts`:
 ## 🛡️ Security Features
 
 ### Authentication Security
-- **JWT Tokens** - Secure session management
-- **Password Hashing** - Secure password storage (bcrypt)
+- **JWT Tokens** - Secure session management with expiration
+- **Password Hashing** - bcrypt with 12 salt rounds
 - **Role-based Access** - Admin-only routes protected
 - **Session Expiration** - Automatic session cleanup
+- **Rate Limiting** - API protection against abuse
+
+### Application Security
+- **Security Headers** - XSS, CSRF, and clickjacking protection
+- **CORS Protection** - Cross-origin request security
+- **Input Validation** - Server-side validation for all inputs
+- **SQL Injection Protection** - Parameterized queries
+- **XSS Prevention** - Content Security Policy headers
 
 ### Admin Access Control
 - **Secure Routes** - Admin panel requires authentication
@@ -270,14 +320,31 @@ npm run start
 ### Environment Configuration
 - Set `NODE_ENV=production`
 - Configure production database credentials
-- Set secure `NEXTAUTH_SECRET`
+- Set secure `NEXTAUTH_SECRET` and `JWT_SECRET`
 - Update `NEXTAUTH_URL` for production domain
+- Configure production database with proper security
 
 ### Database Migration
 - Export production schema
-- Configure production database
+- Configure production database with secure credentials
 - Run schema creation scripts
-- Verify data integrity
+- Verify data integrity and security
+
+## 🧪 Testing
+
+### Demo Accounts
+Use the provided demo accounts to test different user roles and workflows:
+
+1. **Admin Testing** - Login as admin to test approval workflow
+2. **User Registration** - Test the registration process
+3. **Login Flow** - Test authentication with different account statuses
+4. **Admin Panel** - Test user approval and contact message management
+
+### Security Testing
+- Test authentication flows
+- Verify role-based access control
+- Test input validation and sanitization
+- Verify security headers are properly set
 
 ## 🤝 Contributing
 
@@ -294,3 +361,21 @@ npm run start
 - Use CSS Modules for styling
 - Include proper error handling
 - Add loading states for async operations
+- Implement proper security measures
+- Follow authentication best practices
+
+## 📚 Additional Resources
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [NextAuth.js Documentation](https://next-auth.js.org/)
+- [MySQL Documentation](https://dev.mysql.com/doc/)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+- [React Documentation](https://react.dev/)
+
+## 🔒 Security Notes
+
+- **Never commit `.env.local` files** - They contain sensitive information
+- **Use strong, unique secrets** - Generate different secrets for each environment
+- **Regular security updates** - Keep dependencies updated
+- **Database security** - Use strong passwords and limit database access
+- **HTTPS in production** - Always use HTTPS for production deployments
