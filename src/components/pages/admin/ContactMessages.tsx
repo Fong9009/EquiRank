@@ -19,6 +19,10 @@ export default function ContactMessages() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [statusFilter, setStatusFilter] = useState<'all' | 'new' | 'read' | 'replied'>('all');
+  const [showReplyModal, setShowReplyModal] = useState<number | null>(null);
+  const [replyText, setReplyText] = useState('');
+  const [adminName, setAdminName] = useState('EquiRank Support Team');
+  const [replying, setReplying] = useState(false);
 
   useEffect(() => {
     fetchContactMessages();
@@ -124,6 +128,70 @@ export default function ContactMessages() {
     }
   };
 
+  const handleReplyClick = (messageId: number) => {
+    setShowReplyModal(messageId);
+    setReplyText('');
+  };
+
+  const sendReply = async (messageId: number) => {
+    if (!replyText.trim()) {
+      setMessage({ type: 'error', text: 'Please enter a reply message' });
+      return;
+    }
+
+    setReplying(true);
+    try {
+      const response = await fetch(`/api/admin/contact-messages/${messageId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          adminReply: replyText.trim(),
+          adminName: adminName.trim() || 'EquiRank Support Team'
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setMessage({
+          type: 'success',
+          text: `${result.message}. ${result.emailSent ? 'Email sent successfully!' : 'Email delivery failed.'}`
+        });
+        
+        // Update message status to replied
+        setMessages(prev => prev.map(msg => 
+          msg.id === messageId ? { ...msg, status: 'replied' } : msg
+        ));
+        
+        // Close modal and clear reply
+        setShowReplyModal(null);
+        setReplyText('');
+        
+        // Clear message after delay
+        setTimeout(() => setMessage(null), 5000);
+      } else {
+        const error = await response.json();
+        setMessage({
+          type: 'error',
+          text: error.error || 'Failed to send reply'
+        });
+      }
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        text: 'Network error while sending reply'
+      });
+    } finally {
+      setReplying(false);
+    }
+  };
+
+  const cancelReply = () => {
+    setShowReplyModal(null);
+    setReplyText('');
+  };
+
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
       case 'new': return styles.new;
@@ -206,10 +274,10 @@ export default function ContactMessages() {
                 )}
                 {msg.status !== 'replied' && (
                   <button
-                    onClick={() => updateMessageStatus(msg.id, 'replied')}
-                    className={`${styles.actionButton} ${styles.markReplied}`}
+                    onClick={() => handleReplyClick(msg.id)}
+                    className={`${styles.actionButton} ${styles.reply}`}
                   >
-                    Mark as Replied
+                    Reply
                   </button>
                 )}
                 <button
@@ -221,6 +289,58 @@ export default function ContactMessages() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Reply Modal */}
+      {showReplyModal && (
+        <div className={styles.replyModal}>
+          <div className={styles.replyContent}>
+            <h3>Reply to Message</h3>
+            
+            <div className={styles.replyForm}>
+              <div className={styles.formGroup}>
+                <label htmlFor="adminName">Your Name/Title:</label>
+                <input
+                  type="text"
+                  id="adminName"
+                  value={adminName}
+                  onChange={(e) => setAdminName(e.target.value)}
+                  placeholder="EquiRank Support Team"
+                  className={styles.replyInput}
+                />
+              </div>
+              
+              <div className={styles.formGroup}>
+                <label htmlFor="replyText">Your Reply:</label>
+                <textarea
+                  id="replyText"
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  placeholder="Type your reply here..."
+                  rows={6}
+                  className={styles.replyTextarea}
+                />
+              </div>
+              
+              <div className={styles.replyActions}>
+                <button
+                  onClick={() => sendReply(showReplyModal)}
+                  disabled={replying || !replyText.trim()}
+                  className={styles.sendReplyButton}
+                >
+                  {replying ? 'Sending...' : 'Send Reply'}
+                </button>
+                <button
+                  onClick={cancelReply}
+                  className={styles.cancelReplyButton}
+                  disabled={replying}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

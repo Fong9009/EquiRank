@@ -20,6 +20,8 @@ export default function ApprovalDashboard() {
   const [pendingUsers, setPendingUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [rejectionReasons, setRejectionReasons] = useState<{ [key: number]: string }>({});
+  const [showRejectionModal, setShowRejectionModal] = useState<number | null>(null);
 
   useEffect(() => {
     fetchPendingUsers();
@@ -43,19 +45,42 @@ export default function ApprovalDashboard() {
 
   const handleApproval = async (userId: number, action: 'approve' | 'reject') => {
     try {
+      const body: any = { userId, action };
+      
+      if (action === 'reject') {
+        const reason = rejectionReasons[userId]?.trim();
+        if (!reason) {
+          setMessage({ type: 'error', text: 'Please provide a reason for rejection' });
+          return;
+        }
+        body.reason = reason;
+      }
+
       const response = await fetch('/api/admin/approve', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId, action }),
+        body: JSON.stringify(body),
       });
 
       if (response.ok) {
+        const result = await response.json();
         setMessage({ 
           type: 'success', 
-          text: `User ${action === 'approve' ? 'approved' : 'rejected'} successfully` 
+          text: `${result.message}. ${result.emailSent || ''}` 
         });
+        
+        // Clear rejection reason and modal
+        if (action === 'reject') {
+          setRejectionReasons(prev => {
+            const newReasons = { ...prev };
+            delete newReasons[userId];
+            return newReasons;
+          });
+          setShowRejectionModal(null);
+        }
+        
         // Refresh the list
         fetchPendingUsers();
       } else {
@@ -65,6 +90,24 @@ export default function ApprovalDashboard() {
     } catch (error) {
       setMessage({ type: 'error', text: 'Error processing request' });
     }
+  };
+
+  const handleRejectClick = (userId: number) => {
+    setShowRejectionModal(userId);
+    setRejectionReasons(prev => ({ ...prev, [userId]: '' }));
+  };
+
+  const handleRejectionReasonChange = (userId: number, reason: string) => {
+    setRejectionReasons(prev => ({ ...prev, [userId]: reason }));
+  };
+
+  const cancelRejection = (userId: number) => {
+    setShowRejectionModal(null);
+    setRejectionReasons(prev => {
+      const newReasons = { ...prev };
+      delete newReasons[userId];
+      return newReasons;
+    });
   };
 
   if (loading) {
@@ -110,20 +153,51 @@ export default function ApprovalDashboard() {
                 {user.address && <p><strong>Address:</strong> {user.address}</p>}
                 <p><strong>Registered:</strong> {new Date(user.created_at).toLocaleDateString()}</p>
               </div>
-              <div className={styles.actions}>
-                <button
-                  onClick={() => handleApproval(user.id, 'approve')}
-                  className={styles.approveButton}
-                >
-                  Approve
-                </button>
-                <button
-                  onClick={() => handleApproval(user.id, 'reject')}
-                  className={styles.rejectButton}
-                >
-                  Reject
-                </button>
-              </div>
+              
+              {showRejectionModal === user.id ? (
+                <div className={styles.rejectionModal}>
+                  <div className={styles.rejectionContent}>
+                    <h4>Rejection Reason</h4>
+                    <textarea
+                      value={rejectionReasons[user.id] || ''}
+                      onChange={(e) => handleRejectionReasonChange(user.id, e.target.value)}
+                      placeholder="Please provide a reason for rejection..."
+                      rows={3}
+                      className={styles.rejectionTextarea}
+                    />
+                    <div className={styles.rejectionActions}>
+                      <button
+                        onClick={() => handleApproval(user.id, 'reject')}
+                        className={styles.confirmRejectButton}
+                        disabled={!rejectionReasons[user.id]?.trim()}
+                      >
+                        Confirm Rejection
+                      </button>
+                      <button
+                        onClick={() => cancelRejection(user.id)}
+                        className={styles.cancelButton}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className={styles.actions}>
+                  <button
+                    onClick={() => handleApproval(user.id, 'approve')}
+                    className={styles.approveButton}
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => handleRejectClick(user.id)}
+                    className={styles.rejectButton}
+                  >
+                    Reject
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>

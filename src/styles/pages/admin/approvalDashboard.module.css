@@ -186,3 +186,103 @@
     justify-content: center;
   }
 }
+
+/* Rejection Modal Styles */
+.rejectionModal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  z-index: 10;
+}
+
+.rejectionContent {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  padding: 25px;
+  width: 90%;
+  max-width: 400px;
+}
+
+.rejectionContent h4 {
+  color: white;
+  margin: 0 0 15px 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.rejectionTextarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  color: white;
+  font-size: 0.9rem;
+  resize: vertical;
+  margin-bottom: 20px;
+}
+
+.rejectionTextarea::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.rejectionTextarea:focus {
+  outline: none;
+  border-color: #51C342;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.rejectionActions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.confirmRejectButton,
+.cancelButton {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.confirmRejectButton {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.confirmRejectButton:hover:not(:disabled) {
+  background: rgba(244, 67, 54, 0.3);
+  border-color: rgba(244, 67, 54, 0.5);
+}
+
+.confirmRejectButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cancelButton {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.cancelButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+}

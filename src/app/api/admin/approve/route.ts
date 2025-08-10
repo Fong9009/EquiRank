@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { approveUser, rejectUser, getUserById } from '@/database/db';
+import { sendAccountApprovalEmail, sendAccountRejectionEmail } from '@/lib/email';
 
 // POST /api/admin/approve - Approve or reject a user
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { action, userId } = body;
+    const { action, userId, reason } = body;
 
     // Validate required fields
     if (!action || !userId) {
@@ -34,18 +35,39 @@ export async function POST(request: NextRequest) {
 
     let success: boolean;
     let message: string;
+    let emailSent = false;
 
     if (action === 'approve') {
       success = await approveUser(userId);
       message = 'User approved successfully';
+      
+      // Send approval email
+      if (success) {
+        emailSent = await sendAccountApprovalEmail(
+          user.email, 
+          `${user.first_name} ${user.last_name}`
+        );
+      }
     } else {
       success = await rejectUser(userId);
       message = 'User rejected successfully';
+      
+      // Send rejection email
+      if (success) {
+        emailSent = await sendAccountRejectionEmail(
+          user.email, 
+          `${user.first_name} ${user.last_name}`,
+          reason
+        );
+      }
     }
 
     if (success) {
       return NextResponse.json(
-        { message },
+        { 
+          message,
+          emailSent: emailSent ? 'Email notification sent' : 'Email notification failed'
+        },
         { status: 200 }
       );
     } else {

@@ -307,6 +307,15 @@ export async function getContactMessagesByStatus(status: 'new' | 'read' | 'repli
   return await executeQuery<ContactMessage>(query, [status]);
 }
 
+export async function getContactMessageById(messageId: number): Promise<ContactMessage | null> {
+  const query = `
+    SELECT * FROM contact_messages 
+    WHERE id = ?
+  `;
+  const messages = await executeQuery<ContactMessage>(query, [messageId]);
+  return messages.length > 0 ? messages[0] : null;
+}
+
 export async function updateContactMessageStatus(
   messageId: number,
   status: 'new' | 'read' | 'replied'
