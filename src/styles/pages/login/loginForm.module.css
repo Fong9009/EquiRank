@@ -8,27 +8,28 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #323232;
   padding: 20px;
 }
 
 .formContainer {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(36, 36, 36, 0.95);
   backdrop-filter: blur(20px);
   border-radius: 20px;
   padding: 40px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(176, 230, 110, 0.2);
   width: 100%;
   max-width: 400px;
   text-align: center;
 }
 
 .formContainer h2 {
-  color: white;
+  color: #AAE66B;
   font-size: 2rem;
   margin-bottom: 10px;
   font-weight: 600;
+  font-family: 'MyCustomFont', sans-serif;
 }
 
 .formContainer p {
@@ -53,9 +54,9 @@
 .formGroup input {
   width: 100%;
   padding: 12px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(176, 230, 110, 0.3);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(50, 50, 50, 0.8);
   color: white;
   font-size: 1rem;
   backdrop-filter: blur(10px);
@@ -63,25 +64,28 @@
 }
 
 .formGroup input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .formGroup input:focus {
   outline: none;
-  border-color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+  border-color: #AAE66B;
+  background: rgba(50, 50, 50, 0.9);
+  box-shadow: 0 0 0 3px rgba(176, 230, 110, 0.1);
 }
 
 .submitButton {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(270deg, #51C342, #B9EB72, #51C342);
+  background-size: 300% 100%;
+  background-position: 0% 50%;
+  color: #323232;
   border: none;
-  border-radius: 10px;
+  border-radius: 34px;
   font-size: 1rem;
   font-weight: 600;
+  font-family: 'MyCustomFont', sans-serif;
   cursor: pointer;
   transition: all 0.3s ease;
   margin-top: 10px;
@@ -89,7 +93,9 @@
 
 .submitButton:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 25px rgba(176, 230, 110, 0.3);
+  background-position: 100% 50%;
+  color: white;
 }
 
 .submitButton:disabled {
@@ -111,7 +117,7 @@
 .formFooter {
   margin-top: 30px;
   padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-top: 1px solid rgba(176, 230, 110, 0.2);
 }
 
 .formFooter p {
@@ -121,14 +127,14 @@
 }
 
 .formFooter a {
-  color: white;
+  color: #AAE66B;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.3s ease;
 }
 
 .formFooter a:hover {
-  color: rgba(255, 255, 255, 0.8);
+  color: #B9EB72;
 }
 
 /* Responsive design */
