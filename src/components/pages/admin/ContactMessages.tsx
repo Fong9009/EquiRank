@@ -13,6 +13,7 @@ interface ContactMessage {
   message_type: 'user_message' | 'admin_reply';
   parent_message_id?: number;
   status: 'new' | 'read' | 'replied' | 'closed';
+  archived: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -130,26 +131,26 @@ export default function ContactMessages() {
     }
   };
 
-  const deleteConversation = async (conversationId: string) => {
+  const archiveConversation = async (conversationId: string) => {
     const thread = conversationThreads[conversationId];
     if (!thread) return;
 
     const userMessageCount = thread.filter(msg => msg.message_type === 'user_message').length;
     const adminReplyCount = thread.filter(msg => msg.message_type === 'admin_reply').length;
 
-    if (!confirm(`Are you sure you want to delete this entire conversation?\n\nThis will permanently remove:\n• ${userMessageCount} user message(s)\n• ${adminReplyCount} admin reply(s)`)) {
+    if (!confirm(`Are you sure you want to archive this conversation?\n\nThis will move the following to the archive:\n• ${userMessageCount} user message(s)\n• ${adminReplyCount} admin reply(s)`)) {
       return;
     }
 
     try {
       const response = await fetch(`/api/admin/contact-messages/conversation/${conversationId}`, {
-        method: 'DELETE',
+        method: 'PATCH',
       });
 
       if (response.ok) {
         setMessage({
           type: 'success',
-          text: 'Conversation deleted successfully'
+          text: 'Conversation archived successfully'
         });
         
         // Remove the conversation from local state
@@ -165,13 +166,13 @@ export default function ContactMessages() {
         const error = await response.json();
         setMessage({
           type: 'error',
-          text: error.error || 'Failed to delete conversation'
+          text: error.error || 'Failed to archive conversation'
         });
       }
     } catch (error) {
       setMessage({
         type: 'error',
-        text: 'Network error while deleting conversation'
+        text: 'Network error while archiving conversation'
       });
     }
   };
@@ -491,12 +492,12 @@ export default function ContactMessages() {
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();
-                        deleteConversation(conversationId);
+                        archiveConversation(conversationId);
                       }}
-                      className={`${styles.actionButton} ${styles.delete}`}
-                      title="Delete entire conversation"
+                      className={`${styles.actionButton} ${styles.archive}`}
+                      title="Archive entire conversation"
                     >
-                      Delete
+                      Archive
                     </button>
                     <button className={styles.expandButton} onClick={(e) => {
                       e.stopPropagation();

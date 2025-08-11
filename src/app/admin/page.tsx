@@ -5,11 +5,12 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import ApprovalDashboard from '@/components/pages/admin/ApprovalDashboard';
 import ContactMessages from '@/components/pages/admin/ContactMessages';
+import ArchivedMessages from '@/components/pages/admin/ArchivedMessages';
 import styles from '@/styles/pages/admin/adminPage.module.css';
 
 export default function AdminPage() {
   const { data: session, status } = useSession();
-  const [activeTab, setActiveTab] = useState<'approvals' | 'messages'>('approvals');
+  const [activeTab, setActiveTab] = useState<'approvals' | 'messages' | 'archived'>('approvals');
   const router = useRouter();
 
   useEffect(() => {
@@ -56,11 +57,18 @@ export default function AdminPage() {
         >
           Contact Messages
         </button>
+        <button
+          className={`${styles.tabButton} ${activeTab === 'archived' ? styles.active : ''}`}
+          onClick={() => setActiveTab('archived')}
+        >
+          Archived
+        </button>
       </div>
 
       <div className={styles.tabContent}>
         {activeTab === 'approvals' && <ApprovalDashboard />}
         {activeTab === 'messages' && <ContactMessages />}
+        {activeTab === 'archived' && <ArchivedMessages />}
       </div>
     </div>
   );

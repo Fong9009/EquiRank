@@ -419,8 +419,16 @@
 }
 
 .actionButton.reply:hover {
-  background: rgba(76, 175, 80, 0.3);
-  border-color: rgba(76, 175, 80, 0.5);
+  background: rgba(76, 175, 80, 0.4);
+}
+
+.actionButton.archive {
+  background: rgba(255, 152, 0, 0.2);
+  border-color: rgba(255, 152, 0, 0.4);
+}
+
+.actionButton.archive:hover {
+  background: rgba(255, 152, 0, 0.4);
 }
 
 .actionButton.markReplied {

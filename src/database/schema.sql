@@ -54,6 +54,7 @@ CREATE TABLE IF NOT EXISTS contact_messages (
     message_type ENUM('user_message', 'admin_reply') DEFAULT 'user_message' COMMENT 'Type of message in conversation',
     parent_message_id INT NULL COMMENT 'Reference to parent message for replies',
     status ENUM('new', 'read', 'replied', 'closed') DEFAULT 'new',
+    archived BOOLEAN DEFAULT FALSE COMMENT 'Flag for archived messages',
     ip_address VARCHAR(45) COMMENT 'Store IP for rate limiting',
     user_agent TEXT COMMENT 'Store user agent for security',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

@@ -1,4 +1,4 @@
-import { db } from '@/database/db';
+import db from '@/database/db';
 import { NextRequest, NextResponse } from 'next/server';
 import { RowDataPacket } from 'mysql2';
 
@@ -8,16 +8,20 @@ interface Params {
     };
 }
 
-// Function to delete an entire conversation thread
-export async function DELETE(request: NextRequest, { params }: Params) {
+export async function PATCH(request: NextRequest, { params }: Params) {
     const { conversationId } = params;
+    const body = await request.json().catch(() => ({}));
+    const shouldBeArchived = body.archived;
 
     if (!conversationId) {
         return NextResponse.json({ error: 'Conversation ID is required' }, { status: 400 });
     }
+    
+    if (typeof shouldBeArchived !== 'boolean') {
+        return NextResponse.json({ error: 'Invalid "archived" flag provided.' }, { status: 400 });
+    }
 
     try {
-        // First, check if the conversation exists
         const [messages] = await db.query<RowDataPacket[]>(
             'SELECT id FROM contact_messages WHERE conversation_id = ?',
             [conversationId]
@@ -27,19 +31,19 @@ export async function DELETE(request: NextRequest, { params }: Params) {
             return NextResponse.json({ error: 'Conversation not found' }, { status: 404 });
         }
 
-        // Delete all messages in the conversation
         const [result] = await db.query<any>(
-            'DELETE FROM contact_messages WHERE conversation_id = ?',
-            [conversationId]
+            'UPDATE contact_messages SET archived = ? WHERE conversation_id = ?',
+            [shouldBeArchived, conversationId]
         );
 
         if (result.affectedRows > 0) {
-            return NextResponse.json({ message: `Conversation deleted successfully. ${result.affectedRows} messages removed.` });
+            const action = shouldBeArchived ? 'archived' : 'restored';
+            return NextResponse.json({ message: `Conversation ${action} successfully.` });
         } else {
-            return NextResponse.json({ error: 'No messages were deleted. The conversation might have already been removed.' }, { status: 404 });
+            return NextResponse.json({ error: 'No messages were updated.' }, { status: 404 });
         }
     } catch (error) {
-        console.error('Failed to delete conversation:', error);
+        console.error('Failed to update conversation:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }
