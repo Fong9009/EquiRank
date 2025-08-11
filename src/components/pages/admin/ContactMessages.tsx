@@ -102,6 +102,17 @@ export default function ContactMessages() {
           msg.id === messageId ? { ...msg, status: newStatus } : msg
         ));
         
+        // Update conversationThreads to reflect the status change
+        setConversationThreads(prev => {
+          const updated = { ...prev };
+          Object.keys(updated).forEach(conversationId => {
+            updated[conversationId] = updated[conversationId].map(msg => 
+              msg.id === messageId ? { ...msg, status: newStatus } : msg
+            );
+          });
+          return updated;
+        });
+        
         // Clear message after delay
         setTimeout(() => setMessage(null), 3000);
       } else {
@@ -119,38 +130,48 @@ export default function ContactMessages() {
     }
   };
 
-  const deleteMessage = async (messageId: number) => {
-    if (!confirm('Are you sure you want to delete this message?')) {
+  const deleteConversation = async (conversationId: string) => {
+    const thread = conversationThreads[conversationId];
+    if (!thread) return;
+
+    const userMessageCount = thread.filter(msg => msg.message_type === 'user_message').length;
+    const adminReplyCount = thread.filter(msg => msg.message_type === 'admin_reply').length;
+
+    if (!confirm(`Are you sure you want to delete this entire conversation?\n\nThis will permanently remove:\n• ${userMessageCount} user message(s)\n• ${adminReplyCount} admin reply(s)`)) {
       return;
     }
 
     try {
-      const response = await fetch(`/api/admin/contact-messages/${messageId}`, {
+      const response = await fetch(`/api/admin/contact-messages/conversation/${conversationId}`, {
         method: 'DELETE',
       });
 
       if (response.ok) {
         setMessage({
           type: 'success',
-          text: 'Message deleted successfully'
+          text: 'Conversation deleted successfully'
         });
         
-        // Remove from local state
-        setMessages(prev => prev.filter(msg => msg.id !== messageId));
+        // Remove the conversation from local state
+        setConversationThreads(prev => {
+          const updated = { ...prev };
+          delete updated[conversationId];
+          return updated;
+        });
+
+        setMessages(prev => prev.filter(msg => msg.conversation_id !== conversationId));
         
-        // Clear message after delay
-        setTimeout(() => setMessage(null), 3000);
       } else {
         const error = await response.json();
         setMessage({
           type: 'error',
-          text: error.error || 'Failed to delete message'
+          text: error.error || 'Failed to delete conversation'
         });
       }
     } catch (error) {
       setMessage({
         type: 'error',
-        text: 'Network error while deleting message'
+        text: 'Network error while deleting conversation'
       });
     }
   };
@@ -195,6 +216,19 @@ export default function ContactMessages() {
           msg.id === messageId ? { ...msg, status: 'replied' } : msg
         ));
         
+        // Add new reply to conversation thread and update status
+        const newReply = await response.json();
+        setConversationThreads(prev => {
+            const updated = {...prev};
+            const thread = Object.values(updated).find(t => t.some(m => m.id === messageId));
+            if(thread){
+                thread.push(newReply.newMessage);
+                const messageToUpdate = thread.find(m => m.id === messageId);
+                if(messageToUpdate) messageToUpdate.status = 'replied';
+            }
+            return updated;
+        });
+
         // Close modal and clear reply
         setShowReplyModal(null);
         setReplyText('');
@@ -339,8 +373,10 @@ export default function ContactMessages() {
           <h2>Contact Messages</h2>
           <div className={styles.messageStats}>
             <span className={styles.statItem}>
-              <span className={styles.statLabel}>Total:</span>
-              <span className={styles.statValue}>{Object.keys(conversationThreads).length}</span>
+              <span className={styles.statLabel}>Inquiries:</span>
+              <span className={styles.statValue}>
+                {Object.keys(conversationThreads).length}
+              </span>
             </span>
             <span className={styles.statItem}>
               <span className={styles.statLabel}>New:</span>
@@ -351,11 +387,9 @@ export default function ContactMessages() {
               </span>
             </span>
             <span className={styles.statItem}>
-              <span className={styles.statLabel}>Unread:</span>
+              <span className={styles.statLabel}>Replies:</span>
               <span className={styles.statValue}>
-                {Object.values(conversationThreads).filter(thread => 
-                  thread.some(msg => msg.status === 'new' || msg.status === 'read')
-                ).length}
+                {Object.values(conversationThreads).flat().filter(msg => msg.message_type === 'admin_reply').length}
               </span>
             </span>
           </div>
@@ -375,7 +409,7 @@ export default function ContactMessages() {
             onChange={(e) => setStatusFilter(e.target.value as any)}
             className={styles.statusFilter}
           >
-            <option value="all">All Messages</option>
+            <option value="all">All Inquiries</option>
             <option value="new">New</option>
             <option value="read">Read</option>
             <option value="replied">Replied</option>
@@ -440,7 +474,13 @@ export default function ContactMessages() {
                         {new Date(lastMessage.created_at).toLocaleDateString()}
                       </span>
                       <span className={styles.messageCount}>
-                        {thread.length} message{thread.length !== 1 ? 's' : ''}
+                        {thread.filter(msg => msg.message_type === 'user_message').length} message{thread.filter(msg => msg.message_type === 'user_message').length !== 1 ? 's' : ''}
+                        {thread.filter(msg => msg.message_type === 'admin_reply').length > 0 && (
+                          <span className={styles.replyCount}>
+                            {' • '}
+                            {thread.filter(msg => msg.message_type === 'admin_reply').length} repl{thread.filter(msg => msg.message_type === 'admin_reply').length !== 1 ? 'ies' : 'y'}
+                          </span>
+                        )}
                       </span>
                     </div>
                   </div>
@@ -448,7 +488,20 @@ export default function ContactMessages() {
                     <span className={`${styles.statusBadge} ${getStatusBadgeClass(lastMessage.status)}`}>
                       {lastMessage.status}
                     </span>
-                    <button className={styles.expandButton}>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteConversation(conversationId);
+                      }}
+                      className={`${styles.actionButton} ${styles.delete}`}
+                      title="Delete entire conversation"
+                    >
+                      Delete
+                    </button>
+                    <button className={styles.expandButton} onClick={(e) => {
+                      e.stopPropagation();
+                      toggleConversation(conversationId)
+                    }}>
                       {isExpanded ? '▼' : '▶'}
                     </button>
                   </div>
@@ -459,7 +512,7 @@ export default function ContactMessages() {
                     {thread.map((msg) => (
                       <div key={msg.id} className={`${styles.messageItem} ${msg.message_type === 'admin_reply' ? styles.adminMessage : styles.userMessage}`}>
                         <div className={styles.messageLabel}>
-                          {msg.message_type === 'admin_reply' ? 'Admin Reply' : 'Message:'}
+                          {msg.message_type === 'admin_reply' ? 'Admin Reply:' : 'User Message:'}
                         </div>
                         <div className={styles.messageContent}>
                           {msg.message}
@@ -483,12 +536,6 @@ export default function ContactMessages() {
                                 Reply
                               </button>
                               )}
-                            <button
-                              onClick={() => deleteMessage(msg.id)}
-                              className={`${styles.actionButton} ${styles.delete}`}
-                            >
-                              Delete
-                            </button>
                           </div>
                         )}
                       </div>

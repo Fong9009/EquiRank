@@ -68,8 +68,29 @@ export default function RegistrationForm() {
     }
 
     // Password validation
-    if (formData.password && formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+    if (formData.password) {
+      if (formData.password.length < 8) {
+        newErrors.password = 'Password must be at least 8 characters long.';
+      } else {
+        const errors = [];
+        if (!/[a-z]/.test(formData.password)) {
+          errors.push("one lowercase letter");
+        }
+        if (!/[A-Z]/.test(formData.password)) {
+          errors.push("one uppercase letter");
+        }
+        if (!/[0-9]/.test(formData.password)) {
+          errors.push("one number");
+        }
+        if (!/[!@#$%^&*(),.?":{}|<>_]/.test(formData.password)) {
+          errors.push("one special character");
+        }
+        if (errors.length > 0) {
+          newErrors.password = `Password must contain at least ${errors.join(", ")}.`;
+        }
+      }
+    } else {
+        newErrors.password = 'Password is required';
     }
 
     // Password confirmation
@@ -354,9 +375,11 @@ export default function RegistrationForm() {
                 <div className={styles.passwordRequirements}>
                   <small>Password must contain:</small>
                   <ul>
-                    <li>At least 6 characters</li>
-                    <li>Letters and numbers</li>
-                    <li>Special characters recommended</li>
+                    <li>At least 8 characters</li>
+                    <li>At least one uppercase letter (A-Z)</li>
+                    <li>At least one lowercase letter (a-z)</li>
+                    <li>At least one number (0-9)</li>
+                    <li>At least one special character (e.g., !@#$%^&*_)</li>
                   </ul>
                 </div>
                 {errors.password && <span className={styles.error}>{errors.password}</span>}
