@@ -1,9 +1,12 @@
 "use client";
 import styles from "@/styles/pages/contact/contactForm.module.css";
 import TitleText from "@/components/common/TitleText";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
 
 export default function ContactForm() {
+    const recaptchaRef = useRef<any>(null);
+    const [captchaToken, setCaptchaToken] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -28,6 +31,11 @@ export default function ContactForm() {
         e.preventDefault();
         setIsSubmitting(true);
         setMessage(null);
+
+        if (!captchaToken) {
+            setMessage({ type: 'error', text: 'Please Complete the reCAPTCHA' });
+        }
+
         
         try {
             const response = await fetch('/api/contact', {
@@ -35,7 +43,7 @@ export default function ContactForm() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({ ...formData, captchaToken}),
             });
 
             if (response.ok) {
@@ -51,6 +59,9 @@ export default function ContactForm() {
                     subject: '',
                     message: ''
                 });
+                setText('');
+                recaptchaRef.current?.reset();
+                setCaptchaToken(null);
             } else {
                 const error = await response.json();
                 setMessage({ type: 'error', text: `Error: ${error.error}` });
@@ -61,6 +72,35 @@ export default function ContactForm() {
         } finally {
             setIsSubmitting(false);
         }
+    };
+
+    {/*Name Verifier*/}
+    const [name, setName] = useState<string>('');
+    const [nameError, setNameError] = useState<string | null>(null);
+    const validateName = (value: string) => {
+        if(!value.trim()) {
+            return "Name can't be blank";
+
+        }
+        if (!/^[a-zA-Z' ]+$/.test(value)) {
+            return "Name can only contain letters, spaces, and apostrophes";
+        }
+        return null;
+    };
+    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setName(value);
+        const error = validateName(value);
+        setNameError(error);
+    };
+
+    const isFormValid = !nameError && name.trim() !== '';
+
+    {/*Textbox Character Counter*/}
+    const maxChars = 600;
+    const [text, setText] = useState<string>('');
+    const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setText(e.target.value);
     };
 
     return (
@@ -90,10 +130,14 @@ export default function ContactForm() {
                                 id="name"
                                 name="name"
                                 value={formData.name}
-                                onChange={handleChange}
+                                onChange={(e) => {
+                                    handleChange(e);
+                                    handleNameChange(e);
+                                }}
                                 className={styles.formInput}
                                 required
                             />
+                            {nameError && <p style={{ color: 'red' }}>{nameError}</p>}
                         </div>
                         
                         <div className={styles.formGroup}>
@@ -133,18 +177,29 @@ export default function ContactForm() {
                             <textarea
                                 id="message"
                                 name="message"
+                                maxLength={maxChars}
                                 value={formData.message}
-                                onChange={handleChange}
+                                onChange={(e) => {
+                                    handleChange(e);
+                                    handleTextChange(e);
+                                }}
                                 className={styles.formTextarea}
                                 rows={6}
                                 required
                             />
+                            <div>
+                                {text.length} / {maxChars} characters
+                            </div>
                         </div>
-                        
+                            <ReCAPTCHA
+                                sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
+                                ref={recaptchaRef}
+                                onChange={(token) => setCaptchaToken(token)}
+                            />
                         <button 
                             type="submit" 
                             className={styles.submitBtn}
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || !isFormValid}
                         >
                             {isSubmitting ? 'Sending...' : 'Send Message'}
                         </button>

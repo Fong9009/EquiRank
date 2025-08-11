@@ -5,7 +5,38 @@ import { createContactMessage } from '@/database/db';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, subject, message } = body;
+    const { name, email, subject, message, captchaToken } = body;
+
+    // Verify reCAPTCHA
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+    if (!secretKey) {
+      return NextResponse.json(
+          {error: "Missing reCAPTCHA Cannot Verify"}
+      );
+    }
+
+    /*Recaptcha Verification*/
+    const params = new URLSearchParams();
+    params.append("secret", secretKey);
+    params.append('response', captchaToken);
+
+    const verifyRes = await fetch(
+        'https://www.google.com/recaptcha/api/siteverify',
+        {
+          method: "POST",
+          headers: {"Content-Type": "application/x-www-form-urlencoded"},
+          body: params.toString(),
+        }
+    );
+
+    const verifyCaptcha = await verifyRes.json();
+
+    if(!verifyCaptcha.success) {
+      return NextResponse.json(
+          {error: "Invalid captcha"},
+          {status: 400}
+      );
+    }
 
     // Validate required fields
     if (!name || !email || !subject || !message) {

@@ -111,6 +111,12 @@
     transition: border-color 0.3s ease, background-color 0.3s ease;
 }
 
+.formTextarea {
+    max-height: 200px;
+    min-height: 50px;
+    height: auto;
+}
+
 .formInput:focus, .formSelect:focus, .formTextarea:focus {
     outline: none;
     border-color: #AAE66B;
