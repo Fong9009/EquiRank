@@ -1,6 +1,13 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+export function generateNonce() {
+  const array = new Uint8Array(16);
+  crypto.getRandomValues(array);
+  // Convert to base64
+  return btoa(String.fromCharCode(...array));
+}
+
 // Security middleware
 export function middleware(request: NextRequest) {
   const response = NextResponse.next();
@@ -12,18 +19,23 @@ export function middleware(request: NextRequest) {
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 
   // Content Security Policy
-  if(request.nextUrl.pathname === '/contact-us') {
+  if (request.nextUrl.pathname === '/contact-us') {
+    const nonce = generateNonce();
     response.headers.set(
         'Content-Security-Policy',
-        "default-src 'self'; " +
-        "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.google.com https://www.gstatic.com; " +
-        "connect-src 'self' https://www.google.com https://www.gstatic.com; " +  // <-- add this line
-        "frame-src https://www.google.com https://www.gstatic.com; " +
-        "style-src 'self' 'unsafe-inline'; " +
-        "img-src 'self' data: https:; " +
-        "font-src 'self' data:;"
+        `default-src 'self'; ` +
+        `script-src 'self' 'nonce-${nonce}' 'unsafe-eval' https://www.google.com https://www.gstatic.com; ` +
+        `script-src-elem 'self' 'nonce-${nonce}' https://www.google.com https://www.gstatic.com; ` +
+        `connect-src 'self' https://www.google.com https://www.gstatic.com; ` +
+        `frame-src https://www.google.com https://www.gstatic.com; ` +
+        `worker-src https://www.google.com https://www.gstatic.com; ` +
+        `frame-ancestors 'self'; ` +
+        `style-src 'self' 'unsafe-inline'; ` +
+        `img-src 'self' data: https:; ` +
+        `font-src 'self' data:;`
     );
-  } else {
+  }
+  else {
     response.headers.set(
         'Content-Security-Policy',
         "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;"
