@@ -24,8 +24,8 @@ export function middleware(request: NextRequest) {
     response.headers.set(
         'Content-Security-Policy',
         `default-src 'self'; ` +
-        `script-src 'self' 'nonce-${nonce}' 'unsafe-eval' https://www.google.com https://www.gstatic.com; ` +
-        `script-src-elem 'self' 'nonce-${nonce}' https://www.google.com https://www.gstatic.com; ` +
+        `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com; ` +
+        `script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com; ` +
         `connect-src 'self' https://www.google.com https://www.gstatic.com; ` +
         `style-src 'self' 'unsafe-inline'; ` +
         `frame-src https://www.google.com https://www.gstatic.com; ` +

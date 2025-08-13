@@ -148,7 +148,7 @@ export default function ContactMessages() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ archived: true }),  // <-- Send the data here
+        body: JSON.stringify({ archived: true }),
       });
 
       if (response.ok) {
