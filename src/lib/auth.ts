@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { getUserByEmail, User } from "@/database/db";
+import { getUserByEmail, User } from "@/database/user";
 import { verifyPassword, SESSION_CONFIG } from "./security";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -18,7 +18,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         try {
           // Test database connection first
-          const { testConnection } = await import("@/database/db");
+          const { testConnection } = await import("@/database/index");
           const isConnected = await testConnection();
           
           if (!isConnected) {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllUsers, getUsersByType } from '@/database/db';
+import { getAllUsers, getUsersByType } from '@/database/user';
 import { auth } from '@/lib/auth';
 
 // GET /api/admin/users - Get all users (admin only)

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getBorrowers, getLenders, getAdmins } from '@/database/db';
+import { getBorrowers, getLenders, getAdmins } from '@/database/user';
 
 // GET /api/users/[type] - Get users by type
 export async function GET(

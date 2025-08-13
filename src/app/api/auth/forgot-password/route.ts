@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/database/db';
+import { getUserByEmail } from '@/database/user';
 import { sendPasswordResetEmail } from '@/lib/email';
 import crypto from 'crypto';
+import {deleteToken, insertToken} from "@/database/password";
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,20 +16,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user exists
-    const [users] = await db.execute(
-      'SELECT id, email, first_name, last_name FROM users WHERE email = ? AND is_active = TRUE',
-      [email]
-    );
+    const user = await getUserByEmail(email);
 
-    if (!Array.isArray(users) || users.length === 0) {
+    if (!Array.isArray(user) || user.length === 0) {
       // Don't reveal if user exists or not for security
       return NextResponse.json(
         { message: 'If an account with that email exists, a password reset link has been sent.' },
         { status: 200 }
       );
     }
-
-    const user = users[0] as any;
 
     // Generate secure random token
     const token = crypto.randomBytes(32).toString('hex');
@@ -37,16 +33,10 @@ export async function POST(request: NextRequest) {
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
     // Delete any existing tokens for this user
-    await db.execute(
-      'DELETE FROM password_reset_tokens WHERE user_id = ?',
-      [user.id]
-    );
+    await deleteToken(user.id);
 
     // Insert new token
-    await db.execute(
-      'INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (?, ?, ?)',
-      [user.id, token, expiresAt]
-    );
+    await insertToken(user.id, token, expiresAt);
 
     // Generate reset link
     const resetLink = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/reset-password?token=${token}`;

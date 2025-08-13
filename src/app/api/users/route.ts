@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createUser, emailExists } from '@/database/db';
+import { createUser, emailExists } from '@/database/user';
 import { hashPassword, validatePassword, validateEmail } from '@/lib/security';
 
 export async function POST(request: NextRequest) {

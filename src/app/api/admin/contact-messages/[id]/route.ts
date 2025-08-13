@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getContactMessageById, updateContactMessageStatus, deleteContactMessage, createAdminReply } from '@/database/db';
+import { getContactMessageById, updateContactMessageStatus, deleteContactMessage, createAdminReply } from '@/database/contact';
 import { sendAdminReplyEmail } from '@/lib/email';
 
 // GET /api/admin/contact-messages/[id] - Get a specific contact message
