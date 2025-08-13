@@ -29,14 +29,15 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: center;
     padding: 60px 40px;
     gap: 20px;
 }
 
 .paraTextBox {
-    flex: 1;
-    max-width: 800px;
+    flex: 1 1 45%;
+    min-width: 300px;
+    max-width: 1000px;
     height: auto;
     background-color: #1f2123;
     padding: 40px;
@@ -49,7 +50,9 @@
 }
 
 .imageBox {
-    flex: 1;
+    flex: 1 1 45%;
+    min-width: 300px;
+    max-width: 1000px;
     display: flex;
     justify-content: center;
 }
@@ -97,7 +100,7 @@
     .titleSection {
         text-align: center;
     }
-    .splitSection {
+    .splitBox {
         align-items: center;
         flex-direction: column;
     }
