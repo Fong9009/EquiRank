@@ -60,7 +60,7 @@ export default function ContactForm() {
                     message: ''
                 });
                 setText('');
-                recaptchaRef.current?.reset();
+                recaptchaRef.current.reset();
                 setCaptchaToken(null);
             } else {
                 const error = await response.json();
@@ -192,7 +192,7 @@ export default function ContactForm() {
                             </div>
                         </div>
                         <ReCAPTCHA
-                            sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
+                            sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
                             ref={recaptchaRef}
                             onChange={(token) => setCaptchaToken(token)}
                         />

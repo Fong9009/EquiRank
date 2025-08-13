@@ -19,9 +19,10 @@ export async function POST(request: NextRequest) {
     const params = new URLSearchParams();
     params.append("secret", secretKey);
     params.append('response', captchaToken);
+    console.log(params);
 
     const verifyRes = await fetch(
-        'https://www.google.com/recaptcha/api/siteverify',
+        'https://www.google.com/recaptcha/api/siteverify?=',
         {
           method: "POST",
           headers: {"Content-Type": "application/x-www-form-urlencoded"},
