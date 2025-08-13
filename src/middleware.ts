@@ -20,30 +20,19 @@ export function middleware(request: NextRequest) {
 
   // Content Security Policy
   if (request.nextUrl.pathname === '/contact-us') {
+    const nonce = generateNonce();
     response.headers.set(
         'Content-Security-Policy',
-        "default-src 'self'; " +
-        "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.google.com https://www.gstatic.com; " +
-        "connect-src 'self' https://www.google.com https://www.gstatic.com; " +
-        "style-src 'self' 'unsafe-inline'; " +
-        "frame-src https://www.google.com https://www.gstatic.com; " +
-        "img-src 'self' data: https:; " +
-        "font-src 'self' data:;"
-        /*
-        'Content-Security-Policy',
-        `default-src 'self';` +
-        `script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.google.com https://www.gstatic.com;` +
-        `script-src-elem 'self' 'unsafe-inline' https://www.google.com https://www.gstatic.com;` +
-        `connect-src 'self' https://www.google.com https://www.gstatic.com;` +
-        `frame-src https://www.google.com https://www.gstatic.com;` +
-        `worker-src https://www.google.com https://www.gstatic.com;` +
-        `frame-ancestors 'self';` +
-        `style-src 'self' 'unsafe-inline';` +
-        `img-src 'self' data: https:;` +
+        `default-src 'self'; ` +
+        `script-src 'self' 'nonce-${nonce}' 'unsafe-eval' https://www.google.com https://www.gstatic.com; ` +
+        `script-src-elem 'self' 'nonce-${nonce}' https://www.google.com https://www.gstatic.com; ` +
+        `connect-src 'self' https://www.google.com https://www.gstatic.com; ` +
+        `style-src 'self' 'unsafe-inline'; ` +
+        `frame-src https://www.google.com https://www.gstatic.com; ` +
+        `img-src 'self' data: https:; ` +
         `font-src 'self' data:;`
-
-         */
     );
+    response.headers.set('X-Nonce', nonce);
   }
   else {
     response.headers.set(

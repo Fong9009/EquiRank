@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/database/db';
+import {markToken, verifyToken} from '@/database/password';
+import { updateUserPassword, clearFailedLoginAttempt } from '@/database/user';
 import bcrypt from 'bcrypt';
 
 export async function POST(request: NextRequest) {
@@ -22,22 +23,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if token exists and is valid
-    const [tokens] = await db.execute(
-      `SELECT prt.id, prt.user_id, prt.expires_at, prt.used, u.email 
-       FROM password_reset_tokens prt 
-       JOIN users u ON prt.user_id = u.id 
-       WHERE prt.token = ?`,
-      [token]
-    );
+    const tokenInQuestion = await verifyToken(token);
 
-    if (!Array.isArray(tokens) || tokens.length === 0) {
+    if (!tokenInQuestion) {
       return NextResponse.json(
-        { error: 'Invalid or expired reset token' },
-        { status: 400 }
+          {error: 'Invalid or expired reset token'},
+          {status: 400}
       );
     }
 
-    const resetToken = tokens[0] as any;
+    const resetToken = tokenInQuestion as any;
 
     // Check if token is expired
     if (new Date(resetToken.expires_at) < new Date()) {
@@ -59,29 +54,16 @@ export async function POST(request: NextRequest) {
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
 
-    // Update user's password
-    await db.execute(
-      'UPDATE users SET password_hash = ? WHERE id = ?',
-      [hashedPassword, resetToken.user_id]
-    );
-
-    // Mark token as used
-    await db.execute(
-      'UPDATE password_reset_tokens SET used = TRUE WHERE id = ?',
-      [resetToken.id]
-    );
+    await updateUserPassword(hashedPassword, resetToken.user_id);
+    await markToken(resetToken.id);
 
     // Clear failed login attempts and unlock account if it was locked
-    await db.execute(
-      'UPDATE users SET failed_login_attempts = 0, account_locked_until = NULL WHERE id = ?',
-      [resetToken.user_id]
-    );
+    await clearFailedLoginAttempt(resetToken.user_id);
 
     return NextResponse.json(
       { message: 'Password has been reset successfully. You can now login with your new password.' },
       { status: 200 }
     );
-
   } catch (error) {
     console.error('Reset password error:', error);
     return NextResponse.json(

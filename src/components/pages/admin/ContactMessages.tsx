@@ -145,6 +145,10 @@ export default function ContactMessages() {
     try {
       const response = await fetch(`/api/admin/contact-messages/conversation/${conversationId}`, {
         method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ archived: true }),  // <-- Send the data here
       });
 
       if (response.ok) {
@@ -216,7 +220,7 @@ export default function ContactMessages() {
         setMessages(prev => prev.map(msg => 
           msg.id === messageId ? { ...msg, status: 'replied' } : msg
         ));
-        
+
         // Add new reply to conversation thread and update status
         const newReply = await response.json();
         setConversationThreads(prev => {
@@ -246,7 +250,7 @@ export default function ContactMessages() {
     } catch (error) {
       setMessage({
         type: 'error',
-        text: 'Network error while sending reply'
+        text: 'Network error while sending reply' + error,
       });
     } finally {
       setReplying(false);

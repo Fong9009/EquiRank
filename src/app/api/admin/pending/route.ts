@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getPendingApprovals } from '@/database/db';
+import { getPendingApprovals } from '@/database/user';
 
 // GET /api/admin/pending - Get users pending approval
 export async function GET() {

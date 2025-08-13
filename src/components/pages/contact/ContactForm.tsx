@@ -1,8 +1,8 @@
 "use client";
+import ReCAPTCHA from "react-google-recaptcha";
 import styles from "@/styles/pages/contact/contactForm.module.css";
 import TitleText from "@/components/common/TitleText";
-import { useState, useRef } from "react";
-import ReCAPTCHA from "react-google-recaptcha";
+import { useState, useRef} from "react";
 
 export default function ContactForm() {
     const recaptchaRef = useRef<any>(null);
@@ -102,7 +102,6 @@ export default function ContactForm() {
     const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setText(e.target.value);
     };
-
     return (
         <div className={styles.contactBox}>
             <div className={styles.titleSection}>

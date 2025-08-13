@@ -82,6 +82,7 @@ export default function ArchivedMessages() {
     
     try {
       const response = await fetch(`/api/admin/contact-messages/conversation/${conversationId}`, { method: 'DELETE' });
+      console.log("response check", response);
       if (response.ok) {
         setMessage({ type: 'success', text: 'Conversation permanently deleted.' });
         setArchivedThreads(prev => {

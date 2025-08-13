@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getConversationThread, createContactMessage } from '@/database/db';
+import { getConversationThread, createContactMessage } from '@/database/contact';
 import { sendFollowUpEmail } from '@/lib/email';
 
 // POST /api/contact/follow-up - User follows up on existing conversation

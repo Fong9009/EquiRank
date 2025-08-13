@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { approveUser, rejectUser, getUserById } from '@/database/db';
+import { approveUser, rejectUser, getUserById } from '@/database/user';
 import { sendAccountApprovalEmail, sendAccountRejectionEmail } from '@/lib/email';
 
 // POST /api/admin/approve - Approve or reject a user
