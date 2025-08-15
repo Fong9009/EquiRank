@@ -11,6 +11,9 @@ interface DatabaseConfig {
     waitForConnections: boolean;
     connectionLimit: number;
     queueLimit: number;
+    acquireTimeout?: number;
+    timeout?: number;
+    ssl?: any;
 }
 
 //Used to ensure Environment Variables are in the env File on startup
@@ -27,20 +30,74 @@ function validateEnvironmentVariables() {
     if (process.env.DB_PASSWORD === undefined) {
         throw new Error('Missing the following environment variables: DB_PASSWORD');
     }
+
+    // Validate DB_PORT if provided
+    const dbPort = parseInt(process.env.DB_PORT || '3306');
+    if (isNaN(dbPort) || dbPort < 1 || dbPort > 65535) {
+        throw new Error('Invalid DB_PORT: must be between 1-65535');
+    }
+
+    // Validate connection limits
+    const connectionLimit = parseInt(process.env.DB_CONNECTION_LIMIT || '10');
+    if (isNaN(connectionLimit) || connectionLimit < 1 || connectionLimit > 100) {
+        throw new Error('Invalid DB_CONNECTION_LIMIT: must be between 1-100');
+    }
 }
 
-validateEnvironmentVariables();
+// Lazy initialization to avoid validation during import
+let _dbConfig: DatabaseConfig | null = null;
+let _pool: mysql.Pool | null = null;
 
-const defaultConfig: DatabaseConfig = {
-    host: process.env.DB_HOST!,
-    user: process.env.DB_USER!,
-    password: process.env.DB_PASSWORD!,
-    database: process.env.DB_NAME!,
-    port: parseInt(process.env.DB_PORT || '3306'),
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0,
-};
+function getDbConfig(): DatabaseConfig {
+    if (!_dbConfig) {
+        // Validate environment variables first
+        validateEnvironmentVariables();
 
-//Create connection pool
-export const pool = mysql.createPool(defaultConfig);
+        _dbConfig = {
+            host: process.env.DB_HOST!,
+            user: process.env.DB_USER!,
+            password: process.env.DB_PASSWORD!,
+            database: process.env.DB_NAME!,
+            port: parseInt(process.env.DB_PORT || '3306'),
+            waitForConnections: true,
+            connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT || '10'),
+            queueLimit: parseInt(process.env.DB_QUEUE_LIMIT || '0'),
+            acquireTimeout: parseInt(process.env.DB_ACQUIRE_TIMEOUT || '60000'), // 60 seconds
+            timeout: parseInt(process.env.DB_TIMEOUT || '60000'), // 60 seconds
+        };
+
+        // Add SSL configuration for production
+        if (process.env.NODE_ENV === 'production') {
+            if (process.env.DB_SSL_ENABLED === 'true') {
+                _dbConfig.ssl = {
+                    rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false',
+                    ca: process.env.DB_SSL_CA,
+                    cert: process.env.DB_SSL_CERT,
+                    key: process.env.DB_SSL_KEY,
+                };
+            }
+        }
+    }
+    return _dbConfig;
+}
+
+function getPool(): mysql.Pool {
+    if (!_pool) {
+        _pool = mysql.createPool(getDbConfig());
+    }
+    return _pool;
+}
+
+// Export getter functions for lazy initialization
+export const dbConfig = new Proxy({} as DatabaseConfig, {
+    get(target, prop) {
+        return getDbConfig()[prop as keyof DatabaseConfig];
+    }
+});
+
+// Export pool getter for lazy initialization
+export const pool = new Proxy({} as mysql.Pool, {
+    get(target, prop) {
+        return getPool()[prop as keyof mysql.Pool];
+    }
+});

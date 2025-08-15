@@ -62,6 +62,9 @@ npm install mysql2
 
 # Install TypeScript types
 npm install --save-dev @types/mysql
+
+# Install additional dependencies for enhanced features
+npm install --save-dev tsx dotenv
 ```
 
 ### 5. Configure Environment Variables
@@ -75,6 +78,31 @@ DB_USER=equirank_user
 DB_PASSWORD=your_password
 DB_NAME=equirank
 DB_PORT=3306
+
+# Advanced Database Configuration
+DB_CONNECTION_LIMIT=10
+DB_QUEUE_LIMIT=0
+DB_ACQUIRE_TIMEOUT=60000
+DB_TIMEOUT=60000
+DB_MAX_RETRIES=3
+DB_RETRY_DELAY=1000
+DB_BACKOFF_MULTIPLIER=2
+DB_HEALTH_CHECK_INTERVAL=30000
+
+# SSL Configuration (Production)
+DB_SSL_ENABLED=false
+DB_SSL_REJECT_UNAUTHORIZED=true
+DB_SSL_CA=
+DB_SSL_CERT=
+DB_SSL_KEY=
+
+# Backup Configuration
+DB_BACKUP_ENABLED=false
+DB_BACKUP_DIR=./backups
+DB_MAX_BACKUPS=10
+DB_BACKUP_INTERVAL=86400000
+DB_COMPRESS_BACKUPS=true
+DB_BACKUP_RETENTION_DAYS=30
 ```
 
 **Important**: Never commit `.env.local` to version control!
@@ -88,6 +116,72 @@ mysql -u equirank_user -p equirank < src/database/schema.sql
 
 Or manually copy and paste the contents of `src/database/schema.sql` into your MySQL client.
 
+## 🚀 Enhanced Database Features
+
+### 1. 🔒 SSL Configuration for Production
+- **Automatic SSL detection** based on `NODE_ENV`
+- **Configurable SSL settings** via environment variables
+- **Production-ready security** with certificate validation
+
+### 2. 🔄 Connection Retry Logic
+- **Exponential backoff** retry strategy
+- **Configurable retry limits** and delays
+- **Smart error detection** for connection issues
+- **Automatic health monitoring** with periodic checks
+
+### 3. 📋 Database Migration System
+- **Version-controlled schema changes**
+- **Automatic migration tracking**
+- **Rollback capabilities**
+- **Checksum validation** for migration integrity
+
+### 4. 💾 Automated Backup Strategy
+- **Scheduled backups** with configurable intervals
+- **Compression support** (gzip)
+- **Retention policies** for old backups
+- **Restore functionality** from backup files
+
+## 🛠️ Database Management CLI
+
+The enhanced system includes a comprehensive CLI tool for database operations:
+
+### Available Commands
+
+```bash
+# Database Management
+npm run db:init          # Initialize database system
+npm run db:health        # Check database health
+npm run db:shutdown      # Gracefully shutdown
+
+# Migration Management  
+npm run db:migrate       # Run pending migrations
+npm run db:status        # Show migration status
+
+# Backup Operations
+npm run db:backup        # Create new backup
+npm run db:backup:list   # List all backups
+npm run db:backup:restore <file>  # Restore from backup
+npm run db:backup:start  # Start automated backups
+npm run db:backup:stop   # Stop automated backups
+npm run db:backup:config # Show backup configuration
+```
+
+### Quick Start with CLI
+
+```bash
+# 1. Initialize the enhanced database system
+npm run db:init
+
+# 2. Check database health
+npm run db:health
+
+# 3. Create a backup
+npm run db:backup
+
+# 4. Run migrations
+npm run db:migrate
+```
+
 ## Testing the Connection
 
 ### 1. Start the Development Server
@@ -98,129 +192,211 @@ npm run dev
 
 ### 2. Test Database Connection
 
-Visit: `http://localhost:3000/api/test-db`
-
-You should see a JSON response indicating whether the connection was successful.
-
-### 3. Test User Management
-
-1. Test the users API endpoint
-2. Create a new user via POST request
-3. Check the database to see if the user was stored
-
-```sql
--- Check users
-SELECT id, email, first_name, last_name, user_type, company, is_active, created_at FROM users;
-```
-
-## Database Structure
-
-### Tables Created
-
-1. **users** - User accounts and authentication
-
-### Sample Data
-
-The schema includes sample users:
-- **Admin**: admin@equirank.com (EquiRank) - Password: Test123!
-- **Borrower**: borrower1@company.com (Tech Startup Inc) - Password: Test123!
-- **Lender**: lender1@bank.com (Investment Bank Ltd) - Password: Test123!
-- **Borrower**: borrower2@individual.com (Individual) - Password: Test123!
-- **Lender**: lender2@investor.com (Individual Investor) - Password: Test123!
-
-## API Endpoints
-
-### User Management
-- **POST** `/api/users` - Create a new user
-- **GET** `/api/users` - Get all users (admin only)
-- **GET** `/api/users/borrowers` - Get all borrowers
-- **GET** `/api/users/lenders` - Get all lenders
-- **GET** `/api/users/admins` - Get all admins
-
-### Database Test
-- **GET** `/api/test-db` - Test database connection
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Connection Refused**
-   - Ensure MySQL service is running
-   - Check if port 3306 is available
-   - Verify firewall settings
-
-2. **Access Denied**
-   - Check username and password
-   - Verify user privileges
-   - Ensure user can connect from localhost
-
-3. **Database Not Found**
-   - Create the database: `CREATE DATABASE equirank;`
-   - Check database name in environment variables
-
-4. **Table Errors**
-   - Run the schema file: `mysql -u equirank_user -p equirank < src/lib/schema.sql`
-   - Check for syntax errors in the SQL file
-
-### Debug Commands
+Visit `http://localhost:3000/api/test-db` in your browser or use the CLI:
 
 ```bash
-# Check MySQL status
-brew services list | grep mysql
-
-# Check MySQL logs
-tail -f /usr/local/var/mysql/*.err
-
-# Test MySQL connection
-mysql -u equirank_user -p -h localhost
-
-# Show databases
-SHOW DATABASES;
-
-# Use equirank database
-USE equirank;
-
-# Show tables
-SHOW TABLES;
+npm run db:health
 ```
 
-## Production Considerations
+### 3. Test Enhanced Features
 
-### Security
-- Use strong passwords
-- Limit database user privileges
-- Enable SSL connections
-- Regular security updates
+```bash
+# Test backup system
+npm run db:backup
 
-### Performance
-- Configure connection pooling
-- Optimize database indexes
-- Monitor query performance
-- Regular database maintenance
+# Test migration system
+npm run db:status
 
-### Backup
-- Set up automated backups
-- Test restore procedures
-- Store backups securely
-- Document backup/restore process
+# Test health monitoring
+npm run db:health
+```
 
-## Next Steps
+## 🔧 Production Deployment
 
-1. **User Authentication** - Implement login/registration with password hashing
-2. **User Type Management** - Separate dashboards for borrowers, lenders, and admins
-3. **Admin Panel** - User management and system administration
-4. **Password Security** - Implement proper password hashing (bcrypt)
-5. **Session Management** - JWT tokens or secure sessions
+### 1. Environment Setup
+```bash
+# Set production environment
+NODE_ENV=production
 
-## Support
+# Enable SSL
+DB_SSL_ENABLED=true
+DB_SSL_REJECT_UNAUTHORIZED=true
 
-If you encounter issues:
-1. Check the troubleshooting section above
-2. Review MySQL error logs
-3. Verify environment variables
-4. Test database connection manually
-5. Check Node.js console for errors
+# Configure SSL certificates
+DB_SSL_CA=/etc/ssl/certs/ca-certificates.crt
+DB_SSL_CERT=/etc/ssl/certs/your-cert.pem
+DB_SSL_KEY=/etc/ssl/private/your-key.pem
 
----
+# Enable automated backups
+DB_BACKUP_ENABLED=true
+DB_BACKUP_DIR=/var/backups/equirank
+DB_BACKUP_INTERVAL=86400000  # 24 hours
+```
 
-*This guide covers the basic setup. For production deployments, additional security and performance considerations apply.*
+### 2. SSL Certificate Management
+```bash
+# Generate self-signed certificate (development)
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
+
+# For production, use proper CA-signed certificates
+# Contact your certificate authority or use Let's Encrypt
+```
+
+### 3. Backup Directory Permissions
+```bash
+# Create backup directory with proper permissions
+sudo mkdir -p /var/backups/equirank
+sudo chown equirank:equirank /var/backups/equirank
+sudo chmod 750 /var/backups/equirank
+```
+
+## 📊 Monitoring and Health Checks
+
+### Health Check Endpoint
+```typescript
+// GET /api/database/health
+export async function GET() {
+    const health = getDatabaseHealth();
+    return NextResponse.json(health);
+}
+```
+
+### Health Status Response
+```json
+{
+    "isHealthy": true,
+    "lastHealthCheck": "2024-01-01T12:00:00.000Z",
+    "uptime": 3600000,
+    "config": {
+        "host": "localhost",
+        "port": 3306,
+        "database": "equirank",
+        "connectionLimit": 10,
+        "sslEnabled": false
+    }
+}
+```
+
+## 🚨 Error Handling
+
+### Connection Errors
+The system automatically retries on connection-related errors:
+- `ECONNRESET` - Connection reset
+- `ECONNREFUSED` - Connection refused
+- `ETIMEDOUT` - Connection timeout
+- `PROTOCOL_CONNECTION_LOST` - Protocol connection lost
+
+### Query Errors
+- **Non-connection errors** are not retried
+- **Detailed error logging** for debugging
+- **Graceful degradation** when possible
+
+## 🔄 Migration Workflow
+
+### 1. Create Migration File
+```sql
+-- migrations/002_add_user_preferences.sql
+ALTER TABLE users ADD COLUMN preferences JSON;
+```
+
+### 2. Execute Migration
+```bash
+npm run db:migrate
+```
+
+### 3. Verify Migration
+```bash
+npm run db:status
+```
+
+### 4. Rollback if Needed
+```typescript
+import { rollbackMigration } from '@/database/migrations';
+await rollbackMigration('002_add_user_preferences');
+```
+
+## 💾 Backup Strategy
+
+### Backup Types
+- **Full Backup**: Schema + Data (recommended for production)
+- **Schema Backup**: Structure only (for development)
+- **Data Backup**: Data only (for specific use cases)
+
+### Backup Schedule
+- **Development**: Manual backups as needed
+- **Staging**: Daily backups
+- **Production**: Hourly/daily backups with retention policies
+
+### Backup Retention
+- **Recent backups**: Keep last 10 backups
+- **Time-based**: Keep backups for 30 days
+- **Compression**: Automatic gzip compression
+
+## 🔒 Security Features
+
+### SSL/TLS Encryption
+- **Production SSL** with certificate validation
+- **Configurable SSL modes** for different environments
+- **Secure connection strings** for production
+
+### Connection Security
+- **Connection pooling** with limits
+- **Query timeouts** to prevent hanging connections
+- **Graceful shutdown** for security
+
+### Backup Security
+- **Checksum validation** for backup integrity
+- **Secure backup storage** with proper permissions
+- **Encrypted backups** (future enhancement)
+
+## 📈 Performance Optimizations
+
+### Connection Pooling
+- **Configurable pool size** based on server capacity
+- **Connection reuse** for better performance
+- **Queue management** for high-load scenarios
+
+### Query Optimization
+- **Automatic retry** for transient failures
+- **Timeout handling** for long-running queries
+- **Connection health monitoring**
+
+## 🧪 Testing
+
+### Test Database Connection
+```bash
+npm run db:health
+```
+
+### Test Backup System
+```bash
+# Create test backup
+npm run db:backup
+
+# List backups
+npm run db:backup:list
+
+# Test restore (use test database)
+npm run db:backup:restore ./backups/test_backup.sql
+```
+
+### Test Migration System
+```bash
+# Check migration status
+npm run db:status
+
+# Run migrations
+npm run db:migrate
+```
+
+## 🎯 Quick Start Checklist
+
+- [ ] Set environment variables in `.env.local`
+- [ ] Run `npm run db:init` to initialize database
+- [ ] Test connection with `npm run db:health`
+- [ ] Create first backup with `npm run db:backup`
+- [ ] Configure automated backups if needed
+- [ ] Test migration system with `npm run db:status`
+- [ ] Verify SSL configuration in production
+- [ ] Set up monitoring and alerting
+- [ ] Document backup and restore procedures

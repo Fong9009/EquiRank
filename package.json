@@ -3,10 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:init": "tsx src/database/cli.ts init",
+    "db:health": "tsx src/database/cli.ts health",
+    "db:migrate": "tsx src/database/cli.ts migrate",
+    "db:status": "tsx src/database/cli.ts status",
+    "db:backup": "tsx src/database/cli.ts backup",
+    "db:backup:list": "tsx src/database/cli.ts backup:list",
+    "db:backup:restore": "tsx src/database/cli.ts backup:restore",
+    "db:backup:start": "tsx src/database/cli.ts backup:start",
+    "db:backup:stop": "tsx src/database/cli.ts backup:stop",
+    "db:backup:config": "tsx src/database/cli.ts backup:config",
+    "db:shutdown": "tsx src/database/cli.ts shutdown"
   },
   "dependencies": {
     "@types/nodemailer": "^6.4.17",
@@ -36,7 +47,9 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.2.1",
     "tailwindcss": "^4",
+    "tsx": "^4.20.4",
     "typescript": "^5"
   }
 }
