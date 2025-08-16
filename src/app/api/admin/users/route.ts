@@ -38,7 +38,6 @@ export async function GET(request: NextRequest) {
       const { password_hash, ...safeUser } = user;
       return safeUser;
     });
-
     return NextResponse.json(safeUsers, { status: 200 });
 
   } catch (error) {

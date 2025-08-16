@@ -148,7 +148,6 @@ export async function getMessageStatus(status?: string): Promise<ContactMessage[
     return await executeQuery<ContactMessage>(query, params);
 }
 
-
 export async function getContactMessageId(conversation_id: string): Promise<ContactMessage | null> {
     const query = `
     SELECT id FROM contact_messages 

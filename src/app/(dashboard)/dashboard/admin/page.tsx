@@ -1,21 +1,55 @@
+'use client';
+{/*Utility*/}
+import { useEffect, useState } from "react";
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+
+{/*Layout*/}
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
 
-export default async function LenderDashboard(){
-    const session = await auth();
+{/*Pages*/}
+import AdminFrontPage from "@/components/pages/admin/AdminFrontEnd";
+import AdminHomePage from "@/components/pages/admin/AdminHomepage";
 
-    if (!session || !session.user || session.user.userType !== 'admin') {
-        redirect('/login'); // or redirect somewhere else
+export default function AdminDashboard() {
+    const { data: session, status } = useSession();
+    const router = useRouter();
+    const [activeTab, setActiveTab] = useState('approvals');
+    const [isReady, setIsReady] = useState(false);
+
+    useEffect(() => {
+        if (status === 'loading') return;
+
+        if (!session?.user || session.user.userType !== 'admin') {
+            router.push('/login');
+            return;
+        }
+
+        setIsReady(true);
+    }, [session, status, router]);
+
+    if (!isReady || !session?.user) {
+        return <p>Loading...</p>;
     }
 
     const role = session.user.userType;
 
+    const renderTab = () => {
+        switch (activeTab) {
+            case "home":
+                return <AdminHomePage/>;
+            case "users":
+                return <div>users</div>;
+            case "Manage Contact":
+                return <AdminFrontPage/>;
+            default:
+                return <div>Welcome to Admin Home</div>;
+        }
+    };
+
     return (
-        <DashboardLayout role={role}>
-            <div>
-                <h1>Admin Dashboard</h1>
-            </div>
+        <DashboardLayout role={role} activeTab={activeTab} setActiveTab={setActiveTab}>
+            {renderTab()}
         </DashboardLayout>
     );
 }

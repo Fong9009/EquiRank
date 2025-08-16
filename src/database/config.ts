@@ -11,8 +11,6 @@ interface DatabaseConfig {
     waitForConnections: boolean;
     connectionLimit: number;
     queueLimit: number;
-    acquireTimeout?: number;
-    timeout?: number;
     ssl?: any;
 }
 
@@ -62,8 +60,6 @@ function getDbConfig(): DatabaseConfig {
             waitForConnections: true,
             connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT || '10'),
             queueLimit: parseInt(process.env.DB_QUEUE_LIMIT || '0'),
-            acquireTimeout: parseInt(process.env.DB_ACQUIRE_TIMEOUT || '60000'), // 60 seconds
-            timeout: parseInt(process.env.DB_TIMEOUT || '60000'), // 60 seconds
         };
 
         // Add SSL configuration for production

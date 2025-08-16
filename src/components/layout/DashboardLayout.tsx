@@ -6,10 +6,13 @@ import {useEffect, useState} from "react";
 interface DashboardLayoutProps {
     role: string;
     children: React.ReactNode;
+    activeTab: string;
+    setActiveTab: (tab: string) => void;
 }
 
-export default function DashboardLayout({ role, children }: DashboardLayoutProps) {
+export default function DashboardLayout({ role, children, activeTab, setActiveTab }: DashboardLayoutProps) {
     const [mounted, setMounted] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(true);
 
     useEffect(() => {
         setMounted(true);
@@ -18,8 +21,16 @@ export default function DashboardLayout({ role, children }: DashboardLayoutProps
     if (!mounted) return null;
     return (
         <div  style={{ display: 'flex', alignItems: 'flex-start' }}>
-            <Sidebar role={role} />
-            <main className={styles.dashboardLayout}>
+            <Sidebar
+                role={role}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                isOpen={sidebarOpen}
+                toggleSidebar={() => setSidebarOpen(!sidebarOpen)}/>
+            <main className={styles.dashboardLayout}    style={{
+                marginLeft: sidebarOpen ? '250px' : '0px', // adjust dynamically
+                transition: 'margin-left 0.3s ease', // smooth animation
+            }}>
                 {children}
             </main>
         </div>

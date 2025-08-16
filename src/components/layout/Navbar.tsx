@@ -41,7 +41,7 @@ export default function Navbar() {
                             Welcome, {session.user?.name || session.user?.email}
                         </span>
                         {session.user?.userType === 'admin' && (
-                            <Link className={clsx(styles.adminBtn, styles.navButton)} href="/admin">
+                            <Link className={clsx(styles.adminBtn, styles.navButton)} href="/dashboard/admin">
                                 Admin Panel 
                             </Link>
                         )}

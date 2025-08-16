@@ -1,0 +1,44 @@
+@font-face {
+    font-family: 'MyCustomFont';
+    src: url('/fonts/Iceland-Regular.ttf') format('truetype');
+}
+
+.customFont {
+    font-family: 'MyCustomFont', sans-serif;
+}
+
+.splashImage {
+    min-height: 20vh;
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    color: white;
+    text-align: center;
+    padding: 0 20px;
+}
+
+.titleText {
+    color: white;
+    font-size: 60px;
+    font-family: 'MyCustomFont', sans-serif;
+}
+
+.quoteText {
+    color: white;
+    font-size: 30px;
+    font-family: 'MyCustomFont', sans-serif;
+}
+
+@media (max-width: 768px) {
+    .title {
+        font-size: 30px;
+    }
+    .quoteText {
+        font-size: 25px;
+    }
+}
