@@ -2,11 +2,11 @@
 import ReCAPTCHA from "react-google-recaptcha";
 import styles from "@/styles/pages/contact/contactForm.module.css";
 import TitleText from "@/components/common/TitleText";
-import { useState, useRef} from "react";
+import { useState, useRef, useEffect} from "react";
 
 export default function ContactForm() {
-    const recaptchaRef = useRef<any>(null);
     const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+    const recaptchaRef = useRef<any>(null);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -36,7 +36,7 @@ export default function ContactForm() {
             setMessage({ type: 'error', text: 'Please Complete the reCAPTCHA' });
         }
 
-        
+
         try {
             const response = await fetch('/api/contact', {
                 method: 'POST',
@@ -48,9 +48,9 @@ export default function ContactForm() {
 
             if (response.ok) {
                 const result = await response.json();
-                setMessage({ 
-                    type: 'success', 
-                    text: 'Message sent successfully! We\'ll get back to you soon.' 
+                setMessage({
+                    type: 'success',
+                    text: 'Message sent successfully! We\'ll get back to you soon.'
                 });
                 // Reset form
                 setFormData({
@@ -102,6 +102,7 @@ export default function ContactForm() {
     const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setText(e.target.value);
     };
+
     return (
         <div className={styles.contactBox}>
             <div className={styles.titleSection}>
@@ -109,18 +110,18 @@ export default function ContactForm() {
                     titleText={<h1>Let's Start a Conversation</h1>}
                 />
             </div>
-            
+
             <div className={styles.splitBox}>
                 <div className={styles.formBox}>
                     <h2 className={styles.formTitle}>Send Us a Message</h2>
                     <hr className={styles.textDivider}></hr>
-                    
+
                     {message && (
                         <div className={`${styles.message} ${styles[message.type]}`}>
                             {message.text}
                         </div>
                     )}
-                    
+
                     <form onSubmit={handleSubmit} className={styles.contactForm}>
                         <div className={styles.formGroup}>
                             <label htmlFor="name" className={styles.formLabel}>Name</label>
@@ -138,7 +139,7 @@ export default function ContactForm() {
                             />
                             {nameError && <p style={{ color: 'red' }}>{nameError}</p>}
                         </div>
-                        
+
                         <div className={styles.formGroup}>
                             <label htmlFor="email" className={styles.formLabel}>Email</label>
                             <input
@@ -151,7 +152,7 @@ export default function ContactForm() {
                                 required
                             />
                         </div>
-                        
+
                         <div className={styles.formGroup}>
                             <label htmlFor="subject" className={styles.formLabel}>Subject</label>
                             <select
@@ -170,7 +171,7 @@ export default function ContactForm() {
                                 <option value="other">Other</option>
                             </select>
                         </div>
-                        
+
                         <div className={styles.formGroup}>
                             <label htmlFor="message" className={styles.formLabel}>Message</label>
                             <textarea
@@ -195,8 +196,8 @@ export default function ContactForm() {
                             ref={recaptchaRef}
                             onChange={(token) => setCaptchaToken(token)}
                         />
-                        <button 
-                            type="submit" 
+                        <button
+                            type="submit"
                             className={styles.submitBtn}
                             disabled={isSubmitting || !isFormValid}
                         >
@@ -204,22 +205,22 @@ export default function ContactForm() {
                         </button>
                     </form>
                 </div>
-                
+
                 <div className={styles.infoBox}>
                     <h2 className={styles.infoTitle}>Get In Touch</h2>
                     <hr className={styles.textDivider}></hr>
-                    
+
                     <div className={styles.contactInfo}>
                         <div className={styles.infoItem}>
                             <h3 className={styles.infoItemTitle}>Email</h3>
                             <p className={styles.infoItemText}>contact@equirank.com</p>
                         </div>
-                        
+
                         <div className={styles.infoItem}>
                             <h3 className={styles.infoItemTitle}>Phone</h3>
                             <p className={styles.infoItemText}>+61 (0) 3 1234 5678</p>
                         </div>
-                        
+
                         <div className={styles.infoItem}>
                             <h3 className={styles.infoItemTitle}>Address</h3>
                             <p className={styles.infoItemText}>
@@ -227,7 +228,7 @@ export default function ContactForm() {
                                 Australia
                             </p>
                         </div>
-                        
+
                         <div className={styles.infoItem}>
                             <h3 className={styles.infoItemTitle}>Business Hours</h3>
                             <p className={styles.infoItemText}>
@@ -237,7 +238,7 @@ export default function ContactForm() {
                             </p>
                         </div>
                     </div>
-                    
+
                     <div className={styles.wavePattern}>
                         <svg viewBox="0 0 500 150" preserveAspectRatio="none">
                             <path d="M0.00,49.98 C150.00,150.00 349.72,-50.00 500.00,49.98 L500.00,150.00 L0.00,150.00 Z" />
