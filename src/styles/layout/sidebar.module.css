@@ -7,16 +7,6 @@
     font-family: 'MyCustomFont', sans-serif;
 }
 
-.sidebar {
-    width: 280px;
-    background-color: #1f2123;
-    height: calc(100vh - 60px);
-    overflow-y: auto;
-    position: fixed;
-    top: 60px;
-    padding: 20px;
-}
-
 .sidebarTitle {
     font-family: 'MyCustomFont', sans-serif;
     font-size: 35px;
@@ -34,20 +24,74 @@
 }
 
 .navLink {
-    display: block;
+    width: 100%;
     font-size: 22px;
     font-family: 'MyCustomFont', sans-serif;
+    display: flex;
+    align-items: center; /* centers icon + text vertically */
+    justify-content: flex-start; /* keep items aligned left */
+    gap: 8px; /* spacing between icon and text */
     padding: 10px 20px;
     color: white;
+    cursor: pointer;
     text-decoration: none;
     border-radius: 6px;
     transition: background-color 0.2s;
+    text-align: left;
 }
 
 .navLink:hover {
     background-color: #2c2f33;
 }
 
-.navLink.active {
+.navLinkActive {
     background-color: #3a3f45;
+    border-radius: 6px;
+}
+
+.sidebarContainer {
+    position: relative; /* contains sidebar + toggle */
+}
+
+.sidebar {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    padding: 20px;
+    width: 280px;
+    height: calc(100vh - 60px);
+    background-color: #1f2123;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+}
+
+.sidebar.closed {
+    transform: translateX(-280px); /* hide part of the sidebar */
+}
+
+.sidebar.open {
+    transform: translateX(0);
+}
+
+.toggleCircle {
+    position: fixed;
+    top: 70px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background-color: #555;
+    color: white;
+    cursor: pointer;
+    transition: left 0.3s ease;
+    z-index: 1100;
+}
+
+/* Circle follows sidebar */
+.toggleCircle.openCircle {
+    left: 230px;
+}
+
+.toggleCircle.closedCircle {
+    left: 10px;
 }

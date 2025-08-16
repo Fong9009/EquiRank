@@ -1,0 +1,35 @@
+@font-face {
+    font-family: 'MyCustomFont';
+    src: url('/fonts/Iceland-Regular.ttf') format('truetype');
+}
+
+.customFont {
+    font-family: 'MyCustomFont', sans-serif;
+}
+
+.adminHomePage {
+    min-height: 100vh;
+    background: #1f2123;
+}
+
+.cardContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 50px;
+    padding: 50px;
+}
+
+.adminTitle {
+    padding-top: 20px;
+    padding-left: 50px;
+    font-size: 40px;
+    font-family: 'MyCustomFont';
+}
+.divider {
+    width: 98%;
+}
+
+.dividerContainer {
+    display: flex;
+    justify-content: center;
+}

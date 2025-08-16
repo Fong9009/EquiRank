@@ -113,6 +113,14 @@ export async function getAllUsers(): Promise<User[]> {
     return await executeQuery<User>(query);
 }
 
+export async function getApprovalUsers(): Promise<User[]> {
+    const query = `
+    SELECT * FROM users
+    WHERE is_approved = 0`;
+
+    return await executeQuery<User>(query);
+}
+
 export async function getUsersByType(userType: 'borrower' | 'lender' | 'admin'): Promise<User[]> {
     const query = `
     SELECT * FROM users 

@@ -1,0 +1,55 @@
+@font-face {
+    font-family: 'MyCustomFont';
+    src: url('/fonts/Iceland-Regular.ttf') format('truetype');
+}
+
+.customFont {
+    font-family: 'MyCustomFont', sans-serif;
+}
+
+.card {
+    align-items: flex-start;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #3a3a3a, #1c1c1c);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    color: white;
+    flex: 1 1 200px;
+    height: 300px;
+    min-width: 200px;
+    max-width: 300px;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+    justify-content: flex-start;
+    padding: 20px;
+    overflow: hidden;
+}
+
+.cardTitleText {
+    color: white;
+    font-size: 30px;
+    font-family: 'MyCustomFont', sans-serif;
+}
+
+.card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4); /* Stronger shadow */
+}
+
+.value {
+    font-size: 30px;
+    font-weight: 600;
+    text-shadow: 0px 1px 2px rgba(0,0,0,0.2);
+}
+
+.icon {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+@media (max-width: 600px) {
+    .card > * {
+        flex: 1 1 100%;
+    }
+}

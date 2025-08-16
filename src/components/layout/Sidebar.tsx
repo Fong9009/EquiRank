@@ -1,49 +1,81 @@
 // components/Sidebar.tsx
 'use client';
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Home, Settings, Users, Briefcase, Phone } from "lucide-react";
 import styles from '@/styles/layout/sidebar.module.css'
 
-export default function Sidebar({role}: {role: string}) {
+interface SidebarProps {
+    role: string;
+    activeTab: string;
+    setActiveTab: (tab: string) => void;
+    isOpen: boolean;
+    toggleSidebar: () => void;
+}
+
+export default function Sidebar({ role, activeTab, setActiveTab, isOpen, toggleSidebar, }: SidebarProps) {
     const [mounted, setMounted] = useState(false);
-    const pathname = usePathname();
 
     useEffect(() => {
         setMounted(true);
     }, []);
 
+    useEffect(() => {
+        const savedTab = localStorage.getItem('activeTab');
+        if (savedTab) setActiveTab(savedTab);
+    }, [setActiveTab]);
+
     if (!mounted) return null;
 
-    const navItems = role === 'lender' ? [
-        { href: '/dashboard/lender', label: 'Lender Home' },
-        { href: '/dashboard/lender/investments', label: 'Company Search' },
-        { href: '/dashboard/lender/settings', label: 'Recent Searches' },
-    ] : role === 'admin' ? [
-        { href: '/dashboard/admin', label: 'Admin Home' },
-        { href: '/dashboard/admin/users', label: 'Manage Users' },
-        { href: '/dashboard/admin/settings', label: 'Settings' },
-    ] : [
-        { href: '/dashboard/borrower', label: 'Borrower Home' },
-        { href: '/dashboard/borrower/loans', label: 'My Company' },
-        { href: '/dashboard/borrower/settings', label: 'Settings' },
-    ];
+    const navItems =
+        role === 'admin'
+            ? [
+                { name: 'home', icon: Home },
+                { name: 'Manage Users', icon: Users },
+                { name: 'Manage Contact', icon: Phone }
+            ]
+            : role === 'lender'
+                ? [
+                    { name: 'home', icon: Home },
+                    { name: 'investments', icon: Briefcase },
+                    { name: 'settings', icon: Settings }
+                ]
+                : [
+                    { name: 'home', icon: Home },
+                    { name: 'loans', icon: Briefcase },
+                    { name: 'settings', icon: Settings }
+                ];
+
+    const handleTabClick = (name: string) => {
+        setActiveTab(name);
+        localStorage.setItem('activeTab', name); // Save tab
+    };
 
     return (
-        <aside className={styles.sidebar}>
-            <h2 className={styles.sidebarTitle}>Dashboard</h2>
-            <ul className={styles.navList}>
-                {navItems.map((item) => (
-                    <li key={item.href} className={styles.navItem}>
-                        <Link
-                            href={item.href}
-                            className={`${styles.navLink} ${pathname === item.href ? styles.active : ''}`}
-                        >
-                            {item.label}
-                        </Link>
-                    </li>
-                ))}
-            </ul>
-        </aside>
+        <div className={styles.sidebarContainer}>
+            <aside className={`${styles.sidebar} ${isOpen ? styles.open : styles.closed}`}>
+                <h2 className={styles.sidebarTitle}>Dashboard</h2>
+                <ul className={styles.navList}>
+                    {navItems.map(({ name, icon: Icon }) => (
+                        <li key={name} className={activeTab === name ? styles.navLinkActive : ''}>
+                            <button
+                                onClick={() => {setActiveTab(name); handleTabClick(name)}}
+                                className={styles.navLink}
+                            >
+                                <Icon size={20} />
+                                {isOpen && name.charAt(0).toUpperCase() + name.slice(1)}
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            </aside>
+
+            {/* Toggle circle */}
+            <button
+                className={`${styles.toggleCircle} ${isOpen ? styles.openCircle : styles.closedCircle}`}
+                onClick={toggleSidebar}
+            >
+                {isOpen ? '<' : '>'}
+            </button>
+        </div>
     );
 }

@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllContactMessages, getContactMessagesByStatus, getMessageStatus } from '@/database/contact';
-import { RowDataPacket } from 'mysql2';
+import { getMessageStatus } from '@/database/contact';
 
-// GET /api/admin/contact-messages - Get all contact messages (admin only)
+// GET /api/admin/contact-messages - Get all contact messages that are not archived (admin only)
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status') ?? undefined;
