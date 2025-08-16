@@ -1,0 +1,53 @@
+@font-face {
+    font-family: 'MyCustomFont';
+    src: url('/fonts/Iceland-Regular.ttf') format('truetype');
+}
+
+.customFont {
+    font-family: 'MyCustomFont', sans-serif;
+}
+
+.sidebar {
+    width: 280px;
+    background-color: #1f2123;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+    position: fixed;
+    top: 60px;
+    padding: 20px;
+}
+
+.sidebarTitle {
+    font-family: 'MyCustomFont', sans-serif;
+    font-size: 35px;
+    color: #b0e66e;
+}
+
+.navList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.navItem {
+    margin-bottom: 11px;
+}
+
+.navLink {
+    display: block;
+    font-size: 22px;
+    font-family: 'MyCustomFont', sans-serif;
+    padding: 10px 20px;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+.navLink:hover {
+    background-color: #2c2f33;
+}
+
+.navLink.active {
+    background-color: #3a3f45;
+}
