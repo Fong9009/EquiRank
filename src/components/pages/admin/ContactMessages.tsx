@@ -221,22 +221,23 @@ export default function ContactMessages() {
           msg.id === messageId ? { ...msg, status: 'replied' } : msg
         ));
 
-        // Add new reply to conversation thread and update status
-        const newReply = await response.json();
+        // Update conversation threads to reflect the status change
         setConversationThreads(prev => {
             const updated = {...prev};
-            const thread = Object.values(updated).find(t => t.some(m => m.id === messageId));
-            if(thread){
-                thread.push(newReply.newMessage);
-                const messageToUpdate = thread.find(m => m.id === messageId);
-                if(messageToUpdate) messageToUpdate.status = 'replied';
-            }
+            Object.keys(updated).forEach(conversationId => {
+              updated[conversationId] = updated[conversationId].map(msg => 
+                msg.id === messageId ? { ...msg, status: 'replied' } : msg
+              );
+            });
             return updated;
         });
 
         // Close modal and clear reply
         setShowReplyModal(null);
         setReplyText('');
+        
+        // Refresh messages to ensure UI is fully updated
+        fetchContactMessages();
         
         // Clear message after delay
         setTimeout(() => setMessage(null), 5000);
@@ -320,7 +321,18 @@ export default function ContactMessages() {
       case 'new': return styles.new;
       case 'read': return styles.read;
       case 'replied': return styles.replied;
+      case 'closed': return styles.closed;
       default: return '';
+    }
+  };
+
+  const formatStatusDisplay = (status: string) => {
+    switch (status) {
+      case 'new': return 'NEW';
+      case 'read': return 'READ';
+      case 'replied': return 'REPLIED';
+      case 'closed': return 'CLOSED';
+      default: return status.toUpperCase();
     }
   };
 
@@ -490,9 +502,34 @@ export default function ContactMessages() {
                     </div>
                   </div>
                   <div className={styles.conversationStatus}>
-                    <span className={`${styles.statusBadge} ${getStatusBadgeClass(lastMessage.status)}`}>
-                      {lastMessage.status}
+                    <span className={`${styles.statusBadge} ${getStatusBadgeClass(firstMessage.status)}`}>
+                      {formatStatusDisplay(firstMessage.status)}
                     </span>
+                    {firstMessage.status === 'new' && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          updateMessageStatus(firstMessage.id, 'read');
+                        }}
+                        className={`${styles.actionButton} ${styles.markRead}`}
+                        title="Mark as Read"
+                      >
+                        READ
+                      </button>
+                    )}
+
+                    {firstMessage.status === 'replied' && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          updateMessageStatus(firstMessage.id, 'closed');
+                        }}
+                        className={`${styles.actionButton} ${styles.closed}`}
+                        title="Mark as Closed"
+                      >
+                        CLOSED
+                      </button>
+                    )}
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();

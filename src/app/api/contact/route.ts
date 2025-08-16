@@ -11,12 +11,12 @@ export async function POST(request: NextRequest) {
     const secretKey = process.env.RECAPTCHA_SECRET_KEY;
     if (!secretKey) {
       return NextResponse.json(
-          {error: "Missing reCAPTCHA Cannot Verify"}
+          {error: "We're experiencing technical difficulties. Please try again later or contact us directly."}
       );
     }
 
     if (!captchaToken) {
-      return NextResponse.json({ error: "Captcha token missing" }, { status: 400 });
+      return NextResponse.json({ error: "Please complete the reCAPTCHA verification to prove you're human" }, { status: 400 });
     }
 
     /*Recaptcha Verification*/
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     if(!verifyCaptcha.success) {
       return NextResponse.json(
-          {error: "Invalid captcha"},
+          {error: "reCAPTCHA verification failed. Please try again."},
           {status: 400}
       );
     }
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     // Validate required fields
     if (!name || !email || !subject || !message) {
       return NextResponse.json(
-        { error: 'Missing required fields: name, email, subject, message' },
+        { error: 'Please fill in all required fields: name, email, subject, and message' },
         { status: 400 }
       );
     }
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     // Validate email format
     if (!/\S+@\S+\.\S+/.test(email)) {
       return NextResponse.json(
-        { error: 'Invalid email format' },
+        { error: 'Please enter a valid email address' },
         { status: 400 }
       );
     }
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error submitting contact form:', error);
     return NextResponse.json(
-      { error: 'Failed to submit contact message' },
+      { error: 'We\'re sorry, but we couldn\'t send your message right now. Please try again in a few moments, or contact us directly if the problem persists.' },
       { status: 500 }
     );
   }

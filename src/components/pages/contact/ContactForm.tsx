@@ -64,11 +64,11 @@ export default function ContactForm() {
                 setCaptchaToken(null);
             } else {
                 const error = await response.json();
-                setMessage({ type: 'error', text: `Error: ${error.error}` });
+                setMessage({ type: 'error', text: error.error });
             }
         } catch (error) {
             console.error('Error submitting form:', error);
-            setMessage({ type: 'error', text: 'Error sending message. Please try again.' });
+            setMessage({ type: 'error', text: 'We\'re sorry, but we couldn\'t send your message right now. Please check your internet connection and try again.' });
         } finally {
             setIsSubmitting(false);
         }
