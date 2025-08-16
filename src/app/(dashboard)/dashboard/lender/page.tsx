@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 export default async function LenderDashboard(){
     const session = await auth();
 
-    if (!session || !session.user && session.user.userType !== 'lender') {
+    if (!session || !session.user || session.user.userType !== 'lender') {
         redirect('/login'); // or redirect somewhere else
     }
 

@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { RowDataPacket } from 'mysql2';
 
 interface Params {
-    params: {
+    params: Promise<{
         conversationId: string;
-    };
+    }>;
 }
 
 export async function PATCH(request: NextRequest, { params }: Params) {
