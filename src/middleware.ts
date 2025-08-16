@@ -19,28 +19,20 @@ export function middleware(request: NextRequest) {
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 
   // Content Security Policy
-  if (request.nextUrl.pathname === '/contact-us') {
-    const nonce = generateNonce();
-    response.headers.set(
-        'Content-Security-Policy',
-        `default-src 'self'; ` +
-        `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com; ` +
-        `script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com; ` +
-        `connect-src 'self' https://www.google.com https://www.gstatic.com; ` +
-        `style-src 'self' 'unsafe-inline'; ` +
-        `frame-src https://www.google.com https://www.gstatic.com; ` +
-        `img-src 'self' data: https:; ` +
-        `font-src 'self' data:;`
-    );
-    response.headers.set('X-Nonce', nonce);
-  }
-  else {
-    response.headers.set(
-        'Content-Security-Policy',
-        "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;"
-    );
+  const nonce = generateNonce();
+  response.headers.set(
+      'Content-Security-Policy',
+      `default-src 'self'; ` +
+      `script-src 'self' 'unsafe-eval' https://www.google.com https://www.gstatic.com; ` +
+      `script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com; ` +
+      `connect-src 'self' https://www.google.com https://www.gstatic.com; ` +
+      `style-src 'self' 'unsafe-inline'; ` +
+      `frame-src https://www.google.com https://www.gstatic.com; ` +
+      `img-src 'self' data: https:; ` +
+      `font-src 'self' data:;`
+  );
+  response.headers.set('X-Nonce', nonce);
 
-  }
   // CORS headers
   response.headers.set('Access-Control-Allow-Origin', process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000');
   response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
