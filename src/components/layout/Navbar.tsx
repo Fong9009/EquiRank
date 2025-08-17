@@ -4,10 +4,12 @@ import { useSession, signOut } from 'next-auth/react';
 import styles from '@/styles/layout/navbar.module.css';
 import Link from 'next/link';
 import clsx from 'clsx';
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const { data: session, status } = useSession();
+    const router = useRouter();
 
     const toggleMenu = () => {
         setIsOpen(!isOpen);
@@ -88,13 +90,18 @@ export default function Navbar() {
                                 Admin Panel
                             </Link>
                         )}
-                        <button 
-                            className={styles.linkFont} 
-                            onClick={() => { closeMenu(); handleLogout(); }}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit' }}
+
+                        <Link
+                            href="/login"
+                            className={`${styles.linkFont} ${styles.linkButton}`}
+                            onClick={async (e) => {
+                                e.preventDefault();
+                                await handleLogout();
+                                router.push("/login");
+                            }}
                         >
                             Logout
-                        </button>
+                        </Link>
                     </>
                 ) : (
                     <>
