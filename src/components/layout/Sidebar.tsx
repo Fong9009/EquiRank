@@ -1,7 +1,7 @@
 // components/Sidebar.tsx
 'use client';
 import { useEffect, useState } from 'react';
-import { Home, Settings, Users, Briefcase, Phone } from "lucide-react";
+import { Home, Settings, Users, Briefcase, Phone, UserPlus } from "lucide-react";
 import styles from '@/styles/layout/sidebar.module.css'
 
 interface SidebarProps {
@@ -10,9 +10,10 @@ interface SidebarProps {
     setActiveTab: (tab: string) => void;
     isOpen: boolean;
     toggleSidebar: () => void;
+    isSuperAdmin?: boolean;
 }
 
-export default function Sidebar({ role, activeTab, setActiveTab, isOpen, toggleSidebar, }: SidebarProps) {
+export default function Sidebar({ role, activeTab, setActiveTab, isOpen, toggleSidebar, isSuperAdmin = false, }: SidebarProps) {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -31,7 +32,8 @@ export default function Sidebar({ role, activeTab, setActiveTab, isOpen, toggleS
             ? [
                 { name: 'home', icon: Home },
                 { name: 'Manage Users', icon: Users },
-                { name: 'Manage Contact', icon: Phone }
+                { name: 'Manage Contact', icon: Phone },
+                ...(isSuperAdmin ? [{ name: 'Add Admin', icon: UserPlus }] : [] as any)
             ]
             : role === 'lender'
                 ? [

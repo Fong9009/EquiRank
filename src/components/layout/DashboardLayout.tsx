@@ -8,9 +8,10 @@ interface DashboardLayoutProps {
     children: React.ReactNode;
     activeTab: string;
     setActiveTab: (tab: string) => void;
+    isSuperAdmin?: boolean;
 }
 
-export default function DashboardLayout({ role, children, activeTab, setActiveTab }: DashboardLayoutProps) {
+export default function DashboardLayout({ role, children, activeTab, setActiveTab, isSuperAdmin = false }: DashboardLayoutProps) {
     const [mounted, setMounted] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -26,7 +27,9 @@ export default function DashboardLayout({ role, children, activeTab, setActiveTa
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
                 isOpen={sidebarOpen}
-                toggleSidebar={() => setSidebarOpen(!sidebarOpen)}/>
+                toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+                isSuperAdmin={isSuperAdmin}
+            />
             <main className={styles.dashboardLayout}    style={{
                 marginLeft: sidebarOpen ? '250px' : '0px', // adjust dynamically
                 transition: 'margin-left 0.3s ease', // smooth animation

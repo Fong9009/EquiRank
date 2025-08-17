@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Aug 16, 2025 at 04:56 AM
+-- Generation Time: Aug 17, 2025 at 07:10 AM
 -- Server version: 9.3.0
 -- PHP Version: 8.4.6
 
@@ -73,6 +73,13 @@ CREATE TABLE `password_reset_tokens` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ;
 
+--
+-- Dumping data for table `password_reset_tokens`
+--
+
+INSERT INTO `password_reset_tokens` (`id`, `user_id`, `token`, `expires_at`, `used`, `created_at`) VALUES
+(1, 1, 'dc9f77094ac6f92ba43873bb2f4a76b2eb2f14595624161e936671c33b7e380c', '2025-08-16 06:35:24', 0, '2025-08-16 05:35:24');
+
 -- --------------------------------------------------------
 
 --
@@ -92,6 +99,7 @@ CREATE TABLE `users` (
   `address` text,
   `is_active` tinyint(1) DEFAULT '1',
   `is_approved` tinyint(1) DEFAULT '0',
+  `is_super_admin` tinyint(1) NOT NULL DEFAULT '0',
   `failed_login_attempts` int DEFAULT '0' COMMENT 'Track failed login attempts',
   `account_locked_until` timestamp NULL DEFAULT NULL COMMENT 'Account lockout until timestamp',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
@@ -102,12 +110,12 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `email`, `password_hash`, `first_name`, `last_name`, `user_type`, `entity_type`, `company`, `phone`, `address`, `is_active`, `is_approved`, `failed_login_attempts`, `account_locked_until`, `created_at`, `updated_at`) VALUES
-(1, 'admin@equirank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Admin', 'User', 'admin', 'company', 'EquiRank Admin', '+1234567890', '123 Admin St, Admin City', 1, 1, 0, NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37'),
-(2, 'borrower1@company.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'John', 'Smith', 'borrower', 'company', 'Tech Startup Inc', '+1234567891', '456 Business Ave, Tech City', 1, 1, 0, NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37'),
-(3, 'lender1@bank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Jane', 'Doe', 'lender', 'company', 'Investment Bank Ltd', '+1234567892', '789 Finance Blvd, Bank City', 1, 1, 0, NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37'),
-(4, 'borrower2@individual.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Mike', 'Johnson', 'borrower', 'individual', NULL, '+1234567893', '321 Personal St, Individual City', 1, 1, 0, NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37'),
-(5, 'lender2@investor.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Sarah', 'Wilson', 'lender', 'individual', NULL, '+1234567894', '654 Investor Ave, Investment City', 0, 0, 0, NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37');
+INSERT INTO `users` (`id`, `email`, `password_hash`, `first_name`, `last_name`, `user_type`, `entity_type`, `company`, `phone`, `address`, `is_active`, `is_approved`, `is_super_admin`, `failed_login_attempts`, `account_locked_until`, `created_at`, `updated_at`) VALUES
+(1, 'admin@equirank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Admin', 'User', 'admin', 'company', 'EquiRank Admin', '+1234567890', '123 Admin St, Admin City', 1, 1, 1, 0, NULL, '2025-08-10 11:54:38', '2025-08-17 06:38:47'),
+(2, 'borrower1@company.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'John', 'Smith', 'borrower', 'company', 'Tech Startup Inc', '+1234567891', '456 Business Ave, Tech City', 1, 1, 0, 0, NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37'),
+(3, 'lender1@bank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Jane', 'Doe', 'lender', 'company', 'Investment Bank Ltd', '+1234567892', '789 Finance Blvd, Bank City', 1, 1, 0, 0, NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37'),
+(4, 'borrower2@individual.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Mike', 'Johnson', 'borrower', 'individual', NULL, '+1234567893', '321 Personal St, Individual City', 1, 1, 0, 0, NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37'),
+(5, 'lender2@investor.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Sarah', 'Wilson', 'lender', 'individual', NULL, '+1234567894', '654 Investor Ave, Investment City', 0, 0, 0, 0, NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37');
 
 --
 -- Indexes for dumped tables

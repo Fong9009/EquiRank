@@ -11,11 +11,12 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import AdminFrontPage from "@/components/pages/admin/AdminFrontEnd";
 import AdminHomePage from "@/components/pages/admin/AdminHomepage";
 import AdminUserPage from "@/components/pages/admin/AdminUserPage";
+import AddAdmin from "@/components/pages/admin/AddAdmin";
 
 export default function AdminDashboard() {
     const { data: session, status } = useSession();
     const router = useRouter();
-    const [activeTab, setActiveTab] = useState('approvals');
+    const [activeTab, setActiveTab] = useState('home');
     const [isReady, setIsReady] = useState(false);
 
     useEffect(() => {
@@ -34,6 +35,7 @@ export default function AdminDashboard() {
     }
 
     const role = session.user.userType;
+    const isSuperAdmin = Boolean((session.user as any).isSuperAdmin);
 
     const renderTab = () => {
         switch (activeTab) {
@@ -43,13 +45,15 @@ export default function AdminDashboard() {
                 return <AdminUserPage/>;
             case "Manage Contact":
                 return <AdminFrontPage/>;
+            case "Add Admin":
+                return isSuperAdmin ? <AddAdmin/> : <div>Forbidden</div>;
             default:
                 return <div>Welcome to Admin Home</div>;
         }
     };
 
     return (
-        <DashboardLayout role={role} activeTab={activeTab} setActiveTab={setActiveTab}>
+        <DashboardLayout role={role} activeTab={activeTab} setActiveTab={setActiveTab} isSuperAdmin={isSuperAdmin}>
             {renderTab()}
         </DashboardLayout>
     );

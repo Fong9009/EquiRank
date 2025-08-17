@@ -14,6 +14,7 @@ export interface User {
     address?: string;
     is_active: boolean;
     is_approved: boolean;
+    is_super_admin?: boolean;
     created_at: Date;
     updated_at: Date;
 }
@@ -35,6 +36,25 @@ export async function createUser(
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, false)
   `;
     const result = await executeSingleQuery(query, [email, passwordHash, firstName, lastName, userType, entityType, company, phone, address]);
+    return result.insertId;
+}
+
+// Create admin with immediate approval
+export async function createAdminUser(
+    email: string,
+    passwordHash: string,
+    firstName: string,
+    lastName: string,
+    entityType: 'company' | 'individual' = 'company',
+    company?: string,
+    phone?: string,
+    address?: string
+): Promise<number> {
+    const query = `
+    INSERT INTO users (email, password_hash, first_name, last_name, user_type, entity_type, company, phone, address, is_approved)
+    VALUES (?, ?, ?, ?, 'admin', ?, ?, ?, ?, true)
+  `;
+    const result = await executeSingleQuery(query, [email, passwordHash, firstName, lastName, entityType, company, phone, address]);
     return result.insertId;
 }
 
@@ -113,6 +133,16 @@ export async function updateUser(
   `;
 
     const result = await executeSingleQuery(query, [...values, id]);
+    return result.affectedRows > 0;
+}
+
+export async function promoteUserToAdmin(id: number): Promise<boolean> {
+    const query = `
+    UPDATE users
+    SET user_type = 'admin', is_approved = true, updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `;
+    const result = await executeSingleQuery(query, [id]);
     return result.affectedRows > 0;
 }
 
