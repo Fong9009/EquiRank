@@ -1,100 +1,201 @@
--- EquiRank Database Schema - Simplified Version
--- Essential tables and security features only
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: localhost
+-- Generation Time: Aug 16, 2025 at 04:56 AM
+-- Server version: 9.3.0
+-- PHP Version: 8.4.6
 
-CREATE DATABASE IF NOT EXISTS equirank;
-USE equirank;
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
 
--- Users table with essential security
-CREATE TABLE IF NOT EXISTS users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL COMMENT 'bcrypt hashed password (min 60 chars)',
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
-    user_type ENUM('borrower', 'lender', 'admin') NOT NULL,
-    entity_type ENUM('company', 'individual') NOT NULL,
-    company VARCHAR(255),
-    phone VARCHAR(20),
-    address TEXT,
-    is_active BOOLEAN DEFAULT TRUE,
-    is_approved BOOLEAN DEFAULT FALSE,
-    failed_login_attempts INT DEFAULT 0 COMMENT 'Track failed login attempts',
-    account_locked_until TIMESTAMP NULL COMMENT 'Account lockout until timestamp',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
-    -- Essential security constraints
-    CONSTRAINT chk_password_length CHECK (LENGTH(password_hash) >= 60),
-    CONSTRAINT chk_email_format CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
-);
 
--- Password reset tokens table for forgot password functionality
-CREATE TABLE IF NOT EXISTS password_reset_tokens (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    token VARCHAR(255) UNIQUE NOT NULL COMMENT 'Secure random token for password reset',
-    expires_at TIMESTAMP NOT NULL COMMENT 'Token expiration timestamp',
-    used BOOLEAN DEFAULT FALSE COMMENT 'Whether token has been used',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
-    -- Foreign key to users table
-    CONSTRAINT fk_password_reset_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    -- Token should be at least 32 characters
-    CONSTRAINT chk_token_length CHECK (LENGTH(token) >= 32)
-);
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
 
--- Contact Messages table for storing contact form submissions
-CREATE TABLE IF NOT EXISTS contact_messages (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    conversation_id VARCHAR(36) NOT NULL COMMENT 'UUID for conversation threading',
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    subject VARCHAR(255) NOT NULL,
-    message TEXT NOT NULL,
-    message_type ENUM('user_message', 'admin_reply') DEFAULT 'user_message' COMMENT 'Type of message in conversation',
-    parent_message_id INT NULL COMMENT 'Reference to parent message for replies',
-    status ENUM('new', 'read', 'replied', 'closed') DEFAULT 'new',
-    archived BOOLEAN DEFAULT FALSE COMMENT 'Flag for archived messages',
-    ip_address VARCHAR(45) COMMENT 'Store IP for rate limiting',
-    user_agent TEXT COMMENT 'Store user agent for security',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
-    -- Email format validation
-    CONSTRAINT chk_contact_email_format CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
-    -- Foreign key for parent message (self-referencing)
-    CONSTRAINT fk_parent_message FOREIGN KEY (parent_message_id) REFERENCES contact_messages(id) ON DELETE SET NULL
-);
+--
+-- Database: `equirank`
+--
 
--- Essential indexes for performance and security
-CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
-CREATE INDEX IF NOT EXISTS idx_users_user_type ON users(user_type);
-CREATE INDEX IF NOT EXISTS idx_users_is_active ON users(is_active);
-CREATE INDEX IF NOT EXISTS idx_users_is_approved ON users(is_approved);
-CREATE INDEX IF NOT EXISTS idx_users_failed_login_attempts ON users(failed_login_attempts);
-CREATE INDEX IF NOT EXISTS idx_users_account_locked_until ON users(account_locked_until);
+-- --------------------------------------------------------
 
--- Password reset tokens indexes
-CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_token ON password_reset_tokens(token);
-CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_user_id ON password_reset_tokens(user_id);
-CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_expires_at ON password_reset_tokens(expires_at);
-CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_used ON password_reset_tokens(used);
+--
+-- Table structure for table `contact_messages`
+--
 
--- Contact messages indexes
-CREATE INDEX IF NOT EXISTS idx_contact_messages_status ON contact_messages(status);
-CREATE INDEX IF NOT EXISTS idx_contact_messages_created_at ON contact_messages(created_at);
-CREATE INDEX IF NOT EXISTS idx_contact_messages_conversation_id ON contact_messages(conversation_id);
-CREATE INDEX IF NOT EXISTS idx_contact_messages_message_type ON contact_messages(message_type);
-CREATE INDEX IF NOT EXISTS idx_contact_messages_parent_message_id ON contact_messages(parent_message_id);
+CREATE TABLE `contact_messages` (
+  `id` int NOT NULL,
+  `conversation_id` varchar(36) NOT NULL COMMENT 'UUID for conversation threading',
+  `name` varchar(100) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `subject` varchar(255) NOT NULL,
+  `message` text NOT NULL,
+  `message_type` enum('user_message','admin_reply') DEFAULT 'user_message' COMMENT 'Type of message in conversation',
+  `parent_message_id` int DEFAULT NULL COMMENT 'Reference to parent message for replies',
+  `status` enum('new','read','replied','closed') DEFAULT 'new',
+  `ip_address` varchar(45) DEFAULT NULL COMMENT 'Store IP for rate limiting',
+  `user_agent` text COMMENT 'Store user agent for security',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `archived` tinyint(1) DEFAULT '0' COMMENT 'Whether the message is archived'
+) ;
 
--- Sample users with bcrypt hashed passwords (12 rounds)
--- Password for all users is: Test123!
-INSERT IGNORE INTO users (email, password_hash, first_name, last_name, user_type, entity_type, company, phone, address, is_approved, is_active) VALUES
-('admin@equirank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Admin', 'User', 'admin', 'company', 'EquiRank Admin', '+1234567890', '123 Admin St, Admin City', true, true),
-('borrower1@company.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'John', 'Smith', 'borrower', 'company', 'Tech Startup Inc', '+1234567891', '456 Business Ave, Tech City', true, true),
-('lender1@bank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Jane', 'Doe', 'lender', 'company', 'Investment Bank Ltd', '+1234567892', '789 Finance Blvd, Bank City', true, true),
-('borrower2@individual.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Mike', 'Johnson', 'borrower', 'individual', NULL, '+1234567893', '321 Personal St, Individual City', true, true),
-('lender2@investor.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Sarah', 'Wilson', 'lender', 'individual', NULL, '+1234567894', '654 Investor Ave, Investment City', false, false);
+-- --------------------------------------------------------
 
--- Success message
-SELECT 'Database schema created successfully!' as status;
+--
+-- Table structure for table `migrations`
+--
+
+CREATE TABLE `migrations` (
+  `id` int NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sql_content` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `executed_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `checksum` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `password_reset_tokens`
+--
+
+CREATE TABLE `password_reset_tokens` (
+  `id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `token` varchar(255) NOT NULL COMMENT 'Secure random token for password reset',
+  `expires_at` timestamp NOT NULL COMMENT 'Token expiration timestamp',
+  `used` tinyint(1) DEFAULT '0' COMMENT 'Whether token has been used',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users`
+--
+
+CREATE TABLE `users` (
+  `id` int NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password_hash` varchar(255) NOT NULL COMMENT 'bcrypt hashed password (min 60 chars)',
+  `first_name` varchar(100) NOT NULL,
+  `last_name` varchar(100) NOT NULL,
+  `user_type` enum('borrower','lender','admin') NOT NULL,
+  `entity_type` enum('company','individual') NOT NULL,
+  `company` varchar(255) DEFAULT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `address` text,
+  `is_active` tinyint(1) DEFAULT '1',
+  `is_approved` tinyint(1) DEFAULT '0',
+  `failed_login_attempts` int DEFAULT '0' COMMENT 'Track failed login attempts',
+  `account_locked_until` timestamp NULL DEFAULT NULL COMMENT 'Account lockout until timestamp',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `email`, `password_hash`, `first_name`, `last_name`, `user_type`, `entity_type`, `company`, `phone`, `address`, `is_active`, `is_approved`, `failed_login_attempts`, `account_locked_until`, `created_at`, `updated_at`) VALUES
+(1, 'admin@equirank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Admin', 'User', 'admin', 'company', 'EquiRank Admin', '+1234567890', '123 Admin St, Admin City', 1, 1, 0, NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37'),
+(2, 'borrower1@company.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'John', 'Smith', 'borrower', 'company', 'Tech Startup Inc', '+1234567891', '456 Business Ave, Tech City', 1, 1, 0, NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37'),
+(3, 'lender1@bank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Jane', 'Doe', 'lender', 'company', 'Investment Bank Ltd', '+1234567892', '789 Finance Blvd, Bank City', 1, 1, 0, NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37'),
+(4, 'borrower2@individual.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Mike', 'Johnson', 'borrower', 'individual', NULL, '+1234567893', '321 Personal St, Individual City', 1, 1, 0, NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37'),
+(5, 'lender2@investor.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Sarah', 'Wilson', 'lender', 'individual', NULL, '+1234567894', '654 Investor Ave, Investment City', 0, 0, 0, NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `contact_messages`
+--
+ALTER TABLE `contact_messages`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_contact_messages_status` (`status`),
+  ADD KEY `idx_contact_messages_created_at` (`created_at`),
+  ADD KEY `idx_contact_messages_conversation_id` (`conversation_id`),
+  ADD KEY `idx_contact_messages_message_type` (`message_type`),
+  ADD KEY `idx_contact_messages_parent_message_id` (`parent_message_id`);
+
+--
+-- Indexes for table `migrations`
+--
+ALTER TABLE `migrations`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `name` (`name`),
+  ADD KEY `idx_name` (`name`),
+  ADD KEY `idx_executed_at` (`executed_at`);
+
+--
+-- Indexes for table `password_reset_tokens`
+--
+ALTER TABLE `password_reset_tokens`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `token` (`token`),
+  ADD KEY `idx_password_reset_tokens_token` (`token`),
+  ADD KEY `idx_password_reset_tokens_user_id` (`user_id`),
+  ADD KEY `idx_password_reset_tokens_expires_at` (`expires_at`),
+  ADD KEY `idx_password_reset_tokens_used` (`used`);
+
+--
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `contact_messages`
+--
+ALTER TABLE `contact_messages`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `migrations`
+--
+ALTER TABLE `migrations`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `password_reset_tokens`
+--
+ALTER TABLE `password_reset_tokens`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `contact_messages`
+--
+ALTER TABLE `contact_messages`
+  ADD CONSTRAINT `fk_parent_message` FOREIGN KEY (`parent_message_id`) REFERENCES `contact_messages` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `password_reset_tokens`
+--
+ALTER TABLE `password_reset_tokens`
+  ADD CONSTRAINT `fk_password_reset_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

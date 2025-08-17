@@ -47,6 +47,16 @@ export async function getUserByEmail(email: string): Promise<User | null> {
     return results.length > 0 ? results[0] : null;
 }
 
+// Get user by email including inactive users
+export async function getUserByEmailAny(email: string): Promise<User | null> {
+    const query = `
+    SELECT * FROM users 
+    WHERE email = ?
+  `;
+    const results = await executeQuery<User>(query, [email]);
+    return results.length > 0 ? results[0] : null;
+}
+
 
 // Check if email exists (including inactive users)
 export async function emailExists(email: string): Promise<boolean> {

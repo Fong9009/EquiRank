@@ -69,8 +69,8 @@ export default function RegistrationForm() {
 
     // Password validation
     if (formData.password) {
-      if (formData.password.length < 8) {
-        newErrors.password = 'Password must be at least 8 characters long.';
+      if (formData.password.length < 12) {
+        newErrors.password = 'Password must be at least 12 characters long.';
       } else {
         const errors = [];
         if (!/[a-z]/.test(formData.password)) {
@@ -375,7 +375,7 @@ export default function RegistrationForm() {
                 <div className={styles.passwordRequirements}>
                   <small>Password must contain:</small>
                   <ul>
-                    <li>At least 8 characters</li>
+                    <li>At least 12 characters</li>
                     <li>At least one uppercase letter (A-Z)</li>
                     <li>At least one lowercase letter (a-z)</li>
                     <li>At least one number (0-9)</li>
