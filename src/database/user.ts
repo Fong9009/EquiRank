@@ -68,6 +68,18 @@ export async function emailExists(email: string): Promise<boolean> {
     return results[0]?.count > 0;
 }
 
+export async function getUserByEmailId(email: string): Promise<{ id: number; email: string } | null> {
+    const query = `
+        SELECT id, email FROM users
+        WHERE email = ?
+    `;
+    const results = await executeQuery<{ id: number; email: string }>(query, [email]);
+
+    // Return the first matching user or null if none found
+    return results.length > 0 ? results[0] : null;
+}
+
+
 // Check if email exists for active users only
 export async function activeEmailExists(email: string): Promise<boolean> {
     const query = `
@@ -120,6 +132,14 @@ export async function getAllUsers(): Promise<User[]> {
     SELECT * FROM users 
     ORDER BY created_at DESC
   `;
+    return await executeQuery<User>(query);
+}
+
+export async function getAllActiveUsers(): Promise<User[]> {
+    const query = `
+    SELECT id,email,first_name,last_name,user_type,entity_type,company,phone,address FROM users
+    WHERE is_active = 1
+    ORDER by first_name DESC`;
     return await executeQuery<User>(query);
 }
 
@@ -185,14 +205,24 @@ export async function rejectUser(userId: number): Promise<boolean> {
     return result.affectedRows > 0;
 }
 
-export async function updateUserPassword(hashedPassword:string,userId: number): Promise<boolean> {
-    const query = `UPDATE users SET password_hash = ? WHERE id = ?`
-    const result = await executeSingleQuery(query, [hashedPassword, userId]);
-    return result.affectedRows > 0;
-}
-
 export async function clearFailedLoginAttempt(resetTokenUserId: number): Promise<boolean> {
     const query = `UPDATE users SET failed_login_attempts = 0, account_locked_until = NULL WHERE id = ?`
     const result = await executeSingleQuery(query, [resetTokenUserId]);
+    return result.affectedRows > 0;
+}
+
+//Updating Users
+export async function updateUserByID(email:string, first_name:string, last_name:string, phone:string, address:string, userId: number ): Promise<boolean> {
+    const query = `
+    UPDATE users
+    SET email = ?, first_name = ?, last_name = ?, phone = ?, address = ?, updated_at = CURRENT_TIMESTAMP 
+    WHERE id = ?`;
+    const result = await executeSingleQuery(query, [email, first_name, last_name, phone, address, userId]);
+    return result.affectedRows > 0;
+}
+
+export async function updateUserPassword(hashedPassword:string,userId: number): Promise<boolean> {
+    const query = `UPDATE users SET password_hash = ? WHERE id = ?`
+    const result = await executeSingleQuery(query, [hashedPassword, userId]);
     return result.affectedRows > 0;
 }
