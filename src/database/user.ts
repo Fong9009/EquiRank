@@ -193,7 +193,7 @@ export async function getAllActiveUsers(): Promise<User[]> {
 
 export async function getAllArchivedUsers(): Promise<User[]> {
     const query = `
-    SELECT id,email,first_name,last_name,user_type,entity_type,company,phone,address,is_super_admin FROM users
+    SELECT id,email,first_name,last_name,user_type,entity_type,company,phone,address,is_super_admin,created_at,updated_at FROM users
     WHERE is_active = 0
     ORDER BY first_name DESC`;
     return await executeQuery<User>(query);

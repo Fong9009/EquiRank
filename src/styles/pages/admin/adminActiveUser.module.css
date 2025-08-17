@@ -20,6 +20,7 @@
     margin-bottom: 30px;
     padding-bottom: 20px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: inherit;
 }
 
 .headerContent {
@@ -564,26 +565,7 @@
         font-size: 1.2rem;
     }
     
-    .searchFilterContainer {
-        padding: 15px;
-        gap: 15px;
-    }
-    
-    .filterControls {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .filterSelect,
-    .sortButton {
-        width: 100%;
-        min-width: auto;
-    }
-    
-    .searchInput {
-        padding: 12px 16px;
-        font-size: 0.9rem;
-    }
+
 }
 
 /* Overlay that darkens the background */

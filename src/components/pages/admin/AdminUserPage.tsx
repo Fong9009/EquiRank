@@ -54,16 +54,16 @@ export default function AdminUserPage() {
             <div className={styles.dividerContainer}><hr className={styles.divider}></hr></div>
             <div className={styles.tabContainer} style={{ maxWidth: Boolean((session?.user as any)?.isSuperAdmin) ? '750px' : '575px' }}>
                 <button
-                    className={`${styles.tabButton} ${activeTab === 'active' ? styles.active : ''}`}
-                    onClick={() => setActiveTab('active')}
-                >
-                    Active Users
-                </button>
-                <button
                     className={`${styles.tabButton} ${activeTab === 'approvals' ? styles.active : ''}`}
                     onClick={() => setActiveTab('approvals')}
                 >
                     User Approvals
+                </button>
+                <button
+                    className={`${styles.tabButton} ${activeTab === 'active' ? styles.active : ''}`}
+                    onClick={() => setActiveTab('active')}
+                >
+                    Active Users
                 </button>
                 <button
                     className={`${styles.tabButton} ${activeTab === 'archived' ? styles.active : ''}`}

@@ -23,10 +23,14 @@ export default function ArchivedMessages() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [expandedConversations, setExpandedConversations] = useState<Set<string>>(new Set());
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'new' | 'read' | 'replied' | 'closed'>('all');
+  const [sortBy, setSortBy] = useState<'date' | 'name' | 'subject'>('date');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   useEffect(() => {
     fetchArchivedMessages();
-  }, []);
+  }, [statusFilter]);
 
   const fetchArchivedMessages = async () => {
     try {
@@ -111,13 +115,113 @@ export default function ArchivedMessages() {
     });
   };
 
+  const filteredAndSortedThreads = () => {
+    let filtered = Object.entries(archivedThreads);
+    
+    // Apply status filter
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(([conversationId, thread]) => {
+        const firstMessage = thread[0];
+        return firstMessage.status === statusFilter;
+      });
+    }
+    
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter(([conversationId, thread]) => {
+        const firstMessage = thread[0];
+        return (
+          firstMessage.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          firstMessage.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          firstMessage.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          firstMessage.message.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      });
+    }
+    
+    // Apply sorting
+    filtered.sort(([conversationIdA, threadA], [conversationIdB, threadB]) => {
+      const firstMessageA = threadA[0];
+      const firstMessageB = threadB[0];
+      
+      let comparison = 0;
+      switch (sortBy) {
+        case 'date':
+          comparison = new Date(firstMessageA.created_at).getTime() - new Date(firstMessageB.created_at).getTime();
+          break;
+        case 'name':
+          comparison = firstMessageA.name.localeCompare(firstMessageB.name);
+          break;
+        case 'subject':
+          comparison = firstMessageA.subject.localeCompare(firstMessageB.subject);
+          break;
+      }
+      
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+    
+    return filtered;
+  };
+
   if (loading) return <div className={styles.loading}>Loading archived messages...</div>;
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h2>Archived Messages</h2>
-        <p>Conversations stored here can be restored to the inbox or permanently deleted.</p>
+        <div className={styles.headerTop}>
+          <h2>Archived Messages</h2>
+          <div className={styles.messageStats}>
+            <span className={styles.statItem}>
+              <span className={styles.statLabel}>Archived:</span>
+              <span className={styles.statValue}>
+                {Object.keys(archivedThreads).length}
+              </span>
+            </span>
+          </div>
+        </div>
+        {/* Search and Filter Controls */}
+        <div className={styles.searchFilterContainer}>
+          <div className={styles.searchBox}>
+            <input
+              type="text"
+              placeholder="Search messages by name, email, or subject..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.searchInput}
+            />
+          </div>
+          
+          <div className={styles.filterControls}>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as any)}
+              className={styles.filterSelect}
+            >
+              <option value="all">All Status</option>
+              <option value="new">New</option>
+              <option value="read">Read</option>
+              <option value="replied">Replied</option>
+              <option value="closed">Closed</option>
+            </select>
+            
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className={styles.filterSelect}
+            >
+              <option value="date">Sort by Date</option>
+              <option value="name">Sort by Name</option>
+              <option value="subject">Sort by Subject</option>
+            </select>
+            
+            <button
+              onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+              className={styles.sortButton}
+            >
+              {sortOrder === 'asc' ? '↑ Ascending' : '↓ Descending'}
+            </button>
+          </div>
+        </div>
       </div>
 
       {message && <div className={`${styles.message} ${styles[message.type]}`}>{message.text}</div>}
@@ -126,7 +230,7 @@ export default function ArchivedMessages() {
         <div className={styles.emptyState}><p>No archived messages found.</p></div>
       ) : (
         <div className={styles.messageList}>
-          {Object.entries(archivedThreads).map(([conversationId, thread]) => {
+          {filteredAndSortedThreads().map(([conversationId, thread]) => {
             const firstMessage = thread[0];
             const isExpanded = expandedConversations.has(conversationId);
             return (

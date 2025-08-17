@@ -13,6 +13,8 @@ interface User {
   company?: string;
   phone?: string;
   address?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export default function ArchivedUsers() {
@@ -20,6 +22,15 @@ export default function ArchivedUsers() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [userTypeFilter, setUserTypeFilter] = useState<'all' | 'borrower' | 'lender' | 'admin'>('all');
+  const [sortBy, setSortBy] = useState<'date' | 'name' | 'email'>('date');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  // Separate users by type
+  const borrowers = users.filter(user => user.user_type === 'borrower');
+  const lenders = users.filter(user => user.user_type === 'lender');
+  const admins = users.filter(user => user.user_type === 'admin');
 
   const fetchUsers = async () => {
     try {
@@ -43,6 +54,8 @@ export default function ArchivedUsers() {
   }, []);
 
   const restore = async (userId: number) => {
+    if (!confirm('Are you sure you want to restore this user? They will regain access to the system.')) return;
+    
     try {
       const res = await fetch('/api/admin/users/archive', {
         method: 'PATCH',
@@ -77,6 +90,45 @@ export default function ArchivedUsers() {
     }
   };
 
+  const filteredAndSortedUsers = (userList: User[]) => {
+    let filtered = userList;
+    
+    // Apply user type filter
+    if (userTypeFilter !== 'all') {
+      filtered = filtered.filter(user => user.user_type === userTypeFilter);
+    }
+    
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter(user => 
+        user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (user.company && user.company.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+    
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let comparison = 0;
+      switch (sortBy) {
+        case 'date':
+          comparison = new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime();
+          break;
+        case 'name':
+          comparison = `${a.first_name} ${a.last_name}`.localeCompare(`${b.first_name} ${b.last_name}`);
+          break;
+        case 'email':
+          comparison = a.email.localeCompare(b.email);
+          break;
+      }
+      
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+    
+    return filtered;
+  };
+
   if (loading) return <div className={styles.loading}>Loading Archived Users...</div>;
 
   return (
@@ -94,26 +146,134 @@ export default function ArchivedUsers() {
         <div className={`${styles.message} ${styles[message.type]}`}>{message.text}</div>
       )}
 
+      {/* Search and Filter Controls */}
+      <div className={styles.searchFilterContainer}>
+        <div className={styles.searchBox}>
+          <input
+            type="text"
+            placeholder="Search users by name, email, or company..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={styles.searchInput}
+          />
+        </div>
+        
+        <div className={styles.filterControls}>
+          <select
+            value={userTypeFilter}
+            onChange={(e) => setUserTypeFilter(e.target.value as any)}
+            className={styles.filterSelect}
+          >
+            <option value="all">All Types</option>
+            <option value="borrower">Borrowers</option>
+            <option value="lender">Lenders</option>
+            <option value="admin">Admins</option>
+          </select>
+          
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as any)}
+            className={styles.filterSelect}
+          >
+            <option value="date">Sort by Date</option>
+            <option value="name">Sort by Name</option>
+            <option value="email">Sort by Email</option>
+          </select>
+          
+          <button
+            onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+            className={styles.sortButton}
+          >
+            {sortOrder === 'asc' ? '↑ Ascending' : '↓ Descending'}
+          </button>
+        </div>
+      </div>
+
       {users.length === 0 ? (
         <div className={styles.noUsers}><p>No Archived Users</p></div>
       ) : (
-        <div className={styles.userList}>
-          {users.map((u) => (
-            <div key={u.id} className={styles.userCard}>
-              <div className={styles.userInfo}>
-                <h3>{u.first_name} {u.last_name}</h3>
-                <p><strong>Email:</strong> {u.email}</p>
-                {u.company && <p><strong>Company:</strong> {u.company}</p>}
-                {u.phone && <p><strong>Phone:</strong> {u.phone}</p>}
-                {u.address && <p><strong>Address:</strong> {u.address}</p>}
-              </div>
-              <div className={styles.actions}>
-                <button className={styles.approveButton} onClick={() => restore(u.id)} disabled={String(u.id) === String(currentUserId)}>Restore</button>
-                <button className={styles.deleteButton} onClick={() => remove(u.id)} disabled={String(u.id) === String(currentUserId)}>Delete</button>
-              </div>
+        <>
+          {/* Borrowers Section */}
+          {borrowers.length > 0 && (
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitleBorrower}>Borrowers ({borrowers.length})</h2>
             </div>
-          ))}
-        </div>
+          )}
+          {borrowers.length > 0 && (
+            <div className={styles.userList}>
+              {filteredAndSortedUsers(borrowers).map((u) => (
+                <div key={u.id} className={`${styles.userCard} ${styles.borrowerCard}`}>
+                  <div className={styles.userInfo}>
+                    <h3>{u.first_name} {u.last_name}</h3>
+                    <p><strong>Email:</strong> {u.email}</p>
+                    {u.company && <p><strong>Company:</strong> {u.company}</p>}
+                    {u.phone && <p><strong>Phone:</strong> {u.phone}</p>}
+                    {u.address && <p><strong>Address:</strong> {u.address}</p>}
+                    <p><strong>Archived Since:</strong> {new Date(u.updated_at).toLocaleDateString()}</p>
+                  </div>
+                  <div className={styles.actions}>
+                    <button className={styles.approveButton} onClick={() => restore(u.id)} disabled={String(u.id) === String(currentUserId)}>Restore</button>
+                    <button className={styles.deleteButton} onClick={() => remove(u.id)} disabled={String(u.id) === String(currentUserId)}>Delete</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Lenders Section */}
+          {lenders.length > 0 && (
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitleLender}>Lenders ({lenders.length})</h2>
+            </div>
+          )}
+          {lenders.length > 0 && (
+            <div className={styles.userList}>
+              {filteredAndSortedUsers(lenders).map((u) => (
+                <div key={u.id} className={`${styles.userCard} ${styles.lenderCard}`}>
+                  <div className={styles.userInfo}>
+                    <h3>{u.first_name} {u.last_name}</h3>
+                    <p><strong>Email:</strong> {u.email}</p>
+                    {u.company && <p><strong>Company:</strong> {u.company}</p>}
+                    {u.phone && <p><strong>Phone:</strong> {u.phone}</p>}
+                    {u.address && <p><strong>Address:</strong> {u.address}</p>}
+                    <p><strong>Archived Since:</strong> {new Date(u.updated_at).toLocaleDateString()}</p>
+                  </div>
+                  <div className={styles.actions}>
+                    <button className={styles.approveButton} onClick={() => restore(u.id)} disabled={String(u.id) === String(currentUserId)}>Restore</button>
+                    <button className={styles.deleteButton} onClick={() => remove(u.id)} disabled={String(u.id) === String(currentUserId)}>Delete</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Admins Section */}
+          {admins.length > 0 && (
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitleAdmin}>Admins ({admins.length})</h2>
+            </div>
+          )}
+          {admins.length > 0 && (
+            <div className={styles.userList}>
+              {filteredAndSortedUsers(admins).map((u) => (
+                <div key={u.id} className={`${styles.userCard} ${styles.adminCard}`}>
+                  <div className={styles.userInfo}>
+                    <h3>{u.first_name} {u.last_name}</h3>
+                    <p><strong>Email:</strong> {u.email}</p>
+                    {u.company && <p><strong>Company:</strong> {u.company}</p>}
+                    {u.phone && <p><strong>Phone:</strong> {u.phone}</p>}
+                    {u.address && <p><strong>Address:</strong> {u.address}</p>}
+                    <p><strong>Archived Since:</strong> {new Date(u.updated_at).toLocaleDateString()}</p>
+                  </div>
+                  <div className={styles.actions}>
+                    <button className={styles.approveButton} onClick={() => restore(u.id)} disabled={String(u.id) === String(currentUserId)}>Restore</button>
+                    <button className={styles.deleteButton} onClick={() => remove(u.id)} disabled={String(u.id) === String(currentUserId)}>Delete</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
