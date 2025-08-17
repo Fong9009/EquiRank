@@ -10,6 +10,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 {/*Pages*/}
 import AdminFrontPage from "@/components/pages/admin/AdminFrontEnd";
 import AdminHomePage from "@/components/pages/admin/AdminHomepage";
+import AdminUserPage from "@/components/pages/admin/AdminUserPage";
 
 export default function AdminDashboard() {
     const { data: session, status } = useSession();
@@ -38,8 +39,8 @@ export default function AdminDashboard() {
         switch (activeTab) {
             case "home":
                 return <AdminHomePage/>;
-            case "users":
-                return <div>users</div>;
+            case "Manage Users":
+                return <AdminUserPage/>;
             case "Manage Contact":
                 return <AdminFrontPage/>;
             default:
