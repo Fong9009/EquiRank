@@ -2,10 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { updateUserByID } from '@/database/user';
 import { auth } from '@/lib/auth';
 
-export async function PUT(
-    request: NextRequest,
-    { params }: { params: Record<string, string> }
-) {
+export async function PUT(request: NextRequest, context: any) {
     try {
         const session = await auth();
         if (!session?.user) {
@@ -19,7 +16,7 @@ export async function PUT(
             );
         }
 
-        const userId = parseInt(params.id, 10);
+        const userId = parseInt(context.params.id, 10);
         const body = await request.json();
 
         const updatedUser = await updateUserByID(
