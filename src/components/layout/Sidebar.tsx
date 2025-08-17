@@ -38,12 +38,10 @@ export default function Sidebar({ role, activeTab, setActiveTab, isOpen, toggleS
             : role === 'lender'
                 ? [
                     { name: 'home', icon: Home },
-                    { name: 'investments', icon: Briefcase },
                     { name: 'settings', icon: Settings }
                 ]
                 : [
                     { name: 'home', icon: Home },
-                    { name: 'loans', icon: Briefcase },
                     { name: 'settings', icon: Settings }
                 ];
 

@@ -43,7 +43,7 @@ export default function AdminHomePage() {
 
     return(
         <div className={styles.adminHomePage}>
-            <Ribbon username={session?.user?.name || "User"}/>
+            <Ribbon username={session?.user?.name || "User"} imageUrl={'/images/mountain.jpg'} quote={'"Patience and vigilance pay both in servers and stocks"'}/>
             <h1 className={styles.adminTitle}>Statistics</h1>
             <div className={styles.dividerContainer}><hr className={styles.divider}></hr></div>
             <div className={styles.cardContainer}>

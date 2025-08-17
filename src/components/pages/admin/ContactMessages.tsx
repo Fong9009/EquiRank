@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useRef, useEffect } from "react";
 import styles from '@/styles/pages/admin/contactMessages.module.css';
+import CustomDropdown from "@/components/common/CustomDropdown";
 
 interface ContactMessage {
   id: number;
@@ -18,11 +19,19 @@ interface ContactMessage {
   updated_at: string;
 }
 
+const options = [
+  { value: "all", label: "All Inquiries" },
+  { value: "new", label: "New" },
+  { value: "read", label: "Read" },
+  { value: "replied", label: "Replied" },
+  { value: "closed", label: "Closed" },
+];
+
 export default function ContactMessages() {
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [statusFilter, setStatusFilter] = useState<'all' | 'new' | 'read' | 'replied' | 'closed'>('all');
+  const [statusFilter, setStatusFilter] = useState("all");
   const [showReplyModal, setShowReplyModal] = useState<number | null>(null);
   const [replyText, setReplyText] = useState('');
   const [adminName, setAdminName] = useState('EquiRank Support Team');
@@ -421,17 +430,11 @@ export default function ContactMessages() {
               className={styles.searchInput}
             />
           </div>
-          <select 
-            value={statusFilter} 
-            onChange={(e) => setStatusFilter(e.target.value as any)}
-            className={styles.statusFilter}
-          >
-            <option value="all">All Inquiries</option>
-            <option value="new">New</option>
-            <option value="read">Read</option>
-            <option value="replied">Replied</option>
-            <option value="closed">Closed</option>
-          </select>
+          <CustomDropdown
+              options={options}
+              value={statusFilter}
+              onChange={setStatusFilter}
+          />
           <div className={styles.sortContainer}>
             <select
               value={sortBy}

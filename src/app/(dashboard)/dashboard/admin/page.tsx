@@ -23,7 +23,13 @@ export default function AdminDashboard() {
         if (status === 'loading') return;
 
         if (!session?.user || session.user.userType !== 'admin') {
-            router.push('/login');
+            if(!session?.user){
+                router.push('/login');
+            } else if (session.user.userType === 'borrower') {
+                router.push('/dashboard/borrower');
+            } else {
+                router.push('/dashboard/lender');
+            }
             return;
         }
 
