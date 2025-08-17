@@ -17,8 +17,9 @@ export async function POST(request: NextRequest) {
 
     // Check if user exists
     const user = await getUserByEmail(email);
+    console.log('User lookup result:', user);
 
-    if (!Array.isArray(user) || user.length === 0) {
+    if (!user) {
       // Don't reveal if user exists or not for security
       return NextResponse.json(
         { message: 'If an account with that email exists, a password reset link has been sent.' },
@@ -33,10 +34,13 @@ export async function POST(request: NextRequest) {
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
     // Delete any existing tokens for this user
+    console.log('Deleting existing tokens for user:', user.id);
     await deleteToken(user.id);
 
     // Insert new token
-    await insertToken(user.id, token, expiresAt);
+    console.log('Inserting new token for user:', user.id, 'token:', token, 'expires:', expiresAt);
+    const tokenId = await insertToken(user.id, token, expiresAt);
+    console.log('Token inserted with ID:', tokenId);
 
     // Generate reset link
     const resetLink = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/reset-password?token=${token}`;

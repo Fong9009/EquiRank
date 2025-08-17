@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createUser, emailExists } from '@/database/user';
+import { createUser, emailExists, activeEmailExists, getUserByEmailAny, updateUser } from '@/database/user';
 import { hashPassword, validatePassword, validateEmail } from '@/lib/security';
 
 export async function POST(request: NextRequest) {
@@ -28,9 +28,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Email validation - uniqueness check (proactive)
-    const emailAlreadyExists = await emailExists(email);
-    if (emailAlreadyExists) {
+    // Email uniqueness check among ACTIVE users only
+    const emailInActiveUsers = await activeEmailExists(email);
+    if (emailInActiveUsers) {
       return NextResponse.json(
         { 
           error: 'Email already registered',
@@ -38,6 +38,51 @@ export async function POST(request: NextRequest) {
           suggestion: 'Please use a different email address or try logging in instead'
         },
         { status: 409 }
+      );
+    }
+
+    // If email exists but is inactive, reactivate instead of inserting
+    const existsAny = await emailExists(email);
+    if (existsAny && !emailInActiveUsers) {
+      const hashedPassword = await hashPassword(password);
+      const existing = await getUserByEmailAny(email);
+      if (!existing) {
+        return NextResponse.json(
+          { error: 'Unexpected error retrieving existing user for reactivation' },
+          { status: 500 }
+        );
+      }
+
+      const updated = await updateUser(existing.id, {
+        password_hash: hashedPassword,
+        first_name: firstName,
+        last_name: lastName,
+        user_type: userType,
+        entity_type: entityType,
+        company,
+        phone,
+        address,
+        is_active: true,
+        is_approved: false,
+      });
+
+      if (!updated) {
+        return NextResponse.json(
+          { error: 'Failed to reactivate existing account' },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json(
+        { 
+          message: 'Account reactivated successfully',
+          userId: existing.id,
+          userType: userType,
+          entityType: entityType,
+          isApproved: false,
+          email
+        },
+        { status: 200 }
       );
     }
 
@@ -159,8 +204,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Check if email exists
-    const emailAlreadyExists = await emailExists(email);
+    // Check if email exists among active users
+    const emailAlreadyExists = await activeEmailExists(email);
     
     return NextResponse.json({
       available: !emailAlreadyExists,
