@@ -14,6 +14,7 @@ interface User {
     company?: string;
     phone?: string;
     address?: string;
+    is_super_admin?: boolean;
     created_at: string;
 }
 
@@ -29,12 +30,17 @@ function validateName(name: string) {
 }
 
 export default function ActiveUsers() {
-    const [activeUsers, setActiveUsers] = useState<User[]>([]);
+    const [activeUsers, setActiveUsers] = useState<User[]>([]); // kept for backward compatibility, now unused in UI
+    const [borrowers, setBorrowers] = useState<User[]>([]);
+    const [lenders, setLenders] = useState<User[]>([]);
+    const [adminUsers, setAdminUsers] = useState<User[]>([]);
+    const [superAdmins, setSuperAdmins] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
     const [email, setEmail] = useState<string>('');
     const [emailError, setEmailError] = useState<string | null>(null);
     const { data: session } = useSession()
+    const isSuperAdmin = Boolean((session?.user as any)?.isSuperAdmin);
     const [showEditModal, setShowEditModal] = useState<number | null>(null);
     const [editFormData, setEditFormData] = useState<{ [key: string]: any }>({});
     const [firstName, setFirstName] = useState<string>('');
@@ -44,6 +50,28 @@ export default function ActiveUsers() {
         last_name: '',
         address: '',
     });
+    
+    // State for dropdown sections
+    const [expandedSections, setExpandedSections] = useState({
+        borrowers: true,
+        lenders: true,
+        admins: true,
+        superAdmins: true
+    });
+
+    // Search and filter state
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterType, setFilterType] = useState<'all' | 'borrower' | 'lender' | 'admin' | 'super_admin'>('all');
+    const [sortBy, setSortBy] = useState<'name' | 'email' | 'company' | 'created_at'>('name');
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+    // Toggle section expansion
+    const toggleSection = (section: keyof typeof expandedSections) => {
+        setExpandedSections(prev => ({
+            ...prev,
+            [section]: !prev[section]
+        }));
+    };
 
     useEffect(() => {
         fetchActiveUsers();
@@ -60,13 +88,89 @@ export default function ActiveUsers() {
     }, [email, showEditModal]);
 
 
+    // Search and filter functions
+    const filterAndSortUsers = (users: User[]) => {
+        let filtered = users;
+
+        // Apply search filter
+        if (searchTerm) {
+            filtered = filtered.filter(user => 
+                user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (user.company && user.company.toLowerCase().includes(searchTerm.toLowerCase()))
+            );
+        }
+
+        // Apply type filter
+        if (filterType !== 'all') {
+            if (filterType === 'super_admin') {
+                filtered = filtered.filter(user => Boolean(user.is_super_admin));
+            } else {
+                filtered = filtered.filter(user => user.user_type === filterType);
+            }
+        }
+
+        // Apply sorting
+        filtered.sort((a, b) => {
+            let aValue: string | Date;
+            let bValue: string | Date;
+
+            switch (sortBy) {
+                case 'name':
+                    aValue = `${a.first_name} ${a.last_name}`.toLowerCase();
+                    bValue = `${b.first_name} ${b.last_name}`.toLowerCase();
+                    break;
+                case 'email':
+                    aValue = a.email.toLowerCase();
+                    bValue = b.email.toLowerCase();
+                    break;
+                case 'company':
+                    aValue = (a.company || '').toLowerCase();
+                    bValue = (b.company || '').toLowerCase();
+                    break;
+                case 'created_at':
+                    aValue = new Date(a.created_at);
+                    bValue = new Date(b.created_at);
+                    break;
+                default:
+                    aValue = a.first_name.toLowerCase();
+                    bValue = b.first_name.toLowerCase();
+            }
+
+            if (sortOrder === 'asc') {
+                return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+            } else {
+                return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+            }
+        });
+
+        return filtered;
+    };
+
+    // Get filtered and sorted users for each category
+    const getFilteredBorrowers = () => filterAndSortUsers(borrowers);
+    const getFilteredLenders = () => filterAndSortUsers(lenders);
+    const getFilteredAdmins = () => filterAndSortUsers(adminUsers);
+    const getFilteredSuperAdmins = () => filterAndSortUsers(superAdmins);
+
     // Fetch all active users
     const fetchActiveUsers = async () => {
         try {
             const response = await fetch('/api/admin/users/active');
             if (response.ok) {
                 const users = await response.json();
-                setActiveUsers(users);
+                const adminsAll = users.filter((u: User) => u.user_type === 'admin');
+                const superA = adminsAll.filter((u: User) => Boolean((u as any).is_super_admin));
+                const admins = adminsAll.filter((u: User) => !Boolean((u as any).is_super_admin));
+                const normals = users.filter((u: User) => u.user_type !== 'admin');
+                const b = normals.filter((u: User) => u.user_type === 'borrower');
+                const l = normals.filter((u: User) => u.user_type === 'lender');
+                setAdminUsers(admins);
+                setSuperAdmins(superA);
+                setActiveUsers(normals);
+                setBorrowers(b);
+                setLenders(l);
             } else {
                 setMessage({ type: 'error', text: 'Failed to fetch active users' });
             }
@@ -189,8 +293,10 @@ export default function ActiveUsers() {
         setEmailError(null);
         return true;
     };
+    const hasAnyExpanded = Object.values(expandedSections).some(expanded => expanded);
+    
     return (
-        <div className={styles.container}>
+        <div className={`${styles.container} ${hasAnyExpanded ? styles.hasExpandedSection : ''}`}>
             <div className={styles.header}>
                 <div className={styles.headerContent}>
                     <div>
@@ -206,35 +312,307 @@ export default function ActiveUsers() {
                 </div>
             )}
 
-            {activeUsers.length === 0 ? (
-                <div className={styles.noUsers}>
-                    <p>No Active Users Currently</p>
+            {/* Search and Filter Controls */}
+            <div className={styles.searchFilterContainer}>
+                <div className={styles.searchBox}>
+                    <input
+                        type="text"
+                        placeholder="Search users by name, email, or company..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className={styles.searchInput}
+                    />
                 </div>
-            ) : (
-                <div className={styles.userList}>
-                    {activeUsers.map((user) => (
-                        <div key={user.id} className={styles.userCard}>
-                            <div className={styles.userInfo}>
-                                <h3>{user.first_name} {user.last_name}</h3>
-                                <p><strong>Email:</strong> {user.email}</p>
-                                {user.company && <p><strong>Company:</strong> {user.company}</p>}
-                                {user.phone && <p><strong>Phone:</strong> {user.phone}</p>}
-                                {user.address && <p><strong>Address:</strong> {user.address}</p>}
-                            </div>
+                
+                <div className={styles.filterControls}>
+                    <select
+                        value={filterType}
+                        onChange={(e) => setFilterType(e.target.value as any)}
+                        className={styles.filterSelect}
+                    >
+                        <option value="all">All Types</option>
+                        <option value="borrower">Borrowers</option>
+                        <option value="lender">Lenders</option>
+                        <option value="admin">Admins</option>
+                        <option value="super_admin">Super Admins</option>
+                    </select>
+                    
+                    <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value as any)}
+                        className={styles.filterSelect}
+                    >
+                        <option value="name">Sort by Name</option>
+                        <option value="email">Sort by Email</option>
+                        <option value="company">Sort by Company</option>
+                        <option value="created_at">Sort by Date</option>
+                    </select>
+                    
+                    <button
+                        onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+                        className={styles.sortButton}
+                    >
+                        {sortOrder === 'asc' ? '↑ Ascending' : '↓ Descending'}
+                    </button>
+                </div>
+            </div>
 
-                            <div className={styles.actions}>
-                                <button className={styles.viewButton}>View</button>
-                                <button
-                                    onClick={() => openEditModal(user)}
-                                    className={styles.editButton}
-                                >
-                                    Edit
-                                </button>
+            <div className={styles.contentWrapper}>
+
+            <div className={styles.sectionHeader} onClick={() => toggleSection('borrowers')}>
+                <h2 className={styles.sectionTitleBorrower}>Borrowers ({borrowers.length})</h2>
+                <span className={`${styles.dropdownArrow} ${expandedSections.borrowers ? styles.expanded : ''}`}>
+                    ▼
+                </span>
+            </div>
+            <div className={`${styles.userListContainer} ${expandedSections.borrowers ? styles.expanded : styles.collapsed}`}>
+                {borrowers.length === 0 ? (
+                    <div className={styles.noUsers}>
+                        <p>No Active Borrowers</p>
+                    </div>
+                ) : (
+                    <div className={styles.userList}>
+                        {getFilteredBorrowers().map((user) => {
+                            const isSelf = String(user.id) === String(session?.user?.id);
+                            return (
+                            <div key={user.id} className={`${styles.userCard} ${styles.borrowerCard}`}>
+                                <div className={styles.userInfo}>
+                                    <h3>{user.first_name} {user.last_name}</h3>
+                                    <p><strong>Email:</strong> {user.email}</p>
+                                    {user.company && <p><strong>Company:</strong> {user.company}</p>}
+                                    {user.phone && <p><strong>Phone:</strong> {user.phone}</p>}
+                                    {user.address && <p><strong>Address:</strong> {user.address}</p>}
+                                </div>
+
+                                <div className={styles.actions}>
+                                    <button className={styles.viewButton}>View</button>
+                                    <button
+                                        onClick={() => openEditModal(user)}
+                                        className={styles.editButton}
+                                    >
+                                        Edit
+                                    </button>
+                                    {isSelf ? (
+                                        <span className={styles.helperText}>You cannot archive your own account</span>
+                                    ) : (
+                                        <button
+                                            onClick={async () => {
+                                                if (!confirm('Archive this user? They will lose access until restored.')) return;
+                                                try {
+                                                    const res = await fetch('/api/admin/users/archive', {
+                                                        method: 'PATCH',
+                                                        headers: { 'Content-Type': 'application/json' },
+                                                        body: JSON.stringify({ userId: user.id, archived: true })
+                                                    });
+                                                    if (res.ok) {
+                                                        setMessage({ type: 'success', text: 'User archived' });
+                                                        fetchActiveUsers();
+                                                    } else {
+                                                        const e = await res.json();
+                                                        setMessage({ type: 'error', text: e.error || 'Failed to archive user' });
+                                                    }
+                                                } catch (_) {
+                                                    setMessage({ type: 'error', text: 'Network error while archiving user' });
+                                                }
+                                            }}
+                                            className={styles.deleteButton}
+                                        >
+                                            Archive
+                                        </button>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
-            )}
+                        )})}
+                    </div>
+                )}
+            </div>
+
+            <div className={styles.sectionHeader} onClick={() => toggleSection('lenders')}>
+                <h2 className={styles.sectionTitleLender}>Lenders ({lenders.length})</h2>
+                <span className={`${styles.dropdownArrow} ${expandedSections.lenders ? styles.expanded : ''}`}>
+                    ▼
+                </span>
+            </div>
+            <div className={`${styles.userListContainer} ${expandedSections.lenders ? styles.expanded : styles.collapsed}`}>
+                {lenders.length === 0 ? (
+                    <div className={styles.noUsers}>
+                        <p>No Active Lenders</p>
+                    </div>
+                ) : (
+                    <div className={styles.userList}>
+                        {getFilteredLenders().map((user) => {
+                            const isSelf = String(user.id) === String(session?.user?.id);
+                            return (
+                            <div key={user.id} className={`${styles.userCard} ${styles.lenderCard}`}>
+                                <div className={styles.userInfo}>
+                                    <h3>{user.first_name} {user.last_name}</h3>
+                                    <p><strong>Email:</strong> {user.email}</p>
+                                    {user.company && <p><strong>Company:</strong> {user.company}</p>}
+                                    {user.phone && <p><strong>Phone:</strong> {user.phone}</p>}
+                                    {user.address && <p><strong>Address:</strong> {user.address}</p>}
+                                </div>
+
+                                <div className={styles.actions}>
+                                    <button className={styles.viewButton}>View</button>
+                                    <button
+                                        onClick={() => openEditModal(user)}
+                                        className={styles.editButton}
+                                    >
+                                        Edit
+                                    </button>
+                                    {isSelf ? (
+                                        <span className={styles.helperText}>You cannot archive your own account</span>
+                                    ) : (
+                                        <button
+                                            onClick={async () => {
+                                                if (!confirm('Archive this user? They will lose access until restored.')) return;
+                                                try {
+                                                    const res = await fetch('/api/admin/users/archive', {
+                                                        method: 'PATCH',
+                                                        headers: { 'Content-Type': 'application/json' },
+                                                        body: JSON.stringify({ userId: user.id, archived: true })
+                                                    });
+                                                    if (res.ok) {
+                                                        setMessage({ type: 'success', text: 'User archived' });
+                                                        fetchActiveUsers();
+                                                    } else {
+                                                        const e = await res.json();
+                                                        setMessage({ type: 'error', text: e.error || 'Failed to archive user' });
+                                                    }
+                                                } catch (_) {
+                                                    setMessage({ type: 'error', text: 'Network error while archiving user' });
+                                                }
+                                            }}
+                                            className={styles.deleteButton}
+                                        >
+                                            Archive
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        )})}
+                    </div>
+                )}
+            </div>
+
+            <div className={styles.sectionHeader} onClick={() => toggleSection('admins')}>
+                <h2 className={styles.sectionTitleAdmin}>Admins ({adminUsers.length})</h2>
+                <span className={`${styles.dropdownArrow} ${expandedSections.admins ? styles.expanded : ''}`}>
+                    ▼
+                </span>
+            </div>
+            <div className={`${styles.userListContainer} ${expandedSections.admins ? styles.expanded : styles.collapsed}`}>
+                {adminUsers.length === 0 ? (
+                    <div className={styles.noUsers}>
+                        <p>No Active Admins</p>
+                    </div>
+                ) : (
+                    <div className={styles.userList}>
+                        {getFilteredAdmins().map((user) => {
+                            const isSelf = String(user.id) === String(session?.user?.id);
+                            const targetIsSuper = Boolean(user.is_super_admin);
+                            const canArchive = isSuperAdmin && !isSelf && !targetIsSuper; // only super admin can archive admins (not super admin) and not self
+                            return (
+                            <div key={user.id} className={`${styles.userCard} ${styles.adminCard}`}>
+                                <div className={styles.userInfo}>
+                                    <h3>{user.first_name} {user.last_name}</h3>
+                                    <p><strong>Email:</strong> {user.email}</p>
+                                    {user.company && <p><strong>Company:</strong> {user.company}</p>}
+                                    {user.phone && <p><strong>Phone:</strong> {user.phone}</p>}
+                                    {user.address && <p><strong>Address:</strong> {user.address}</p>}
+                                </div>
+
+                                <div className={styles.actions}>
+                                    <button className={styles.viewButton}>View</button>
+                                    <button
+                                        onClick={() => openEditModal(user)}
+                                        className={styles.editButton}
+                                    >
+                                        Edit
+                                    </button>
+                                    {canArchive ? (
+                                    <button
+                                        onClick={async () => {
+                                            if (!confirm('Archive this admin? Only Super Admin can reverse this. Proceed?')) return;
+                                            try {
+                                                const res = await fetch('/api/admin/users/archive', {
+                                                    method: 'PATCH',
+                                                    headers: { 'Content-Type': 'application/json' },
+                                                    body: JSON.stringify({ userId: user.id, archived: true })
+                                                });
+                                                if (res.ok) {
+                                                    setMessage({ type: 'success', text: 'User archived' });
+                                                    fetchActiveUsers();
+                                                } else {
+                                                    const e = await res.json();
+                                                    setMessage({ type: 'error', text: e.error || 'Failed to archive user' });
+                                                }
+                                            } catch (_) {
+                                                setMessage({ type: 'error', text: 'Network error while archiving user' });
+                                            }
+                                        }}
+                                        className={styles.deleteButton}
+                                    >
+                                        Archive
+                                    </button>
+                                    ) : (
+                                        (() => {
+                                            let reasonText = '';
+                                            if (isSelf) {
+                                                reasonText = 'You cannot archive your own account';
+                                            } else if (targetIsSuper) {
+                                                reasonText = 'You cannot archive a Super Admin';
+                                            } else if (!isSuperAdmin) {
+                                                reasonText = 'Only Super Admin can archive other admins';
+                                            }
+                                            return <span className={styles.helperText}>{reasonText}</span>;
+                                        })()
+                                    )}
+                                </div>
+                            </div>
+                        )})}
+                    </div>
+                )}
+            </div>
+
+            <div className={styles.sectionHeader} onClick={() => toggleSection('superAdmins')}>
+                <h2 className={styles.sectionTitleSuper}>Super Admin ({superAdmins.length})</h2>
+                <span className={`${styles.dropdownArrow} ${expandedSections.superAdmins ? styles.expanded : ''}`}>
+                    ▼
+                </span>
+            </div>
+            <div className={`${styles.userListContainer} ${expandedSections.superAdmins ? styles.expanded : styles.collapsed}`}>
+                {superAdmins.length === 0 ? (
+                    <div className={styles.noUsers}>
+                        <p>No Super Admins Found</p>
+                    </div>
+                ) : (
+                    <div className={styles.userList}>
+                        {getFilteredSuperAdmins().map((user) => (
+                            <div key={user.id} className={`${styles.userCard} ${styles.superAdminCard}`}>
+                                <div className={styles.userInfo}>
+                                    <h3>{user.first_name} {user.last_name}</h3>
+                                    <p><strong>Email:</strong> {user.email}</p>
+                                    {user.company && <p><strong>Company:</strong> {user.company}</p>}
+                                    {user.phone && <p><strong>Phone:</strong> {user.phone}</p>}
+                                    {user.address && <p><strong>Address:</strong> {user.address}</p>}
+                                </div>
+
+                                <div className={styles.actions}>
+                                    <button className={styles.viewButton}>View</button>
+                                    <button
+                                        onClick={() => openEditModal(user)}
+                                        className={styles.editButton}
+                                    >
+                                        Edit
+                                    </button>
+                                    <span className={styles.helperText}>You cannot archive a Super Admin</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
 
             {/* Global Edit Modal */}
             {showEditModal && (
@@ -351,6 +729,7 @@ export default function ActiveUsers() {
                     </div>
                 </div>
             )}
+            </div>
         </div>
     );
 }

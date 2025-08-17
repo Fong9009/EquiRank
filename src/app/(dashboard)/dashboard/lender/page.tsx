@@ -1,18 +1,34 @@
+'use client';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-export default async function LenderDashboard(){
-    const session = await auth();
+export default function LenderDashboard(){
+    const { data: session, status } = useSession();
+    const router = useRouter();
+    const [activeTab, setActiveTab] = useState('dashboard');
 
-    if (!session || !session.user || session.user.userType !== 'lender') {
-        redirect('/login'); // or redirect somewhere else
+    useEffect(() => {
+        if (status === 'loading') return;
+        
+        if (!session || !session.user || (session.user as any).userType !== 'lender') {
+            router.push('/login');
+        }
+    }, [session, status, router]);
+
+    if (status === 'loading') {
+        return <div>Loading...</div>;
     }
 
-    const role = session.user.userType;
+    if (!session || !session.user || (session.user as any).userType !== 'lender') {
+        return null;
+    }
+
+    const role = (session.user as any).userType;
 
     return (
-        <DashboardLayout role={role}>
+        <DashboardLayout role={role} activeTab={activeTab} setActiveTab={setActiveTab}>
             <div>
                 <h1>Lender Dashboard</h1>
             </div>

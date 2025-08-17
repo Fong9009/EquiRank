@@ -7,6 +7,13 @@
     padding: 20px;
     max-width: 1200px;
     margin: 0 auto;
+    min-height: 100vh;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    background: inherit;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
 
 .header {
@@ -32,6 +39,39 @@
     color: rgba(255, 255, 255, 0.8);
     margin: 0;
     font-size: 1.1rem;
+}
+
+/* Dropdown section styles */
+.sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 15px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    margin: 20px 0 15px 0;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transform-origin: top;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.sectionHeader:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.dropdownArrow {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.7);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+}
+
+.dropdownArrow.expanded {
+    transform: rotate(180deg);
 }
 
 .logoutButton {
@@ -83,9 +123,270 @@
     font-size: 1.1rem;
 }
 
+.sectionTitle {
+    color: #ffffff;
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.sectionTitleAdmin {
+    color: #4fc3f7; /* blue accent for admins */
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.sectionTitleSuper {
+    color: #ffd54f; /* amber accent for super admins */
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.sectionTitleBorrower {
+    color: #81c784; /* green accent */
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+/* First section header should have less top margin */
+.sectionHeader:first-of-type {
+    margin-top: 15px;
+}
+
+
+
+.sectionTitleLender {
+    color: #ba68c8; /* purple accent */
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.borrowerCard {
+    border-bottom-color: #81c784; /* green underline */
+}
+
+.lenderCard {
+    border-bottom-color: #ba68c8; /* purple underline */
+}
+
+.adminCard {
+    border-bottom-color: #4fc3f7; /* blue underline */
+}
+
+.superAdminCard {
+    border-bottom-color: #ffd54f; /* amber underline */
+}
+
+/* Ensure Super Admin section behaves consistently */
+.userListContainer:last-child {
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+
+.userListContainer:last-child.expanded {
+    margin-bottom: 0;
+    flex: 1;
+}
+
+/* Container for smooth dropdown transitions */
+.userListContainer {
+    overflow: visible;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0 0 15px 0;
+    transform-origin: top;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.userListContainer.expanded {
+    max-height: 2000px;
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+    visibility: visible;
+    margin-bottom: 15px;
+    width: 100%;
+    flex: 1;
+}
+
+.userListContainer.collapsed {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px) scaleY(0.95);
+    margin: 0;
+    padding: 0 0 30px 0;
+    visibility: hidden;
+    pointer-events: none;
+    min-height: 0;
+    width: 100%;
+    flex: 0;
+}
+
+/* Smooth page content flow */
 .userList {
     display: grid;
     gap: 20px;
+    overflow: visible;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: slideDown 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 5px 0;
+    transform-origin: top;
+    width: 100%;
+    min-height: 0;
+}
+
+/* Enhanced animations for smooth page expansion */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scaleY(0.95);
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scaleY(1);
+        max-height: 2000px;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 1;
+        transform: translateY(0) scaleY(1);
+        max-height: 2000px;
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px) scaleY(0.95);
+        max-height: 0;
+    }
+}
+
+/* Ensure smooth page height transitions */
+.container > * {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Fix for container height when only one section is open */
+.container.hasExpandedSection {
+    min-height: 100vh;
+}
+
+.container.hasExpandedSection .contentWrapper {
+    min-height: 60vh;
+}
+
+/* Ensure background covers the full viewport */
+.container::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: inherit;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Search and Filter Styles */
+.searchFilterContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.searchBox {
+    width: 100%;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 15px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.searchInput::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.searchInput:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+.filterControls {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.filterSelect {
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 150px;
+}
+
+.filterSelect:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.filterSelect option {
+    background: #1f2123;
+    color: white;
+}
+
+.sortButton {
+    padding: 12px 20px;
+    background: rgba(76, 175, 80, 0.2);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    border-radius: 8px;
+    color: #4caf50;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.sortButton:hover {
+    background: rgba(76, 175, 80, 0.3);
+    border-color: rgba(76, 175, 80, 0.5);
+    transform: translateY(-1px);
+}
+
+/* Content wrapper for proper height management */
+.contentWrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    width: 100%;
+    justify-content: flex-start;
+    align-items: stretch;
 }
 
 .userCard {
@@ -99,12 +400,16 @@
     align-items: flex-start;
     border-bottom: 5px solid #b0e66e;
     transition: all 0.3s ease;
+    margin: 5px 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .userCard:hover {
     background: rgba(255, 255, 255, 0.08);
     border-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
 .userInfo {
@@ -147,6 +452,42 @@
     min-width: 100px;
 }
 
+.deleteButton {
+    background: rgba(244, 67, 54, 0.2);
+    color: #f44336;
+    border: 1px solid rgba(244, 67, 54, 0.3);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    min-width: 100px;
+}
+
+.deleteButton:hover {
+    background: rgba(244, 67, 54, 0.3);
+    border-color: rgba(244, 67, 54, 0.5);
+}
+
+.approveButton {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    min-width: 100px;
+}
+
+.approveButton:hover {
+    background: rgba(76, 175, 80, 0.3);
+    border-color: rgba(76, 175, 80, 0.5);
+}
+
 .viewButton {
     background: rgba(81, 153, 184, 0.2);
     color: #4c86af;
@@ -172,6 +513,22 @@
 .errorText {
     color: red;
 }
+
+.helperText {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.8);
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    line-height: 1.2;
+    width: 150px; 
+    text-align: center;
+    white-space: normal;
+    word-break: break-word;
+}
 .saveButton:disabled {
     background-color: #ccc;
     cursor: not-allowed;
@@ -194,6 +551,38 @@
         margin-left: 0;
         flex-direction: row;
         justify-content: center;
+    }
+    
+    .sectionHeader {
+        padding: 12px 15px;
+    }
+    
+    .sectionTitleBorrower,
+    .sectionTitleLender,
+    .sectionTitleAdmin,
+    .sectionTitleSuper {
+        font-size: 1.2rem;
+    }
+    
+    .searchFilterContainer {
+        padding: 15px;
+        gap: 15px;
+    }
+    
+    .filterControls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filterSelect,
+    .sortButton {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .searchInput {
+        padding: 12px 16px;
+        font-size: 0.9rem;
     }
 }
 

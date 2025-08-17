@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getApprovalUsers } from '@/database/user';
+import { getPendingApprovals } from '@/database/user';
 import { auth } from '@/lib/auth';
 
-// GET /api/admin/contact-messages - Get all archived Contact Messages (admin only)
+// GET /api/admin/users/approval - Get users pending approval (admin only)
 export async function GET(request: NextRequest) {
     try {
         const session = await auth();
@@ -14,7 +14,8 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        const rows = await getApprovalUsers();
+        // Only count users that are not approved AND still active (i.e., not rejected), and not admins
+        const rows = await getPendingApprovals();
         return NextResponse.json(rows);
     } catch (error) {
         console.error('Error fetching users:', error);

@@ -128,6 +128,15 @@ export async function getUserById(id: number): Promise<User | null> {
     return results.length > 0 ? results[0] : null;
 }
 
+export async function getUserByIdAny(id: number): Promise<User | null> {
+    const query = `
+    SELECT * FROM users 
+    WHERE id = ?
+  `;
+    const results = await executeQuery<User>(query, [id]);
+    return results.length > 0 ? results[0] : null;
+}
+
 export async function updateUser(
     id: number,
     updates: Partial<Omit<User, 'id' | 'created_at' | 'updated_at'>>
@@ -176,10 +185,27 @@ export async function getAllUsers(): Promise<User[]> {
 
 export async function getAllActiveUsers(): Promise<User[]> {
     const query = `
-    SELECT id,email,first_name,last_name,user_type,entity_type,company,phone,address FROM users
+    SELECT id,email,first_name,last_name,user_type,entity_type,company,phone,address,is_super_admin FROM users
     WHERE is_active = 1
     ORDER by first_name DESC`;
     return await executeQuery<User>(query);
+}
+
+export async function getAllArchivedUsers(): Promise<User[]> {
+    const query = `
+    SELECT id,email,first_name,last_name,user_type,entity_type,company,phone,address,is_super_admin FROM users
+    WHERE is_active = 0
+    ORDER BY first_name DESC`;
+    return await executeQuery<User>(query);
+}
+
+export async function archiveUser(userId: number, archived: boolean): Promise<boolean> {
+    const query = `
+    UPDATE users
+    SET is_active = ?, updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?`;
+    const result = await executeSingleQuery(query, [archived ? 0 : 1, userId]);
+    return result.affectedRows > 0;
 }
 
 export async function getApprovalUsers(): Promise<User[]> {
@@ -263,5 +289,11 @@ export async function updateUserByID(email:string, first_name:string, last_name:
 export async function updateUserPassword(hashedPassword:string,userId: number): Promise<boolean> {
     const query = `UPDATE users SET password_hash = ? WHERE id = ?`
     const result = await executeSingleQuery(query, [hashedPassword, userId]);
+    return result.affectedRows > 0;
+}
+
+export async function deleteUserById(userId: number): Promise<boolean> {
+    const query = `DELETE FROM users WHERE id = ?`;
+    const result = await executeSingleQuery(query, [userId]);
     return result.affectedRows > 0;
 }
