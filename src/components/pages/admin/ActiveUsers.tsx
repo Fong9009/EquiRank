@@ -37,9 +37,12 @@ export default function ActiveUsers() {
     const { data: session } = useSession()
     const [showEditModal, setShowEditModal] = useState<number | null>(null);
     const [editFormData, setEditFormData] = useState<{ [key: string]: any }>({});
+    const [firstName, setFirstName] = useState<string>('');
+    const [lastName, setLastName] = useState<string>('');
     const [errors, setErrors] = useState({
         first_name: '',
         last_name: '',
+        address: '',
     });
 
     useEffect(() => {
@@ -115,6 +118,15 @@ export default function ActiveUsers() {
             fetchActiveUsers();
 
             setShowEditModal(null);
+            setEmailError(null);
+            setEmail('');
+            setFirstName('');
+            setLastName('');
+            setErrors({
+                first_name: '',
+                last_name: '',
+                address: '',
+            });
         } catch (err) {
             console.error('Update failed:', err);
         }
@@ -124,6 +136,13 @@ export default function ActiveUsers() {
         setShowEditModal(null);
         setEmailError(null);
         setEmail('');
+        setFirstName('');
+        setLastName('');
+        setErrors({
+            first_name: '',
+            last_name: '',
+            address: '',
+        });
     };
 
     if (loading) {
@@ -170,7 +189,6 @@ export default function ActiveUsers() {
         setEmailError(null);
         return true;
     };
-
     return (
         <div className={styles.container}>
             <div className={styles.header}>
@@ -253,7 +271,13 @@ export default function ActiveUsers() {
                                     type="text"
                                     value={editFormData[showEditModal]?.first_name || ''}
                                     onChange={(e) => {
-                                        handleEditChange(showEditModal, 'first_name', e.target.value)
+                                        const value = e.target.value;
+                                        handleEditChange(showEditModal, 'first_name',  value)
+                                        const error = validateName(value);
+                                        setErrors((prev) => ({
+                                            ...prev,
+                                            first_name: error || "",
+                                        }));
                                     }}
                                     className={styles.editInput}
                                 />
@@ -263,8 +287,16 @@ export default function ActiveUsers() {
                                 <input
                                     type="text"
                                     value={editFormData[showEditModal]?.last_name || ''}
-                                    onChange={(e) =>
+                                    onChange={(e) => {
+                                        const value = e.target.value;
                                         handleEditChange(showEditModal, 'last_name', e.target.value)
+                                        const error = validateName(value);
+                                        setErrors((prev) => ({
+                                            ...prev,
+                                            last_name: error || "",
+                                        }));
+                                    }
+
                                     }
                                     className={styles.editInput}
                                 />
@@ -283,15 +315,27 @@ export default function ActiveUsers() {
                                 <label>Address</label>
                                 <textarea
                                     value={editFormData[showEditModal]?.address || ''}
-                                    onChange={(e) =>
-                                        handleEditChange(showEditModal, 'address', e.target.value)
+                                    onChange={(e) =>{
+                                        const value = e.target.value;
+                                        handleEditChange(showEditModal, 'address', e.target.value);
+                                        if (!value.trim()) {
+                                            setErrors((prev) => ({ ...prev, address: 'Address cannot be blank' }));
+                                        } else {
+                                            setErrors((prev) => ({ ...prev, address: '' }));
+                                        }
+                                    }
                                     }
                                     rows={3}
                                     className={styles.editTextarea}
                                 />
+                                {errors.address && <p className={styles.errorText}>{errors.address}</p>}
 
                                 <div className={styles.editActions}>
-                                    <button type="submit" className={styles.saveButton}>
+                                    <button
+                                        type="submit"
+                                        className={styles.saveButton}
+                                        disabled={Boolean(errors.first_name || errors.address ||errors.last_name || emailError)}
+                                    >
                                         Save Changes
                                     </button>
                                     <button

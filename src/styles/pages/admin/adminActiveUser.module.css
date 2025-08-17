@@ -97,6 +97,7 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    border-bottom: 5px solid #b0e66e;
     transition: all 0.3s ease;
 }
 
@@ -166,6 +167,15 @@
 .editButton:hover {
     background: rgba(255, 235, 59, 0.3);
     border-color: rgba(255, 235, 59, 0.5);
+}
+
+.errorText {
+    color: red;
+}
+.saveButton:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    color: #666;
 }
 
 /* Responsive design */
