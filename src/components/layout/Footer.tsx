@@ -15,7 +15,7 @@ export default function Footer() {
                 <div className={styles.footerColumn}>
                     <h3 className={clsx(styles.columnTitle,styles.columnTitleUnderline)}>About</h3>
                     <Link className={styles.columnLink} href="/about">About Us</Link>
-                    <Link className={styles.columnLink} href="/pricing">Pricing</Link>
+                    {/* <Link className={styles.columnLink} href="/pricing">Pricing</Link>*/}
                 </div>
                 <div className={styles.footerColumn}>
                     <h3 className={clsx(styles.columnTitle,styles.columnTitleUnderline)}>Resources</h3>
@@ -26,7 +26,7 @@ export default function Footer() {
                     <h3 className={clsx(styles.columnTitle,styles.columnTitleUnderline)}>Support</h3>
                     <p className={styles.columnText}>Phone: </p>
                     <p className={styles.columnText}>Email: </p>
-                    <Link className={styles.columnLink} href="/contact">Contact Us</Link>
+                    <Link className={styles.columnLink} href="/contact-us">Contact Us</Link>
                 </div>
             </div>
             <div className={styles.footerBottom}>

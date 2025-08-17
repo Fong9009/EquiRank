@@ -3,6 +3,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import LenderHomepage from "@/components/pages/lender/LenderHomepage";
 
 export default function LenderDashboard(){
     const { data: session, status } = useSession();
@@ -13,8 +14,14 @@ export default function LenderDashboard(){
     useEffect(() => {
         if (status === 'loading') return;
 
-        if (!session?.user || (session.user as any).userType !== 'lender') {
-            router.push('/login');
+        if (!session?.user || session.user.userType !== 'lender') {
+            if(!session?.user){
+                router.push('/login');
+            } else if (session.user.userType === 'admin') {
+                router.push('/dashboard/admin');
+            } else {
+                router.push('/dashboard/borrower');
+            }
             return;
         }
 
@@ -33,16 +40,14 @@ export default function LenderDashboard(){
 
     const renderTab = () => {
         switch (activeTab) {
-            case "dashboard":
-                return <div><h1>Lender Dashboard</h1></div>;
             case "home":
-                return <div>PLACEHOLDER</div>;
-            case "PLACEHOLDER1":
+                return <LenderHomepage/>;
+            case "settings":
                 return <div>PLACEHOLDER</div>;
             case "PLACEHOLDER2":
                 return <div>PLACEHOLDER</div>;
             default:
-                return <div><h1>Lender Dashboard</h1></div>;
+                return <LenderHomepage/>;
         }
     };
 
