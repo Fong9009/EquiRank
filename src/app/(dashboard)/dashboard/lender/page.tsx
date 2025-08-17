@@ -1,21 +1,48 @@
+'use client';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
+import {redirect, useRouter} from 'next/navigation';
+import {useSession} from "next-auth/react";
+import {useEffect, useState} from "react";
 
 export default async function LenderDashboard(){
-    const session = await auth();
+    const { data: session, status } = useSession();
+    const router = useRouter();
+    const [activeTab, setActiveTab] = useState('home');
+    const [isReady, setIsReady] = useState(false);
 
-    if (!session || !session.user || session.user.userType !== 'lender') {
-        redirect('/login'); // or redirect somewhere else
+    useEffect(() => {
+        if (status === 'loading') return;
+
+        if (!session?.user || session.user.userType !== 'lender') {
+            router.push('/login');
+            return;
+        }
+
+        setIsReady(true);
+    }, [session, status, router]);
+
+    if (!isReady || !session?.user) {
+        return <p>Loading...</p>;
     }
 
     const role = session.user.userType;
 
+    const renderTab = () => {
+        switch (activeTab) {
+            case "home":
+                return <div>PLACEHOLDER</div>;
+            case "PLACEHOLDER1":
+                return <div>PLACEHOLDER</div>;
+            case "PLACEHOLDER2":
+                return <div>PLACEHOLDER</div>;
+            default:
+                return <div>PLACEHOLDER</div>;
+        }
+    };
+
     return (
-        <DashboardLayout role={role}>
-            <div>
-                <h1>Lender Dashboard</h1>
-            </div>
+        <DashboardLayout role={role} activeTab={activeTab} setActiveTab={setActiveTab}>
+            {renderTab()}
         </DashboardLayout>
     );
 }
