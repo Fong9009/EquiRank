@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import styles from '@/styles/pages/register/registrationForm.module.css';
 
 interface FormData {
@@ -48,6 +49,12 @@ export default function RegistrationForm() {
         delete newErrors[name];
         return newErrors;
       });
+    }
+  };
+
+  const scrollToTop = () => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -141,6 +148,7 @@ export default function RegistrationForm() {
     type: 'success',
     text: 'Registration submitted successfully! Your account is pending admin approval. You will receive an email once approved.'
   });
+        scrollToTop();
         
         // Reset form
         setFormData({
@@ -161,12 +169,14 @@ export default function RegistrationForm() {
           type: 'error',
           text: error.error || 'Registration failed. Please try again.'
         });
+        scrollToTop();
       }
     } catch (error) {
       setSubmitMessage({
         type: 'error',
         text: 'Network error. Please check your connection and try again.'
       });
+      scrollToTop();
     } finally {
       setIsSubmitting(false);
     }
@@ -414,7 +424,7 @@ export default function RegistrationForm() {
         </form>
 
         <div className={styles.loginLink}>
-          <p>Already have an account? <span className={styles.link}>Contact us to sign in</span></p>
+          <p>Already have an account? <Link href="/login" className={styles.link}>Sign in</Link></p>
         </div>
       </div>
     </div>

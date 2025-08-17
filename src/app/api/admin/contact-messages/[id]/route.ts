@@ -73,6 +73,14 @@ export async function POST(
       );
     }
 
+    // Disallow replies to closed messages
+    if (message.status === 'closed') {
+      return NextResponse.json(
+        { error: 'Cannot reply to a closed conversation' },
+        { status: 400 }
+      );
+    }
+
     // Create admin reply in conversation thread
     const adminReplyId = await createAdminReply(
       message.conversation_id,
@@ -139,9 +147,9 @@ export async function PATCH(
     const body = await request.json();
     const { status } = body;
 
-    if (!status || !['new', 'read', 'replied', 'closed'].includes(status)) {
+    if (!status || !['new', 'read', 'replied'].includes(status)) {
       return NextResponse.json(
-        { error: 'Invalid status. Must be new, read, replied, or closed' },
+        { error: 'Invalid status. Must be new, read, or replied' },
         { status: 400 }
       );
     }

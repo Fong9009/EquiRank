@@ -25,7 +25,14 @@ export default function Navbar() {
         <nav className={styles.navbar}>
 
             <div className={styles.logo}>
-                <Link href="/">EquiRank</Link>
+                <Link href="/">
+                    <img 
+                        src="/EquiRank.png" 
+                        alt="EquiRank Logo" 
+                        className={styles.logoImage}
+                    />
+                    <span className={styles.logoText}>EquiRank</span>
+                </Link>
             </div>
             <div className={styles.hamburger} onClick={toggleMenu}>
                 &#9776;

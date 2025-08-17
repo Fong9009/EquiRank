@@ -132,7 +132,14 @@ export default function ArchivedMessages() {
             return (
               <div key={conversationId} className={styles.conversationCard}>
                 <div className={styles.conversationHeader} onClick={() => toggleConversation(conversationId)}>
-                    <h3>{firstMessage.subject}</h3>
+                    <div className={styles.conversationInfo}>
+                      <h3>{firstMessage.subject}</h3>
+                      <div className={styles.conversationMeta}>
+                        <span className={styles.name}>{firstMessage.name}</span>
+                        <span className={styles.email}>{firstMessage.email}</span>
+                        <span className={styles.date}>{new Date(thread[thread.length - 1].created_at).toLocaleDateString()}</span>
+                      </div>
+                    </div>
                     {/* Actions for archived messages */}
                     <div className={styles.conversationStatus}>
                         <button onClick={(e) => { e.stopPropagation(); restoreConversation(conversationId); }} className={`${styles.actionButton} ${styles.reply}`}>Restore</button>
@@ -144,7 +151,12 @@ export default function ArchivedMessages() {
                   <div className={styles.conversationThread}>
                     {thread.map(msg => (
                       <div key={msg.id} className={`${styles.messageItem} ${msg.message_type === 'admin_reply' ? styles.adminMessage : styles.userMessage}`}>
-                        <div className={styles.messageLabel}>{msg.message_type === 'admin_reply' ? 'Admin Reply:' : 'User Message:'}</div>
+                        <div className={styles.messageLabel}>
+                          {msg.message_type === 'admin_reply' ? 'Admin Reply' : 'User Message'}
+                          <span style={{ marginLeft: 8, color: 'rgba(255,255,255,0.7)' }}>
+                            • {msg.name} • {new Date(msg.created_at).toLocaleString()}
+                          </span>
+                        </div>
                         <div className={styles.messageContent}>{msg.message}</div>
                       </div>
                     ))}

@@ -8,7 +8,7 @@
 }
 
 .adminUserPage {
-    min-height: 100vh;
+    min-height: 120vh;
     background: #1f2123;
 }
 
@@ -52,14 +52,14 @@
     display: flex;
     justify-content: center;
     height: 90px;
-    gap: 10px;
+    gap: 20px;
     margin-bottom: 30px;
     padding: 20px;
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 15px;
-    max-width: 600px;
+    max-width: 750px;
     margin-left: auto;
     margin-right: auto;
 }

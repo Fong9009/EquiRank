@@ -82,7 +82,7 @@ export default function ContactMessages() {
     }
   };
 
-  const updateMessageStatus = async (messageId: number, newStatus: 'read' | 'replied' | 'closed') => {
+  const updateMessageStatus = async (messageId: number, newStatus: 'read' | 'replied') => {
     try {
       const response = await fetch(`/api/admin/contact-messages/${messageId}`, {
         method: 'PATCH',
@@ -321,7 +321,6 @@ export default function ContactMessages() {
       case 'new': return styles.new;
       case 'read': return styles.read;
       case 'replied': return styles.replied;
-      case 'closed': return styles.closed;
       default: return '';
     }
   };
@@ -331,7 +330,6 @@ export default function ContactMessages() {
       case 'new': return 'NEW';
       case 'read': return 'READ';
       case 'replied': return 'REPLIED';
-      case 'closed': return 'CLOSED';
       default: return status.toUpperCase();
     }
   };
@@ -411,54 +409,58 @@ export default function ContactMessages() {
             </span>
           </div>
         </div>
-        <div className={styles.filters}>
-          <div className={styles.searchContainer}>
+        {/* Search and Filter Controls */}
+        <div className={styles.searchFilterContainer}>
+          <div className={styles.searchBox}>
             <input
               type="text"
-              placeholder="Search messages..."
+              placeholder="Search messages by name, email, or subject..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className={styles.searchInput}
             />
           </div>
-          <select 
-            value={statusFilter} 
-            onChange={(e) => setStatusFilter(e.target.value as any)}
-            className={styles.statusFilter}
-          >
-            <option value="all">All Inquiries</option>
-            <option value="new">New</option>
-            <option value="read">Read</option>
-            <option value="replied">Replied</option>
-            <option value="closed">Closed</option>
-          </select>
-          <div className={styles.sortContainer}>
+          
+          <div className={styles.filterControls}>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as any)}
+              className={styles.filterSelect}
+            >
+              <option value="all">All Status</option>
+              <option value="new">New</option>
+              <option value="read">Read</option>
+              <option value="replied">Replied</option>
+              <option value="closed">Closed</option>
+            </select>
+            
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className={styles.sortSelect}
+              className={styles.filterSelect}
             >
               <option value="date">Sort by Date</option>
               <option value="name">Sort by Name</option>
               <option value="subject">Sort by Subject</option>
             </select>
+            
             <button
               onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
-              className={styles.sortOrderButton}
-              title={sortOrder === 'asc' ? 'Sort Descending' : 'Sort Ascending'}
+              className={styles.sortButton}
             >
-              {sortOrder === 'asc' ? '↑' : '↓'}
+              {sortOrder === 'asc' ? '↑ Ascending' : '↓ Descending'}
             </button>
+            
+            {messages.some(msg => msg.status === 'new') && (
+              <button
+                onClick={markAllAsRead}
+                className={styles.markAllReadButton}
+                title="Mark all new messages as read"
+              >
+                Mark All as Read
+              </button>
+            )}
           </div>
-          {messages.some(msg => msg.status === 'new') && (
-            <button
-              onClick={markAllAsRead}
-              className={styles.markAllReadButton}
-              title="Mark all new messages as read"
-            >
-              Mark All as Read
-            </button>
-          )}
         </div>
       </div>
 
@@ -491,10 +493,10 @@ export default function ContactMessages() {
                         {new Date(lastMessage.created_at).toLocaleDateString()}
                       </span>
                       <span className={styles.messageCount}>
-                        {thread.filter(msg => msg.message_type === 'user_message').length} message{thread.filter(msg => msg.message_type === 'user_message').length !== 1 ? 's' : ''}
+                        {thread.filter(msg => msg.message_type === 'user_message' && msg.status !== 'new').length} message{thread.filter(msg => msg.message_type === 'user_message' && msg.status !== 'new').length !== 1 ? 's' : ''}
                         {thread.filter(msg => msg.message_type === 'admin_reply').length > 0 && (
                           <span className={styles.replyCount}>
-                            {' • '}
+                            {' \u2022 '}
                             {thread.filter(msg => msg.message_type === 'admin_reply').length} repl{thread.filter(msg => msg.message_type === 'admin_reply').length !== 1 ? 'ies' : 'y'}
                           </span>
                         )}
@@ -518,18 +520,7 @@ export default function ContactMessages() {
                       </button>
                     )}
 
-                    {firstMessage.status === 'replied' && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          updateMessageStatus(firstMessage.id, 'closed');
-                        }}
-                        className={`${styles.actionButton} ${styles.closed}`}
-                        title="Mark as Closed"
-                      >
-                        CLOSED
-                      </button>
-                    )}
+                    
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();
@@ -570,7 +561,7 @@ export default function ContactMessages() {
                                 Mark as Read
                               </button>
                             )}
-                            {msg.status !== 'replied' && (
+                            {(msg.status === 'new' || msg.status === 'read') && (
                               <button
                                 onClick={() => handleReplyClick(msg.id)}
                                 className={`${styles.actionButton} ${styles.reply}`}
