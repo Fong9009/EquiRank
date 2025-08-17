@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllUsers, getUsersByType } from '@/database/user';
+import { getAllUsers, getUsersByType, createAdminUser } from '@/database/user';
+import { hashPassword } from '@/lib/security';
 import { auth } from '@/lib/auth';
 
 // GET /api/admin/users - Get all users (admin only)
@@ -50,9 +51,31 @@ export async function GET(request: NextRequest) {
 }
 
 // POST not allowed for this endpoint
-export async function POST() {
-  return NextResponse.json(
-    { error: 'Method not allowed' },
-    { status: 405 }
-  );
+export async function POST(request: NextRequest) {
+  try {
+    const session = await auth();
+    if (!session || !session.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Only super admin can create admin users
+    if ((session.user as any).isSuperAdmin !== true) {
+      return NextResponse.json({ error: 'Forbidden: Super Admin required' }, { status: 403 });
+    }
+
+    const body = await request.json();
+    const { email, password, firstName, lastName, phone } = body;
+
+    if (!email || !password || !firstName || !lastName || !phone) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    const passwordHash = await hashPassword(password);
+    const adminId = await createAdminUser(email, passwordHash, firstName, lastName, 'company', undefined, phone);
+
+    return NextResponse.json({ message: 'Admin user created', userId: adminId }, { status: 201 });
+  } catch (error) {
+    console.error('Create admin error:', error);
+    return NextResponse.json({ error: 'Failed to create admin' }, { status: 500 });
+  }
 }

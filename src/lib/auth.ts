@@ -61,6 +61,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             company: typedUser.company,
             isApproved: typedUser.is_approved,
             isActive: typedUser.is_active,
+            isSuperAdmin: Boolean((typedUser as any).is_super_admin),
           };
         } catch (error) {
           console.error("Auth error:", error);
@@ -77,6 +78,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.company = user.company;
         token.isApproved = user.isApproved;
         token.isActive = user.isActive;
+        token.isSuperAdmin = Boolean(user.isSuperAdmin);
         token.iat = Math.floor(Date.now() / 1000);
         token.exp = Math.floor(Date.now() / 1000) + (SESSION_CONFIG.maxAge);
       }
@@ -90,6 +92,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.company = token.company;
         session.user.isApproved = token.isApproved;
         session.user.isActive = token.isActive;
+        session.user.isSuperAdmin = Boolean(token.isSuperAdmin);
       }
       return session;
     }

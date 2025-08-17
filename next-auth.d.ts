@@ -12,6 +12,7 @@ declare module "next-auth" {
       company?: string
       isApproved: boolean
       isActive: boolean
+      isSuperAdmin?: boolean
     }
   }
 
@@ -24,6 +25,7 @@ declare module "next-auth" {
     company?: string
     isApproved: boolean
     isActive: boolean
+    isSuperAdmin?: boolean
   }
 }
 
@@ -34,5 +36,6 @@ declare module "next-auth/jwt" {
     company?: string
     isApproved: boolean
     isActive: boolean
+    isSuperAdmin?: boolean
   }
 }
