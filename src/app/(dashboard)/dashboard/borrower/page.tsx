@@ -1,47 +1,48 @@
 'use client';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import {useRouter} from 'next/navigation';
-import {useSession} from "next-auth/react";
-import {useEffect, useState} from "react";
-import BorrowerHomepage from "@/components/pages/borrower/BorrowerHomepage";
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function BorrowerDashboard(){
     const { data: session, status } = useSession();
     const router = useRouter();
-    const [activeTab, setActiveTab] = useState('home');
+    const [activeTab, setActiveTab] = useState('dashboard');
     const [isReady, setIsReady] = useState(false);
 
     useEffect(() => {
         if (status === 'loading') return;
 
-        if (!session?.user || session.user.userType !== 'borrower') {
-            if(!session?.user){
-                router.push('/login');
-            } else if (session.user.userType === 'admin') {
-                router.push('/dashboard/admin');
-            } else {
-                router.push('/dashboard/lender');
-            }
+        if (!session?.user || (session.user as any).userType !== 'borrower') {
+            router.push('/login');
             return;
         }
 
         setIsReady(true);
     }, [session, status, router]);
 
-    if (!isReady || !session?.user) {
-        return <p>Loading...</p>;
+    if (status === 'loading') {
+        return <div>Loading...</div>;
     }
 
-    const role = session.user.userType;
+    if (!isReady || !session?.user || (session.user as any).userType !== 'borrower') {
+        return null;
+    }
+
+    const role = (session.user as any).userType;
 
     const renderTab = () => {
         switch (activeTab) {
+            case "dashboard":
+                return <div><h1>Borrower Dashboard</h1></div>;
             case "home":
-                return <BorrowerHomepage/>;
-            case "settings":
+                return <div>PLACEHOLDER</div>;
+            case "PLACEHOLDER1":
+                return <div>PLACEHOLDER</div>;
+            case "PLACEHOLDER2":
                 return <div>PLACEHOLDER</div>;
             default:
-                return <div>PLACEHOLDER</div>;
+                return <div><h1>Borrower Dashboard</h1></div>;
         }
     };
 

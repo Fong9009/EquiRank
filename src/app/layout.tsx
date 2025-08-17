@@ -9,6 +9,11 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'EquiRank - Your Financial Partner',
   description: 'Connect with borrowers and lenders in a secure, transparent financial marketplace.',
+  icons: {
+    icon: '/EquiRank.png',
+    shortcut: '/EquiRank.png',
+    apple: '/EquiRank.png',
+  },
 }
 
 export default function RootLayout({

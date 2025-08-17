@@ -4,13 +4,13 @@ import {useSession} from "next-auth/react";
 import {useEffect, useState} from "react";
 import {useRouter} from "next/navigation";
 import ApprovalDashboard from "@/components/pages/admin/ApprovalDashboard";
-import ContactMessages from "@/components/pages/admin/ContactMessages";
-import ArchivedMessages from "@/components/pages/admin/ArchivedMessages";
+import AddAdmin from "@/components/pages/admin/AddAdmin";
 import ActiveUsers from "@/components/pages/admin/ActiveUsers";
+import ArchivedUsers from "./ArchivedUsers";
 
 export default function AdminUserPage() {
     const { data: session, status } = useSession();
-    const [activeTab, setActiveTab] = useState<'active' | 'archived' | 'approval'>('active');
+    const [activeTab, setActiveTab] = useState<'active' | 'approvals' | 'archived' | 'add-admin'>('active');
 
     const router = useRouter();
 
@@ -39,11 +39,20 @@ export default function AdminUserPage() {
         );
     }
 
+    const isSuperAdmin = Boolean((session?.user as any)?.isSuperAdmin);
+
+    // Prevent non–super admins from accessing the Add Admin tab directly
+    useEffect(() => {
+        if (!isSuperAdmin && activeTab === 'add-admin') {
+            setActiveTab('active');
+        }
+    }, [isSuperAdmin, activeTab]);
+
     return (
         <div className={styles.adminUserPage}>
             <h1 className={styles.adminTitle}>Manage Users</h1>
             <div className={styles.dividerContainer}><hr className={styles.divider}></hr></div>
-            <div className={styles.tabContainer}>
+            <div className={styles.tabContainer} style={{ maxWidth: Boolean((session?.user as any)?.isSuperAdmin) ? '750px' : '575px' }}>
                 <button
                     className={`${styles.tabButton} ${activeTab === 'active' ? styles.active : ''}`}
                     onClick={() => setActiveTab('active')}
@@ -51,22 +60,33 @@ export default function AdminUserPage() {
                     Active Users
                 </button>
                 <button
-                    className={`${styles.tabButton} ${activeTab === 'approval' ? styles.active : ''}`}
-                    onClick={() => setActiveTab('approval')}
+                    className={`${styles.tabButton} ${activeTab === 'approvals' ? styles.active : ''}`}
+                    onClick={() => setActiveTab('approvals')}
                 >
-                    User Approval
+                    User Approvals
                 </button>
                 <button
                     className={`${styles.tabButton} ${activeTab === 'archived' ? styles.active : ''}`}
                     onClick={() => setActiveTab('archived')}
                 >
-                    Archived
+                    Inactive Users
                 </button>
+                {isSuperAdmin && (
+                    <button
+                        className={`${styles.tabButton} ${activeTab === 'add-admin' ? styles.active : ''}`}
+                        onClick={() => setActiveTab('add-admin')}
+                    >
+                        Add Admin
+                    </button>
+                )}
+                
             </div>
             <div className={styles.tabContent}>
                 {activeTab === 'active' && <ActiveUsers/>}
-                {activeTab === 'approval' && <ApprovalDashboard />}
-                {activeTab === 'archived' && <ArchivedMessages />}
+                {activeTab === 'approvals' && <ApprovalDashboard />}
+                {activeTab === 'archived' && <ArchivedUsers />}
+                {isSuperAdmin && activeTab === 'add-admin' && <AddAdmin />}
+                
             </div>
         </div>
     );

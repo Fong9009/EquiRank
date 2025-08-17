@@ -105,7 +105,7 @@ export const emailTemplates = {
         
         <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
           <p>This is an automated message. Please do not reply to this email.</p>
-          <p>&copy; 2024 EquiRank. All rights reserved.</p>
+          <p>&copy; 2025 EquiRank. All rights reserved.</p>
         </div>
       </div>
     `
@@ -160,7 +160,7 @@ export const emailTemplates = {
         
         <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
           <p>This is an automated message. Please do not reply to this email.</p>
-          <p>&copy; 2024 EquiRank. All rights reserved.</p>
+          <p>&copy; 2025 EquiRank. All rights reserved.</p>
         </div>
       </div>
     `
@@ -208,7 +208,7 @@ export const emailTemplates = {
         
         <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
           <p>This is an automated message. Please do not reply to this email.</p>
-          <p>&copy; 2024 EquiRank. All rights reserved.</p>
+          <p>&copy; 2025 EquiRank. All rights reserved.</p>
         </div>
       </div>
     `
@@ -253,7 +253,7 @@ export const emailTemplates = {
         
         <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
           <p>This is an automated notification. Please do not reply to this email.</p>
-          <p>&copy; 2024 EquiRank. All rights reserved.</p>
+          <p>&copy; 2025 EquiRank. All rights reserved.</p>
         </div>
       </div>
     `
@@ -312,7 +312,7 @@ export const emailTemplates = {
         
         <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
           <p>This is an automated message. Please do not reply to this email.</p>
-          <p>&copy; 2024 EquiRank. All rights reserved.</p>
+          <p>&copy; 2025 EquiRank. All rights reserved.</p>
         </div>
       </div>
     `

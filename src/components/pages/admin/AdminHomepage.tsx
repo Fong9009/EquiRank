@@ -15,30 +15,26 @@ export default function AdminHomePage() {
     const [approvalCount, setApprovalCount] = useState(0);
 
     useEffect(() => {
-        fetch("/api/admin/users")
-            .then(res => res.json())
-            .then(data => {
-                setUserCount(data.length);
-            })
-            .catch(err => console.error("Fetch error:", err));
-        fetch("/api/admin/contact-messages")
-            .then(res => res.json())
-            .then(data => {
-                setContactCount(data.length);
-            })
-            .catch(err => console.error("Fetch error:", err));
-        fetch("/api/admin/contact-messages/archived")
-            .then(res => res.json())
-            .then(data => {
-                setArchiveCount(data.length);
-            })
-            .catch(err => console.error("Fetch error:", err));
-        fetch("/api/admin/users/approval")
-            .then(res => res.json())
-            .then(data => {
-                setApprovalCount(data.length);
-            })
-            .catch(err => console.error("Fetch error:", err));
+        const load = async () => {
+            try {
+                const [usersRes, msgsRes, archivedRes, pendingRes] = await Promise.all([
+                    fetch('/api/admin/users'),
+                    fetch('/api/admin/contact-messages'),
+                    fetch('/api/admin/contact-messages/archived'),
+                    fetch('/api/admin/users/approval'),
+                ]);
+                const [users, msgs, archived, pending] = await Promise.all([
+                    usersRes.json(), msgsRes.json(), archivedRes.json(), pendingRes.json()
+                ]);
+                setUserCount(users.length || 0);
+                setContactCount(msgs.length || 0);
+                setArchiveCount(archived.length || 0);
+                setApprovalCount(pending.length || 0);
+            } catch (err) {
+                console.error('Fetch error:', err);
+            }
+        };
+        load();
     }, []);
 
     return(
