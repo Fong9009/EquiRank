@@ -54,7 +54,16 @@ export async function createAdminUser(
     INSERT INTO users (email, password_hash, first_name, last_name, user_type, entity_type, company, phone, address, is_approved)
     VALUES (?, ?, ?, ?, 'admin', ?, ?, ?, ?, true)
   `;
-    const result = await executeSingleQuery(query, [email, passwordHash, firstName, lastName, entityType, company, phone, address]);
+    const result = await executeSingleQuery(query, [
+        email,
+        passwordHash,
+        firstName,
+        lastName,
+        entityType,
+        company ?? null,
+        phone ?? null,
+        address ?? null,
+    ]);
     return result.insertId;
 }
 
