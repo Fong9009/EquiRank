@@ -27,21 +27,39 @@ export default function Sidebar({ role, activeTab, setActiveTab, isOpen, toggleS
 
     if (!mounted) return null;
 
-    const navItems =
+    const navSections =
         role === 'admin'
             ? [
-                { name: 'home', icon: Home },
-                { name: 'Manage Users', icon: Users },
-                { name: 'Manage Contact', icon: Phone }
+                {
+                    title: 'General',
+                    items: [{ name: 'home', icon: Home }]
+                },
+                {
+                    title: 'Management',
+                    items: [
+                        { name: 'Manage Users', icon: Users },
+                        { name: 'Manage Contact', icon: Phone }
+                    ]
+                }
             ]
             : role === 'lender'
                 ? [
-                    { name: 'home', icon: Home },
-                    { name: 'settings', icon: Settings }
+                    {
+                        title: 'Lender',
+                        items: [
+                            { name: 'home', icon: Home },
+                            { name: 'settings', icon: Settings }
+                        ]
+                    }
                 ]
                 : [
-                    { name: 'home', icon: Home },
-                    { name: 'settings', icon: Settings }
+                    {
+                        title: 'Borrower',
+                        items: [
+                            { name: 'home', icon: Home },
+                            { name: 'settings', icon: Settings }
+                        ]
+                    }
                 ];
 
     const handleTabClick = (name: string) => {
@@ -53,19 +71,28 @@ export default function Sidebar({ role, activeTab, setActiveTab, isOpen, toggleS
         <div className={styles.sidebarContainer}>
             <aside className={`${styles.sidebar} ${isOpen ? styles.open : styles.closed}`}>
                 <h2 className={styles.sidebarTitle}>Dashboard</h2>
-                <ul className={styles.navList}>
-                    {navItems.map(({ name, icon: Icon }) => (
-                        <li key={name} className={activeTab === name ? styles.navLinkActive : ''}>
-                            <button
-                                onClick={() => {setActiveTab(name); handleTabClick(name)}}
-                                className={styles.navLink}
-                            >
-                                <Icon size={20} />
-                                {isOpen && name.charAt(0).toUpperCase() + name.slice(1)}
-                            </button>
-                        </li>
-                    ))}
-                </ul>
+
+                {navSections.map(section => (
+                    <div key={section.title} className={styles.navSection}>
+                        {/* Section title */}
+                        <h3 className={styles.navSectionTitle}>{section.title}</h3>
+
+                        {/* Section items */}
+                        <ul className={styles.navList}>
+                            {section.items.map(({ name, icon: Icon }) => (
+                                <li key={name} className={activeTab === name ? styles.navLinkActive : ''}>
+                                    <button
+                                        onClick={() => { setActiveTab(name); handleTabClick(name); }}
+                                        className={styles.navLink}
+                                    >
+                                        <Icon size={20} />
+                                        {isOpen && name.charAt(0).toUpperCase() + name.slice(1)}
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ))}
             </aside>
 
             {/* Toggle circle */}
@@ -76,5 +103,6 @@ export default function Sidebar({ role, activeTab, setActiveTab, isOpen, toggleS
                 {isOpen ? '<' : '>'}
             </button>
         </div>
+
     );
 }
