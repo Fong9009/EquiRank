@@ -10,7 +10,7 @@
 .backgroundBox {
     background-color: rgba(0, 0, 0, 0.5);
     height: 100%;
-    padding: 20px 40px;
+    padding: 60px 80px;
 }
 
 .feature-box{
@@ -30,6 +30,14 @@
     margin: 0 auto;
 }
 
+.carousel{
+    padding: 40px;
+}
+
+.swiper-button-next{
+    color: #4caf50;
+}
+
 .listContainerGrid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -47,20 +55,13 @@
     background-position: center;
 }
 
-.listBox:nth-child(1){
-    border-left:none;
-}
-
-.listBox:nth-child(3){
-    border-right:none;
-}
-
 .listBoxTitle {
     font-family: 'MyCustomFont', sans-serif;
     font-size: 40px;
 }
 
 .listBodyText {
+    max-width: 700px;
     font-family: 'MyCustomFont', sans-serif;
     font-size: 24px;
     color: rgba(255, 255, 255, 0.8);
@@ -104,3 +105,24 @@
     }
 }
 
+/* Position custom arrows in the middle */
+.carousel :global(.custom-prev),
+.carousel :global(.custom-next) {
+    position: absolute;
+    top: 50%;                /* middle vertically */
+    transform: translateY(-50%);
+    z-index: 20;             /* stay above slides */
+    font-size: 2rem;         /* bigger arrows */
+    color: white;            /* arrow color */
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Adjust spacing from edges */
+.carousel :global(.custom-prev) {
+    left: 10px;
+}
+
+.carousel :global(.custom-next) {
+    right: 10px;
+}
