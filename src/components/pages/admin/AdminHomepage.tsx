@@ -40,13 +40,13 @@ export default function AdminHomePage() {
     return(
         <div className={styles.adminHomePage}>
             <Ribbon username={session?.user?.name || "User"} imageUrl={'/images/mountain.jpg'} quote={'"Patience and vigilance pay both in servers and stocks"'}/>
-            <h1 className={styles.adminTitle}>Statistics</h1>
-            <div className={styles.dividerContainer}><hr className={styles.divider}></hr></div>
+            <h1 className={styles.adminTitle}>Dashboard</h1>
+            <h1 className={styles.adminSubTitle}>Here is today's report and statistics</h1>
             <div className={styles.cardContainer}>
-                <MetricCard title={"Total Users"} value={userCount} icon={<Users size={150}/>}/>
-                <MetricCard title={"Waiting For Approval"} value={approvalCount} icon={<UserCheck size={150}/>}/>
-                <MetricCard title={"Total Messages"} value={contactCount} icon={<Mail size={150}/>}/>
-                <MetricCard title={"Archived Messages"} value={archiveCount} icon={<Archive size={150}/>}/>
+                <MetricCard title={"Total Users"} value={userCount} icon={<Users size={110}/>}/>
+                <MetricCard title={"Waiting For Approval"} value={approvalCount} icon={<UserCheck size={110}/>}/>
+                <MetricCard title={"Total Messages"} value={contactCount} icon={<Mail size={110}/>}/>
+                <MetricCard title={"Archived Messages"} value={archiveCount} icon={<Archive size={110}/>}/>
             </div>
         </div>
     )

@@ -9,7 +9,7 @@
 
 .adminHomePage {
     min-height: 100vh;
-    background: #1f2123;
+    background: #101010;
 }
 
 .cardContainer {
@@ -25,6 +25,14 @@
     font-size: 40px;
     font-family: 'MyCustomFont';
 }
+
+.adminSubTitle {
+    padding-left: 50px;
+    font-size: 25px;
+    color: #aaa;
+    font-family: 'MyCustomFont';
+}
+
 .divider {
     width: 98%;
 }
