@@ -15,6 +15,15 @@ export interface User {
     is_active: boolean;
     is_approved: boolean;
     is_super_admin?: boolean;
+    profile_picture?: string;
+    bio?: string;
+    website?: string;
+    linkedin?: string;
+    preferences?: any;
+    theme?: 'light' | 'dark' | 'auto';
+    language?: string;
+    timezone?: string;
+    notifications?: any;
     created_at: Date;
     updated_at: Date;
 }
@@ -296,4 +305,56 @@ export async function deleteUserById(userId: number): Promise<boolean> {
     const query = `DELETE FROM users WHERE id = ?`;
     const result = await executeSingleQuery(query, [userId]);
     return result.affectedRows > 0;
+}
+
+export async function updateUserProfile(
+    userId: number,
+    profileData: {
+        first_name?: string;
+        last_name?: string;
+        phone?: string;
+        address?: string;
+        company?: string;
+        profile_picture?: string;
+        bio?: string;
+        website?: string;
+        linkedin?: string;
+        preferences?: any;
+        theme?: 'light' | 'dark' | 'auto';
+        language?: string;
+        timezone?: string;
+        notifications?: any;
+    }
+): Promise<boolean> {
+    const fields = [];
+    const values = [];
+    
+    // Build dynamic query based on provided fields
+    Object.entries(profileData).forEach(([key, value]) => {
+        if (value !== undefined) {
+            fields.push(`${key} = ?`);
+            values.push(value);
+        }
+    });
+    
+    if (fields.length === 0) return false;
+    
+    // Add updated_at timestamp
+    fields.push('updated_at = CURRENT_TIMESTAMP');
+    
+    const query = `
+        UPDATE users 
+        SET ${fields.join(', ')}
+        WHERE id = ?
+    `;
+    
+    values.push(userId);
+    
+    try {
+        await executeSingleQuery(query, values);
+        return true;
+    } catch (error) {
+        console.error('Error updating user profile:', error);
+        return false;
+    }
 }

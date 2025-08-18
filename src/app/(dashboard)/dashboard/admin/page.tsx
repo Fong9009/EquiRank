@@ -2,7 +2,7 @@
 {/*Utility*/}
 import { useEffect, useState } from "react";
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 {/*Layout*/}
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -12,10 +12,12 @@ import AdminFrontPage from "@/components/pages/admin/AdminFrontEnd";
 import AdminHomePage from "@/components/pages/admin/AdminHomepage";
 import AdminUserPage from "@/components/pages/admin/AdminUserPage";
 import AddAdmin from "@/components/pages/admin/AddAdmin";
+import ProfileSettings from "@/components/pages/profile/ProfileSettings";
 
 export default function AdminDashboard() {
     const { data: session, status } = useSession();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [activeTab, setActiveTab] = useState('home');
     const [isReady, setIsReady] = useState(false);
 
@@ -36,6 +38,27 @@ export default function AdminDashboard() {
         setIsReady(true);
     }, [session, status, router]);
 
+    useEffect(() => {
+        // Check if there's a tab parameter in the URL
+        const tabParam = searchParams.get('tab');
+        if (tabParam && ['home', 'Manage Users', 'Manage Contact', 'Add Admin', 'settings'].includes(tabParam)) {
+            setActiveTab(tabParam);
+        }
+    }, [searchParams]);
+
+    // Update URL when activeTab changes (for browser back/forward)
+    useEffect(() => {
+        if (activeTab && activeTab !== 'home') {
+            const url = new URL(window.location.href);
+            url.searchParams.set('tab', activeTab);
+            window.history.replaceState({}, '', url.toString());
+        } else if (activeTab === 'home') {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('tab');
+            window.history.replaceState({}, '', url.toString());
+        }
+    }, [activeTab]);
+
     if (!isReady || !session?.user) {
         return <p>Loading...</p>;
     }
@@ -53,6 +76,8 @@ export default function AdminDashboard() {
                 return <AdminFrontPage/>;
             case "Add Admin":
                 return isSuperAdmin ? <AddAdmin/> : <div>Forbidden</div>;
+            case "settings":
+                return <ProfileSettings/>;
             default:
                 return <div>Welcome to Admin Home</div>;
         }

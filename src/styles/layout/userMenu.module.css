@@ -1,0 +1,220 @@
+.userMenuContainer {
+    position: relative;
+    display: inline-block;
+}
+
+.userMenuButton {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 25px;
+    padding: 8px 16px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'MyCustomFont', sans-serif;
+    font-size: 20px;
+}
+
+.userMenuButton:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.userAvatar {
+    flex-shrink: 0;
+}
+
+.userName {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+    font-size: 16px;
+}
+
+.dropdownArrow {
+    font-size: 10px;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+}
+
+.dropdownArrow.rotated {
+    transform: rotate(180deg);
+}
+
+.dropdownMenu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    background: #2c2f33;
+    border: 1px solid #3a3f45;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    min-width: 250px;
+    z-index: 1000;
+    overflow: hidden;
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.menuHeader {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: linear-gradient(135deg, #3a3f45 0%, #2c2f33 100%);
+    border-bottom: 1px solid #3a3f45;
+}
+
+.menuAvatar {
+    flex-shrink: 0;
+}
+
+.menuUserInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.menuUserName {
+    margin: 0 0 5px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: white;
+    font-family: 'MyCustomFont', sans-serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.menuUserRole {
+    margin: 0;
+    font-size: 16px;
+    color: #b0e66e;
+    font-family: 'MyCustomFont', sans-serif;
+    text-transform: capitalize;
+}
+
+.menuDivider {
+    height: 1px;
+    background: #3a3f45;
+    margin: 8px 0;
+}
+
+.menuItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 20px;
+    color: white;
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    font-family: 'MyCustomFont', sans-serif;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.menuItem:hover {
+    background: #3a3f45;
+    color: #b0e66e;
+}
+
+.menuItem:active {
+    background: #4a4f55;
+}
+
+.menuIcon {
+    font-size: 18px;
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.logoutItem {
+    color: #f87171;
+}
+
+.logoutItem:hover {
+    background: #4c1d1d;
+    color: #fca5a5;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .userMenuButton {
+        padding: 6px 12px;
+    }
+    
+    .userName {
+        max-width: 80px;
+        font-size: 14px;
+    }
+    
+    .dropdownMenu {
+        right: -10px;
+        min-width: 220px;
+    }
+    
+    .menuHeader {
+        padding: 15px;
+    }
+    
+    .menuItem {
+        padding: 10px 15px;
+        font-size: 15px;
+    }
+    
+    .menuUserName {
+        font-size: 18px;
+    }
+    
+    .menuUserRole {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .userMenuButton {
+        padding: 4px 8px;
+    }
+    
+    .userName {
+        display: none;
+    }
+    
+    .dropdownMenu {
+        right: -20px;
+        min-width: 200px;
+    }
+    
+    .menuItem {
+        font-size: 14px;
+    }
+    
+    .menuUserName {
+        font-size: 16px;
+    }
+    
+    .menuUserRole {
+        font-size: 13px;
+    }
+}

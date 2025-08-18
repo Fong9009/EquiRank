@@ -1,13 +1,15 @@
 'use client';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import LenderHomepage from "@/components/pages/lender/LenderHomepage";
+import ProfileSettings from "@/components/pages/profile/ProfileSettings";
 
 export default function LenderDashboard(){
     const { data: session, status } = useSession();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [activeTab, setActiveTab] = useState('dashboard');
     const [isReady, setIsReady] = useState(false);
 
@@ -28,6 +30,14 @@ export default function LenderDashboard(){
         setIsReady(true);
     }, [session, status, router]);
 
+    useEffect(() => {
+        // Check if there's a tab parameter in the URL
+        const tabParam = searchParams.get('tab');
+        if (tabParam && ['home', 'settings'].includes(tabParam)) {
+            setActiveTab(tabParam);
+        }
+    }, [searchParams]);
+
     if (status === 'loading') {
         return <div>Loading...</div>;
     }
@@ -43,7 +53,7 @@ export default function LenderDashboard(){
             case "home":
                 return <LenderHomepage/>;
             case "settings":
-                return <div>PLACEHOLDER</div>;
+                return <ProfileSettings/>;
             case "PLACEHOLDER2":
                 return <div>PLACEHOLDER</div>;
             default:
