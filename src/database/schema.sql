@@ -102,6 +102,15 @@ CREATE TABLE `users` (
   `is_super_admin` tinyint(1) NOT NULL DEFAULT '0',
   `failed_login_attempts` int DEFAULT '0' COMMENT 'Track failed login attempts',
   `account_locked_until` timestamp NULL DEFAULT NULL COMMENT 'Account lockout until timestamp',
+  `profile_picture` varchar(500) DEFAULT NULL COMMENT 'URL to profile picture',
+  `bio` text COMMENT 'User biography/description',
+  `website` varchar(255) DEFAULT NULL COMMENT 'Personal or company website',
+  `linkedin` varchar(255) DEFAULT NULL COMMENT 'LinkedIn profile URL',
+  `preferences` json DEFAULT NULL COMMENT 'User preferences and settings',
+  `theme` enum('light','dark','auto') DEFAULT 'auto' COMMENT 'UI theme preference',
+  `language` varchar(10) DEFAULT 'en' COMMENT 'Language preference (ISO 639-1)',
+  `timezone` varchar(50) DEFAULT 'UTC' COMMENT 'Timezone preference',
+  `notifications` json DEFAULT NULL COMMENT 'Notification preferences',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ;

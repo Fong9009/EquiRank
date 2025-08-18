@@ -5,6 +5,7 @@ import styles from '@/styles/layout/navbar.module.css';
 import Link from 'next/link';
 import clsx from 'clsx';
 import { useRouter } from "next/navigation";
+import UserMenu from './UserMenu';
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
@@ -46,20 +47,7 @@ export default function Navbar() {
                     <span className={styles.loadingText}>Loading...</span>
                 ) : session ? (
                     <>
-                        <span className={styles.userInfo}>
-                            Welcome, {session.user?.name || session.user?.email}
-                        </span>
-                        {session.user?.userType === 'admin' && (
-                            <Link className={clsx(styles.adminBtn, styles.navButton)} href="/dashboard/admin">
-                                Admin Panel 
-                            </Link>
-                        )}
-                        <button 
-                            className={clsx(styles.logoutBtn, styles.navButton)} 
-                            onClick={handleLogout}
-                        >
-                            Logout
-                        </button>
+                        <UserMenu />
                     </>
                 ) : (
                     <>
@@ -73,7 +61,7 @@ export default function Navbar() {
             <div className={styles.centerLinks}>
                 <Link className={styles.linkFont} href="/">Home</Link>
                 <Link className={styles.linkFont} href="/about">About Us</Link>
-                <Link className={styles.linkFont} href="/contact-us">Contact</Link>
+                <Link className={styles.linkFont} href="/contact-us">Contact Us</Link>
             </div>
 
             {/*For Mobile*/}
@@ -82,26 +70,9 @@ export default function Navbar() {
                     <span className={styles.linkFont}>Loading...</span>
                 ) : session ? (
                     <>
-                        <span className={styles.linkFont}>
-                            Welcome, {session.user?.name || session.user?.email}
-                        </span>
-                        {session.user?.userType === 'admin' && (
-                            <Link className={styles.linkFont} onClick={closeMenu} href="/admin">
-                                Admin Panel
-                            </Link>
-                        )}
-
-                        <Link
-                            href="/login"
-                            className={`${styles.linkFont} ${styles.linkButton}`}
-                            onClick={async (e) => {
-                                e.preventDefault();
-                                await handleLogout();
-                                router.push("/login");
-                            }}
-                        >
-                            Logout
-                        </Link>
+                        <div className={styles.mobileUserMenu}>
+                            <UserMenu />
+                        </div>
                     </>
                 ) : (
                     <>

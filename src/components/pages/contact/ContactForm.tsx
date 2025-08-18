@@ -232,9 +232,8 @@ export default function ContactForm() {
                         <div className={styles.infoItem}>
                             <h3 className={styles.infoItemTitle}>Business Hours</h3>
                             <p className={styles.infoItemText}>
-                                Monday - Friday: 9:00 AM - 6:00 PM<br/>
-                                Saturday: 10:00 AM - 4:00 PM<br/>
-                                Sunday: Closed
+                                Monday - Friday: 9:00 AM - 5:00 PM<br/>
+                                Sunday - Saturday: Closed
                             </p>
                         </div>
                     </div>

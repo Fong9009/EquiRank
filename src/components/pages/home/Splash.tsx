@@ -14,8 +14,8 @@ export default function Splash() {
         if (!session) return '/register'; // Not logged in
         
         // Logged in - route based on user type
-        if ((session.user as any)?.userType === 'admin') {
-            return '/admin';
+        if (session?.user?.userType === 'admin') {
+            return '/dashboard/admin';
         } else {
             return '/dashboard';
         }
