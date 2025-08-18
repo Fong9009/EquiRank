@@ -29,17 +29,23 @@ export default function Navbar() {
 
             <div className={styles.logo}>
                 <Link href="/">
-                    <img 
-                        src="/EquiRank.png" 
-                        alt="EquiRank Logo" 
+                    <img
+                        src="/EquiRank.png"
+                        alt="EquiRank Logo"
                         className={styles.logoImage}
                     />
                     <span className={styles.logoText}>EquiRank</span>
                 </Link>
             </div>
-            <div className={styles.hamburger} onClick={toggleMenu}>
-                &#9776;
-            </div>
+            {!session ? (
+                <div className={styles.hamburger} onClick={toggleMenu}>
+                    &#9776;
+                </div>
+            ) : (
+                <div className={styles.hamburger} onClick={toggleMenu}>
+                <UserMenu />
+                </div>
+            )}
 
             {/*For Desktop Buttons*/}
             <div className={styles.rightButtons}>
@@ -65,24 +71,20 @@ export default function Navbar() {
             </div>
 
             {/*For Mobile*/}
-            <div className={`${styles.links} ${isOpen ? styles.show : ''}`}>
-                {status === 'loading' ? (
-                    <span className={styles.linkFont}>Loading...</span>
-                ) : session ? (
-                    <>
-                        <div className={styles.mobileUserMenu}>
-                            <UserMenu />
-                        </div>
-                    </>
-                ) : (
-                    <>
-                        <Link className={styles.linkFont} onClick={closeMenu} href="/register">Join Now</Link>
-                        <Link className={styles.linkFont} onClick={closeMenu} href="/login">Login</Link>
-                    </>
-                )}
-                <Link className={styles.linkFont} onClick={closeMenu} href="/about">About Us</Link>
-                <Link className={styles.linkFont} onClick={closeMenu} href="/contact-us">Contact</Link>
-            </div>
+            {!session && (
+                <div className={`${styles.links} ${isOpen ? styles.show : ''}`}>
+                    {status === 'loading' ? (
+                        <span className={styles.linkFont}>Loading...</span>
+                    ) : (
+                        <>
+                            <Link className={styles.linkFont} onClick={closeMenu} href="/register">Join Now</Link>
+                            <Link className={styles.linkFont} onClick={closeMenu} href="/login">Login</Link>
+                            <Link className={styles.linkFont} onClick={closeMenu} href="/about">About Us</Link>
+                            <Link className={styles.linkFont} onClick={closeMenu} href="/contact-us">Contact</Link>
+                        </>
+                    )}
+                </div>
+            )}
         </nav>
     );
 }

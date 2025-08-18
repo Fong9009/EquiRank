@@ -239,6 +239,10 @@
         height: 48px;
         font-size: 15px;
     }
+
+    .links {
+        display: none;
+    }
 }
 
 @media (min-width: 769px) and (max-width: 870px) {
