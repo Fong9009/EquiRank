@@ -1,0 +1,144 @@
+.uploadContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.profilePictureWrapper {
+    position: relative;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.profilePictureWrapper:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(176, 230, 110, 0.3);
+}
+
+.profilePictureWrapper.uploading {
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.profilePicture {
+    display: block;
+}
+
+.uploadIcon {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: rgba(176, 230, 110, 0.9);
+    color: #1f2123;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.profilePictureWrapper:hover .uploadIcon {
+    background: #b0e66e;
+    transform: scale(1.1);
+}
+
+.uploadOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    border-radius: 50%;
+}
+
+.uploadProgress {
+    width: 80%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.progressBar {
+    height: 100%;
+    background: linear-gradient(90deg, #b0e66e, #9dd65e);
+    transition: width 0.3s ease;
+    border-radius: 2px;
+}
+
+.uploadText {
+    font-size: 12px;
+    font-weight: 500;
+    font-family: 'MyCustomFont', sans-serif;
+}
+
+.fileInput {
+    display: none;
+}
+
+.errorMessage {
+    color: #f87171;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    text-align: center;
+    max-width: 300px;
+}
+
+.uploadHint {
+    color: #9ca3af;
+    font-size: 14px;
+    text-align: center;
+    margin: 0;
+    font-family: 'MyCustomFont', sans-serif;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .uploadContainer {
+        gap: 12px;
+    }
+    
+    .uploadIcon {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .uploadText {
+        font-size: 11px;
+    }
+    
+    .uploadHint {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .uploadIcon {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .uploadText {
+        font-size: 10px;
+    }
+    
+    .uploadHint {
+        font-size: 12px;
+    }
+}

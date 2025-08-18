@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import styles from '@/styles/pages/admin/adminActiveUser.module.css';
 import { useSession } from "next-auth/react";
 
@@ -149,10 +149,10 @@ export default function ActiveUsers() {
     };
 
     // Get filtered and sorted users for each category
-    const getFilteredBorrowers = () => filterAndSortUsers(borrowers);
-    const getFilteredLenders = () => filterAndSortUsers(lenders);
-    const getFilteredAdmins = () => filterAndSortUsers(adminUsers);
-    const getFilteredSuperAdmins = () => filterAndSortUsers(superAdmins);
+    const filteredBorrowers = useMemo(() => filterAndSortUsers(borrowers), [borrowers, searchTerm, filterType, sortBy, sortOrder]);
+    const filteredLenders = useMemo(() => filterAndSortUsers(lenders), [lenders, searchTerm, filterType, sortBy, sortOrder]);
+    const filteredAdmins = useMemo(() => filterAndSortUsers(adminUsers), [adminUsers, searchTerm, filterType, sortBy, sortOrder]);
+    const filteredSuperAdmins = useMemo(() => filterAndSortUsers(superAdmins), [superAdmins, searchTerm, filterType, sortBy, sortOrder]);
 
     // Fetch all active users
     const fetchActiveUsers = async () => {
@@ -372,7 +372,7 @@ export default function ActiveUsers() {
                     </div>
                 ) : (
                     <div className={styles.userList}>
-                        {getFilteredBorrowers().map((user) => {
+                        {filteredBorrowers.map((user) => {
                             const isSelf = String(user.id) === String(session?.user?.id);
                             return (
                             <div key={user.id} className={`${styles.userCard} ${styles.borrowerCard}`}>
@@ -440,7 +440,7 @@ export default function ActiveUsers() {
                     </div>
                 ) : (
                     <div className={styles.userList}>
-                        {getFilteredLenders().map((user) => {
+                        {filteredLenders.map((user) => {
                             const isSelf = String(user.id) === String(session?.user?.id);
                             return (
                             <div key={user.id} className={`${styles.userCard} ${styles.lenderCard}`}>
@@ -508,7 +508,7 @@ export default function ActiveUsers() {
                     </div>
                 ) : (
                     <div className={styles.userList}>
-                        {getFilteredAdmins().map((user) => {
+                        {filteredAdmins.map((user) => {
                             const isSelf = String(user.id) === String(session?.user?.id);
                             const targetIsSuper = Boolean(user.is_super_admin);
                             const canArchive = isSuperAdmin && !isSelf && !targetIsSuper; // only super admin can archive admins (not super admin) and not self
@@ -588,7 +588,7 @@ export default function ActiveUsers() {
                     </div>
                 ) : (
                     <div className={styles.userList}>
-                        {getFilteredSuperAdmins().map((user) => (
+                        {filteredSuperAdmins.map((user) => (
                             <div key={user.id} className={`${styles.userCard} ${styles.superAdminCard}`}>
                                 <div className={styles.userInfo}>
                                     <h3>{user.first_name} {user.last_name}</h3>

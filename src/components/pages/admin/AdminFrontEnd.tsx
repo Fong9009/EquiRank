@@ -15,8 +15,9 @@ export default function AdminFrontPage() {
     useEffect(() => {
         if (status === 'loading') return;
 
-        if (!session?.user || (session.user as any).userType !== 'admin') {
-            router.push('/login?redirect=/admin');
+        if (!session?.user || session.user.userType !== 'admin') {
+            router.push('/login?redirect=/dashboard/admin');
+            return;
         }
     }, [session, status, router]);
 

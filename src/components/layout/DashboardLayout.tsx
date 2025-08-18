@@ -21,7 +21,19 @@ export default function DashboardLayout({ role, children, activeTab, setActiveTa
 
     if (!mounted) return null;
     return (
-        <div  style={{ display: 'flex', alignItems: 'flex-start' }}>
+        <div  style={{ 
+            display: 'flex', 
+            alignItems: 'flex-start', 
+            backgroundColor: '#1f2123', 
+            minHeight: '100vh',
+            height: '100vh',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 1
+        }}>
             <Sidebar
                 role={role}
                 activeTab={activeTab}
@@ -31,8 +43,12 @@ export default function DashboardLayout({ role, children, activeTab, setActiveTa
                 isSuperAdmin={isSuperAdmin}
             />
             <main className={styles.dashboardLayout}    style={{
-                marginLeft: sidebarOpen ? '250px' : '0px', // adjust dynamically
-                transition: 'margin-left 0.3s ease', // smooth animation
+                marginLeft: sidebarOpen ? '280px' : '50px', 
+                transition: 'margin-left 0.3s ease', 
+                backgroundColor: '#1f2123',
+                minHeight: '100vh',
+                height: '100vh',
+                overflow: 'auto'
             }}>
                 {children}
             </main>
