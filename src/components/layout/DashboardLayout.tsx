@@ -43,7 +43,7 @@ export default function DashboardLayout({ role, children, activeTab, setActiveTa
                 isSuperAdmin={isSuperAdmin}
             />
             <main className={styles.dashboardLayout}    style={{
-                marginLeft: sidebarOpen ? '280px' : '50px', 
+                marginLeft: sidebarOpen ? '280px' : '0px',
                 transition: 'margin-left 0.3s ease', 
                 backgroundColor: '#1f2123',
                 minHeight: '100vh',

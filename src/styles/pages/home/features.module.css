@@ -8,9 +8,18 @@
 }
 
 .backgroundBox {
+    align-items: center;
     background-color: rgba(0, 0, 0, 0.5);
-    height: 100%;
-    padding: 20px 40px;
+    display: flex;
+    gap: 40px;
+    justify-content: space-between;
+    min-height: 800px;
+    padding: 60px 80px;
+}
+
+.textContainer {
+    flex: 1;
+    max-width: 700px;
 }
 
 .feature-box{
@@ -30,6 +39,14 @@
     margin: 0 auto;
 }
 
+.carousel{
+    padding: 40px;
+}
+
+.swiper-button-next{
+    color: #4caf50;
+}
+
 .listContainerGrid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -45,22 +62,16 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.5);
     background-size: cover;
     background-position: center;
-}
-
-.listBox:nth-child(1){
-    border-left:none;
-}
-
-.listBox:nth-child(3){
-    border-right:none;
+    min-height: 800px;
 }
 
 .listBoxTitle {
     font-family: 'MyCustomFont', sans-serif;
-    font-size: 40px;
+    font-size: 80px;
 }
 
 .listBodyText {
+    max-width: 700px;
     font-family: 'MyCustomFont', sans-serif;
     font-size: 24px;
     color: rgba(255, 255, 255, 0.8);
@@ -79,7 +90,6 @@
     font-size: 26px;
 }
 
-
 @media (max-width: 768px) {
     .listContainerGrid {
         grid-template-columns: 1fr; /* 1 column on mobile */
@@ -90,6 +100,26 @@
         flex-direction: column;
         font-size: 32px;
         text-align: center;
+    }
+    .listBoxTitle {
+        font-size: 50px;
+    }
+
+    .imageContainer {
+        display: none;
+    }
+
+    .carousel {
+        padding: 0px;
+    }
+
+    .backgroundBox {
+        padding: 40px;
+        min-height: 900px;
+    }
+
+    .listBox {
+        min-height: 900px;
     }
 }
 
@@ -104,3 +134,24 @@
     }
 }
 
+/* Position custom arrows in the middle */
+.carousel :global(.custom-prev),
+.carousel :global(.custom-next) {
+    position: absolute;
+    top: 50%;                /* middle vertically */
+    transform: translateY(-50%);
+    z-index: 20;             /* stay above slides */
+    font-size: 2rem;         /* bigger arrows */
+    color: white;            /* arrow color */
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Adjust spacing from edges */
+.carousel :global(.custom-prev) {
+    left: 10px;
+}
+
+.carousel :global(.custom-next) {
+    right: 10px;
+}
