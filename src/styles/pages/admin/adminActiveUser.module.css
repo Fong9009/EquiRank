@@ -605,6 +605,37 @@
     }
 }
 
+/* Edit Modal Header */
+.editHeader {
+    margin-bottom: 1.5rem;
+    text-align: center;
+    border-bottom: 2px solid #3a3f45;
+    padding-bottom: 1rem;
+}
+
+.editTitle {
+    color: #9ca3af;
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0 0 0.5rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.userNameDisplay {
+    color: #b0e66e;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(176, 230, 110, 0.3);
+    margin: 0;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, rgba(176, 230, 110, 0.1) 0%, rgba(176, 230, 110, 0.05) 100%);
+    border-radius: 8px;
+    border: 1px solid rgba(176, 230, 110, 0.2);
+    display: inline-block;
+    min-width: 200px;
+}
+
 /* Form fields */
 .editForm {
     display: flex;
@@ -686,10 +717,39 @@
 .viewHeader {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 1.5rem;
+    border-bottom: 2px solid #3a3f45;
     padding-bottom: 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.viewTitleSection {
+    flex: 1;
+    text-align: center;
+}
+
+.viewTitle {
+    color: #9ca3af;
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0 0 0.5rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: inherit;
+}
+
+.viewUserNameDisplay {
+    color: #b0e66e;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(176, 230, 110, 0.3);
+    margin: 0;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, rgba(176, 230, 110, 0.1) 0%, rgba(176, 230, 110, 0.05) 100%);
+    border-radius: 8px;
+    border: 1px solid rgba(176, 230, 110, 0.2);
+    display: inline-block;
+    min-width: 200px;
 }
 
 .viewHeader h4 {

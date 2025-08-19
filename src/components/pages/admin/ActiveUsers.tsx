@@ -652,9 +652,12 @@ export default function ActiveUsers() {
                 <div className={styles.modalOverlay}>
                     <div className={styles.editModal}>
                         <div className={styles.editContent}>
-                            <h4>
-                                Edit User: {editFormData[showEditModal]?.first_name} {editFormData[showEditModal]?.last_name}
-                            </h4>
+                            <div className={styles.editHeader}>
+                                <h4 className={styles.editTitle}>Edit User</h4>
+                                <div className={styles.userNameDisplay}>
+                                    {editFormData[showEditModal]?.first_name} {editFormData[showEditModal]?.last_name}
+                                </div>
+                            </div>
                             <form
                                 onSubmit={(e) => {
                                     e.preventDefault();
@@ -778,7 +781,16 @@ export default function ActiveUsers() {
                     <div className={styles.viewModal}>
                         <div className={styles.viewContent}>
                             <div className={styles.viewHeader}>
-                                <h4>User Profile</h4>
+                                <div className={styles.viewTitleSection}>
+                                    <h4 className={styles.viewTitle}>User Profile</h4>
+                                    <div className={styles.viewUserNameDisplay}>
+                                        {(() => {
+                                            const allUsers = [...borrowers, ...lenders, ...adminUsers, ...superAdmins];
+                                            const viewedUser = allUsers.find(u => u.id === showViewModal);
+                                            return viewedUser ? `${viewedUser.first_name} ${viewedUser.last_name}` : 'Unknown User';
+                                        })()}
+                                    </div>
+                                </div>
                                 <button 
                                     onClick={closeViewModal}
                                     className={styles.closeButton}
@@ -799,10 +811,6 @@ export default function ActiveUsers() {
                                         <>
                                             <div className={styles.profileSection}>
                                                 <h5>Personal Information</h5>
-                                                <div className={styles.infoRow}>
-                                                    <span className={styles.label}>Full Name:</span>
-                                                    <span className={styles.value}>{viewedUser.first_name} {viewedUser.last_name}</span>
-                                                </div>
                                                 <div className={styles.infoRow}>
                                                     <span className={styles.label}>Email:</span>
                                                     <span className={styles.value}>{viewedUser.email}</span>

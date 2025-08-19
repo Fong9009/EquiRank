@@ -8,13 +8,15 @@ interface ProfilePictureUploadProps {
     onImageUpload: (imageUrl: string) => void;
     size?: 'small' | 'medium' | 'large';
     className?: string;
+    userName?: string; 
 }
 
 export default function ProfilePictureUpload({ 
     currentImageUrl, 
     onImageUpload, 
     size = 'medium',
-    className = '' 
+    className = '',
+    userName = 'User' 
 }: ProfilePictureUploadProps) {
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -92,7 +94,7 @@ export default function ProfilePictureUpload({
             >
                 <ProfilePicture
                     src={currentImageUrl}
-                    alt="Profile Picture"
+                    alt={userName}
                     size={size}
                     className={styles.profilePicture}
                 />

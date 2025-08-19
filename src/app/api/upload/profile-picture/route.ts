@@ -60,6 +60,15 @@ export async function POST(request: NextRequest) {
         const buffer = Buffer.from(bytes);
         await writeFile(filepath, buffer);
 
+        // Clean up old profile pictures for this user (excluding the new one)
+        try {
+            const { cleanupUserProfilePictures } = await import('@/lib/fileCleanup');
+            await cleanupUserProfilePictures(parseInt(userId), filename);
+        } catch (error) {
+            console.error(`Failed to cleanup old profile pictures for user ${userId}:`, error);
+            // Don't fail the upload if cleanup fails
+        }
+
         // Return the public URL
         const publicUrl = `/uploads/profile-pictures/${filename}`;
         

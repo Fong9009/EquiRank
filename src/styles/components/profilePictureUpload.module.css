@@ -29,18 +29,19 @@
 
 .uploadIcon {
     position: absolute;
-    bottom: 5px;
-    right: 5px;
+    bottom: 2px;
+    right: 2px;
     background: rgba(176, 230, 110, 0.9);
     color: #1f2123;
     border-radius: 50%;
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1;
 }
 
 .profilePictureWrapper:hover .uploadIcon {
@@ -115,8 +116,8 @@
     }
     
     .uploadIcon {
-        width: 28px;
-        height: 28px;
+        width: 24px;
+        height: 24px;
     }
     
     .uploadText {
@@ -130,8 +131,8 @@
 
 @media (max-width: 480px) {
     .uploadIcon {
-        width: 24px;
-        height: 24px;
+        width: 20px;
+        height: 20px;
     }
     
     .uploadText {
