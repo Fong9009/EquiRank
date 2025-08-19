@@ -22,8 +22,8 @@ export async function cleanupUserProfilePictures(userId: number, currentFilename
             })
         );
 
-        console.log(`Cleaned up old profile pictures for user ${userId}`);
+        console.log(`Cleaned up old profile pictures for user`);
     } catch (error) {
-        console.error(`Error cleaning up profile pictures for user ${userId}:`, error);
+        console.error(`Error cleaning up profile pictures for user`, error);
     }
 }
