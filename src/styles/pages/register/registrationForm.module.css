@@ -259,6 +259,17 @@
     display: block;
 }
 
+/* reCAPTCHA */
+.recaptchaContainer {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 /* Submit Section */
 .submitSection {
     text-align: center;

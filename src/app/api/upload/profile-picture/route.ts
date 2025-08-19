@@ -62,6 +62,14 @@ export async function POST(request: NextRequest) {
 
         // Return the public URL
         const publicUrl = `/uploads/profile-pictures/${filename}`;
+        
+        console.log('Profile picture uploaded successfully:', {
+            userId: session.user.id,
+            filename,
+            publicUrl,
+            fileSize: file.size,
+            fileType: file.type
+        });
 
         return NextResponse.json({
             success: true,

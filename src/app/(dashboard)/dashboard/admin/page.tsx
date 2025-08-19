@@ -1,6 +1,6 @@
 'use client';
 {/*Utility*/}
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -14,7 +14,7 @@ import AdminUserPage from "@/components/pages/admin/AdminUserPage";
 import AddAdmin from "@/components/pages/admin/AddAdmin";
 import ProfileSettings from "@/components/pages/profile/ProfileSettings";
 
-export default function AdminDashboard() {
+function AdminDashboardContent() {
     const { data: session, status } = useSession();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -87,5 +87,13 @@ export default function AdminDashboard() {
         <DashboardLayout role={role} activeTab={activeTab} setActiveTab={setActiveTab} isSuperAdmin={isSuperAdmin}>
             {renderTab()}
         </DashboardLayout>
+    );
+}
+
+export default function AdminDashboard() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <AdminDashboardContent />
+        </Suspense>
     );
 }

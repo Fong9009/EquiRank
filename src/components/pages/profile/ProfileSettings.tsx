@@ -95,6 +95,12 @@ export default function ProfileSettings() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        // Add confirmation dialog before saving
+        if (!confirm('Are you sure you want to save these changes to your profile?')) {
+            return;
+        }
+        
         setIsLoading(true);
         setMessage(null);
 

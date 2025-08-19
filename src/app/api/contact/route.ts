@@ -1,9 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createContactMessage } from '@/database/contact';
+import { checkRateLimit, STRICT_RATE_LIMIT, createRateLimitHeaders } from '@/lib/rateLimiter';
 
 // POST /api/contact - Submit contact form
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting check
+    const rateLimitResult = checkRateLimit(request, STRICT_RATE_LIMIT);
+    if (!rateLimitResult.allowed) {
+      const response = NextResponse.json(
+        { error: STRICT_RATE_LIMIT.message },
+        { status: 429 }
+      );
+      
+      // Add rate limit headers
+      Object.entries(createRateLimitHeaders(request, STRICT_RATE_LIMIT)).forEach(([key, value]) => {
+        response.headers.set(key, value);
+      });
+      
+      return response;
+    }
+
     const body = await request.json();
     const { name, email, subject, message, captchaToken } = body;
 

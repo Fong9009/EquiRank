@@ -22,6 +22,12 @@ export default function AddAdmin() {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Add confirmation dialog before creating admin
+    if (!confirm('Are you sure you want to create this admin account?')) {
+      return;
+    }
+    
     setSubmitting(true);
     setMessage(null);
     try {

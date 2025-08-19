@@ -2,11 +2,11 @@
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import LenderHomepage from "@/components/pages/lender/LenderHomepage";
 import ProfileSettings from "@/components/pages/profile/ProfileSettings";
 
-export default function LenderDashboard(){
+function LenderDashboardContent() {
     const { data: session, status } = useSession();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -65,5 +65,13 @@ export default function LenderDashboard(){
         <DashboardLayout role={role} activeTab={activeTab} setActiveTab={setActiveTab}>
             {renderTab()}
         </DashboardLayout>
+    );
+}
+
+export default function LenderDashboard() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <LenderDashboardContent />
+        </Suspense>
     );
 }

@@ -42,6 +42,7 @@ export default function ActiveUsers() {
     const { data: session } = useSession()
     const isSuperAdmin = Boolean((session?.user as any)?.isSuperAdmin);
     const [showEditModal, setShowEditModal] = useState<number | null>(null);
+    const [showViewModal, setShowViewModal] = useState<number | null>(null);
     const [editFormData, setEditFormData] = useState<{ [key: string]: any }>({});
     const [firstName, setFirstName] = useState<string>('');
     const [lastName, setLastName] = useState<string>('');
@@ -195,6 +196,10 @@ export default function ActiveUsers() {
         setShowEditModal(user.id);
     };
 
+    const openViewModal = (user: User) => {
+        setShowViewModal(user.id);
+    };
+
     const handleEditChange = (userId: number, field: string, value: string) => {
         setEditFormData((prev) => ({
             ...prev,
@@ -247,6 +252,10 @@ export default function ActiveUsers() {
             last_name: '',
             address: '',
         });
+    };
+
+    const closeViewModal = () => {
+        setShowViewModal(null);
     };
 
     if (loading) {
@@ -385,7 +394,12 @@ export default function ActiveUsers() {
                                 </div>
 
                                 <div className={styles.actions}>
-                                    <button className={styles.viewButton}>View</button>
+                                    <button 
+                                        className={styles.viewButton}
+                                        onClick={() => openViewModal(user)}
+                                    >
+                                        View
+                                    </button>
                                     <button
                                         onClick={() => openEditModal(user)}
                                         className={styles.editButton}
@@ -393,11 +407,11 @@ export default function ActiveUsers() {
                                         Edit
                                     </button>
                                     {isSelf ? (
-                                        <span className={styles.helperText}>You cannot archive your own account</span>
+                                        <span className={styles.helperText}>You cannot deactivate your own account</span>
                                     ) : (
                                         <button
                                             onClick={async () => {
-                                                if (!confirm('Archive this user? They will lose access until restored.')) return;
+                                                if (!confirm('Deactivate this user? They will lose access until restored.')) return;
                                                 try {
                                                     const res = await fetch('/api/admin/users/archive', {
                                                         method: 'PATCH',
@@ -409,15 +423,15 @@ export default function ActiveUsers() {
                                                         fetchActiveUsers();
                                                     } else {
                                                         const e = await res.json();
-                                                        setMessage({ type: 'error', text: e.error || 'Failed to archive user' });
+                                                        setMessage({ type: 'error', text: e.error || 'Failed to deactivate user' });
                                                     }
                                                 } catch (_) {
-                                                    setMessage({ type: 'error', text: 'Network error while archiving user' });
+                                                    setMessage({ type: 'error', text: 'Network error while deactivating user' });
                                                 }
                                             }}
                                             className={styles.deleteButton}
                                         >
-                                            Archive
+                                            Deactivate
                                         </button>
                                     )}
                                 </div>
@@ -453,7 +467,12 @@ export default function ActiveUsers() {
                                 </div>
 
                                 <div className={styles.actions}>
-                                    <button className={styles.viewButton}>View</button>
+                                    <button 
+                                        className={styles.viewButton}
+                                        onClick={() => openViewModal(user)}
+                                    >
+                                        View
+                                    </button>
                                     <button
                                         onClick={() => openEditModal(user)}
                                         className={styles.editButton}
@@ -461,11 +480,11 @@ export default function ActiveUsers() {
                                         Edit
                                     </button>
                                     {isSelf ? (
-                                        <span className={styles.helperText}>You cannot archive your own account</span>
+                                        <span className={styles.helperText}>You cannot deactivate your own account</span>
                                     ) : (
                                         <button
                                             onClick={async () => {
-                                                if (!confirm('Archive this user? They will lose access until restored.')) return;
+                                                if (!confirm('Deactivate this user? They will lose access until restored.')) return;
                                                 try {
                                                     const res = await fetch('/api/admin/users/archive', {
                                                         method: 'PATCH',
@@ -473,19 +492,19 @@ export default function ActiveUsers() {
                                                         body: JSON.stringify({ userId: user.id, archived: true })
                                                     });
                                                     if (res.ok) {
-                                                        setMessage({ type: 'success', text: 'User archived' });
+                                                        setMessage({ type: 'success', text: 'User deactivated' });
                                                         fetchActiveUsers();
                                                     } else {
                                                         const e = await res.json();
-                                                        setMessage({ type: 'error', text: e.error || 'Failed to archive user' });
+                                                        setMessage({ type: 'error', text: e.error || 'Failed to deactivate user' });
                                                     }
                                                 } catch (_) {
-                                                    setMessage({ type: 'error', text: 'Network error while archiving user' });
+                                                    setMessage({ type: 'error', text: 'Network error while deactivating user' });
                                                 }
                                             }}
                                             className={styles.deleteButton}
                                         >
-                                            Archive
+                                            Deactivate
                                         </button>
                                     )}
                                 </div>
@@ -523,7 +542,12 @@ export default function ActiveUsers() {
                                 </div>
 
                                 <div className={styles.actions}>
-                                    <button className={styles.viewButton}>View</button>
+                                    <button 
+                                        className={styles.viewButton}
+                                        onClick={() => openViewModal(user)}
+                                    >
+                                        View
+                                    </button>
                                     <button
                                         onClick={() => openEditModal(user)}
                                         className={styles.editButton}
@@ -533,7 +557,7 @@ export default function ActiveUsers() {
                                     {canArchive ? (
                                     <button
                                         onClick={async () => {
-                                            if (!confirm('Archive this admin? Only Super Admin can reverse this. Proceed?')) return;
+                                            if (!confirm('Deactivate this admin? Only Super Admin can reverse this. Proceed?')) return;
                                             try {
                                                 const res = await fetch('/api/admin/users/archive', {
                                                     method: 'PATCH',
@@ -541,29 +565,29 @@ export default function ActiveUsers() {
                                                     body: JSON.stringify({ userId: user.id, archived: true })
                                                 });
                                                 if (res.ok) {
-                                                    setMessage({ type: 'success', text: 'User archived' });
+                                                    setMessage({ type: 'success', text: 'User deactivated' });
                                                     fetchActiveUsers();
                                                 } else {
                                                     const e = await res.json();
-                                                    setMessage({ type: 'error', text: e.error || 'Failed to archive user' });
+                                                    setMessage({ type: 'error', text: e.error || 'Failed to deactivate user' });
                                                 }
                                             } catch (_) {
-                                                setMessage({ type: 'error', text: 'Network error while archiving user' });
+                                                setMessage({ type: 'error', text: 'Network error while deactivating user' });
                                             }
                                         }}
                                         className={styles.deleteButton}
                                     >
-                                        Archive
+                                        Deactivate
                                     </button>
                                     ) : (
                                         (() => {
                                             let reasonText = '';
                                             if (isSelf) {
-                                                reasonText = 'You cannot archive your own account';
+                                                reasonText = 'You cannot deactivate your own account';
                                             } else if (targetIsSuper) {
-                                                reasonText = 'You cannot archive a Super Admin';
+                                                reasonText = 'You cannot deactivate a Super Admin';
                                             } else if (!isSuperAdmin) {
-                                                reasonText = 'Only Super Admin can archive other admins';
+                                                reasonText = 'Only Super Admin can deactivate other admins';
                                             }
                                             return <span className={styles.helperText}>{reasonText}</span>;
                                         })()
@@ -588,7 +612,9 @@ export default function ActiveUsers() {
                     </div>
                 ) : (
                     <div className={styles.userList}>
-                        {filteredSuperAdmins.map((user) => (
+                        {filteredSuperAdmins.map((user) => {
+                            const isSelf = String(user.id) === String(session?.user?.id);
+                            return (
                             <div key={user.id} className={`${styles.userCard} ${styles.superAdminCard}`}>
                                 <div className={styles.userInfo}>
                                     <h3>{user.first_name} {user.last_name}</h3>
@@ -599,17 +625,24 @@ export default function ActiveUsers() {
                                 </div>
 
                                 <div className={styles.actions}>
-                                    <button className={styles.viewButton}>View</button>
+                                    <button 
+                                        className={styles.viewButton}
+                                        onClick={() => openViewModal(user)}
+                                    >
+                                        View
+                                    </button>
                                     <button
                                         onClick={() => openEditModal(user)}
                                         className={styles.editButton}
                                     >
                                         Edit
                                     </button>
-                                    <span className={styles.helperText}>You cannot archive a Super Admin</span>
+                                    <span className={styles.helperText}>
+                                        {isSelf ? 'You cannot deactivate your own account' : 'You cannot deactivate a Super Admin'}
+                                    </span>
                                 </div>
                             </div>
-                        ))}
+                        )})}
                     </div>
                 )}
             </div>
@@ -619,10 +652,19 @@ export default function ActiveUsers() {
                 <div className={styles.modalOverlay}>
                     <div className={styles.editModal}>
                         <div className={styles.editContent}>
-                            <h4>Edit User</h4>
+                            <h4>
+                                Edit User: {editFormData[showEditModal]?.first_name} {editFormData[showEditModal]?.last_name}
+                            </h4>
                             <form
                                 onSubmit={(e) => {
                                     e.preventDefault();
+                                    
+                                    // Add confirmation dialog before saving changes
+                                    const userName = `${editFormData[showEditModal]?.first_name} ${editFormData[showEditModal]?.last_name}`;
+                                    if (!confirm(`Are you sure you want to save these changes to ${userName}'s profile?`)) {
+                                        return;
+                                    }
+                                    
                                     handleUserUpdate(showEditModal, editFormData[showEditModal]);
                                 }}
                                 className={styles.editForm}
@@ -725,6 +767,94 @@ export default function ActiveUsers() {
                                     </button>
                                 </div>
                             </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* View User Modal */}
+            {showViewModal && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.viewModal}>
+                        <div className={styles.viewContent}>
+                            <div className={styles.viewHeader}>
+                                <h4>User Profile</h4>
+                                <button 
+                                    onClick={closeViewModal}
+                                    className={styles.closeButton}
+                                >
+                                    ×
+                                </button>
+                            </div>
+                            
+                            <div className={styles.userProfileInfo}>
+                                {(() => {
+                                    // Find the user being viewed
+                                    const allUsers = [...borrowers, ...lenders, ...adminUsers, ...superAdmins];
+                                    const viewedUser = allUsers.find(u => u.id === showViewModal);
+                                    
+                                    if (!viewedUser) return <div>User not found</div>;
+                                    
+                                    return (
+                                        <>
+                                            <div className={styles.profileSection}>
+                                                <h5>Personal Information</h5>
+                                                <div className={styles.infoRow}>
+                                                    <span className={styles.label}>Full Name:</span>
+                                                    <span className={styles.value}>{viewedUser.first_name} {viewedUser.last_name}</span>
+                                                </div>
+                                                <div className={styles.infoRow}>
+                                                    <span className={styles.label}>Email:</span>
+                                                    <span className={styles.value}>{viewedUser.email}</span>
+                                                </div>
+                                                {viewedUser.company && (
+                                                    <div className={styles.infoRow}>
+                                                        <span className={styles.label}>Company:</span>
+                                                        <span className={styles.value}>{viewedUser.company}</span>
+                                                    </div>
+                                                )}
+                                                {viewedUser.phone && (
+                                                    <div className={styles.infoRow}>
+                                                        <span className={styles.label}>Phone:</span>
+                                                        <span className={styles.value}>{viewedUser.phone}</span>
+                                                    </div>
+                                                )}
+                                                {viewedUser.address && (
+                                                    <div className={styles.infoRow}>
+                                                        <span className={styles.label}>Address:</span>
+                                                        <span className={styles.value}>{viewedUser.address}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            
+                                            <div className={styles.profileSection}>
+                                                <h5>Account Information</h5>
+                                                <div className={styles.infoRow}>
+                                                    <span className={styles.label}>User Type:</span>
+                                                    <span className={styles.value}>
+                                                        {viewedUser.user_type === 'admin' && viewedUser.is_super_admin ? 'Super Admin' : 
+                                                         viewedUser.user_type === 'admin' ? 'Admin' : 
+                                                         viewedUser.user_type === 'borrower' ? 'Borrower' : 
+                                                         viewedUser.user_type === 'lender' ? 'Lender' : 'Unknown'}
+                                                    </span>
+                                                </div>
+                                                <div className={styles.infoRow}>
+                                                    <span className={styles.label}>Account Status:</span>
+                                                    <span className={styles.value}>
+                                                        <span className={styles.statusActive}>Active</span>
+                                                    </span>
+                                                </div>
+                                                <div className={styles.infoRow}>
+                                                    <span className={styles.label}>Approval Status:</span>
+                                                    <span className={styles.value}>
+                                                        <span className={styles.statusApproved}>Approved</span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </>
+                                    );
+                                })()}
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -19,6 +19,11 @@ export default function ProfilePicture({
 }: ProfilePictureProps) {
     const [imageError, setImageError] = useState(false);
     
+    // Debug logging for profile picture issues
+    if (src && !src.startsWith('http') && !src.startsWith('/uploads/')) {
+        console.warn('Invalid profile picture URL:', src);
+    }
+    
     // Generate fallback initials from alt text
     const getInitials = (name: string) => {
         if (!name) return '?';
@@ -36,10 +41,10 @@ export default function ProfilePicture({
     };
 
     // If we have a valid image source and no error, show the image
-    if (src && !imageError) {
+    if (src && !imageError && (src.startsWith('http') || src.startsWith('/uploads/'))) {
         return (
             <img
-                src={src.startsWith('http') ? src : src.startsWith('/uploads/') ? src : undefined}
+                src={src}
                 alt={alt}
                 className={`${styles.profilePicture} ${styles[size]} ${className}`}
                 onError={handleImageError}

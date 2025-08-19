@@ -25,14 +25,22 @@ export async function PUT(request: NextRequest) {
         }
 
         // Update profile
+        console.log('Updating user profile:', {
+            userId,
+            profileData,
+            hasProfilePicture: !!profileData.profile_picture
+        });
+        
         const success = await updateUserProfile(userId, profileData);
         
         if (success) {
+            console.log('Profile updated successfully for user:', userId);
             return NextResponse.json(
                 { message: 'Profile updated successfully' },
                 { status: 200 }
             );
         } else {
+            console.error('Failed to update profile for user:', userId);
             return NextResponse.json(
                 { error: 'Failed to update profile' },
                 { status: 500 }

@@ -1,11 +1,84 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createUser, emailExists, activeEmailExists, getUserByEmailAny, updateUser } from '@/database/user';
 import { hashPassword, validatePassword, validateEmail } from '@/lib/security';
+import { checkRateLimit, STRICT_RATE_LIMIT, createRateLimitHeaders } from '@/lib/rateLimiter';
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting check
+    const rateLimitResult = checkRateLimit(request, STRICT_RATE_LIMIT);
+    if (!rateLimitResult.allowed) {
+      const response = NextResponse.json(
+        { error: STRICT_RATE_LIMIT.message },
+        { status: 429 }
+      );
+      
+      // Add rate limit headers
+      Object.entries(createRateLimitHeaders(request, STRICT_RATE_LIMIT)).forEach(([key, value]) => {
+        response.headers.set(key, value);
+      });
+      
+      return response;
+    }
+
     const body = await request.json();
-    const { email, password, firstName, lastName, userType, entityType, company, phone, address } = body;
+    const { email, password, firstName, lastName, userType, entityType, company, phone, address, csrfToken, website, captchaToken } = body;
+
+    // Honeypot check - if website field is filled, it's likely a bot
+    if (website && website.trim() !== '') {
+      return NextResponse.json(
+        { error: 'Invalid request' },
+        { status: 400 }
+      );
+    }
+
+    // Verify reCAPTCHA
+    if (!captchaToken) {
+      return NextResponse.json(
+        { error: 'Please complete the reCAPTCHA verification to prove you\'re human' },
+        { status: 400 }
+      );
+    }
+
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+    if (!secretKey) {
+      return NextResponse.json(
+        { error: 'We\'re experiencing technical difficulties. Please try again later or contact us directly.' },
+        { status: 500 }
+      );
+    }
+
+    // Verify reCAPTCHA with Google
+    const params = new URLSearchParams();
+    params.append('secret', secretKey);
+    params.append('response', captchaToken);
+
+    const verifyRes = await fetch(
+      'https://www.google.com/recaptcha/api/siteverify',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString(),
+      }
+    );
+
+    const verifyCaptcha = await verifyRes.json();
+
+    if (!verifyCaptcha.success) {
+      return NextResponse.json(
+        { error: 'reCAPTCHA verification failed. Please try again.' },
+        { status: 400 }
+      );
+    }
+
+    // CSRF token validation
+    const headerToken = request.headers.get('X-CSRF-Token');
+    if (!csrfToken || !headerToken || csrfToken !== headerToken) {
+      return NextResponse.json(
+        { error: 'Invalid CSRF token' },
+        { status: 403 }
+      );
+    }
 
     // Input validation
     if (!email || !password || !firstName || !lastName || !userType || !entityType) {

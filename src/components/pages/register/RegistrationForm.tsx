@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import ReCAPTCHA from 'react-google-recaptcha';
 import styles from '@/styles/pages/register/registrationForm.module.css';
 
 interface FormData {
@@ -34,6 +35,19 @@ export default function RegistrationForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [csrfToken, setCsrfToken] = useState<string>('');
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
+
+  // Generate CSRF token on component mount
+  useEffect(() => {
+    const generateToken = () => {
+      const array = new Uint8Array(32);
+      crypto.getRandomValues(array);
+      return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+    };
+    setCsrfToken(generateToken());
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -121,27 +135,37 @@ export default function RegistrationForm() {
       return;
     }
 
+    if (!captchaToken) {
+      setSubmitMessage({
+        type: 'error',
+        text: 'Please complete the reCAPTCHA verification to prove you\'re human'
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitMessage(null);
 
-    try {
-      const response = await fetch('/api/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          userType: formData.userType,
-          entityType: formData.entityType,
-          company: formData.company,
-          phone: formData.phone,
-          address: formData.address
-        }),
-      });
+          try {
+        const response = await fetch('/api/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken,
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            userType: formData.userType,
+            entityType: formData.entityType,
+            company: formData.company,
+            phone: formData.phone,
+            address: formData.address,
+            csrfToken
+          }),
+        });
 
       if (response.ok) {
   setSubmitMessage({
@@ -219,6 +243,17 @@ export default function RegistrationForm() {
         )}
 
         <form onSubmit={handleSubmit} className={styles.form}>
+          {/* Honeypot field to catch bots */}
+          <div style={{ display: 'none' }}>
+            <input
+              type="text"
+              name="website"
+              tabIndex={-1}
+              autoComplete="off"
+              style={{ position: 'absolute', left: '-9999px' }}
+            />
+          </div>
+          
                  {/* User Type Selection */}
                  <div className={styles.userTypeSection}>
                    <label className={styles.sectionLabel}>I am a:</label>
@@ -409,6 +444,16 @@ export default function RegistrationForm() {
                 {errors.confirmPassword && <span className={styles.error}>{errors.confirmPassword}</span>}
               </div>
             </div>
+          </div>
+
+          {/* reCAPTCHA */}
+          <div className={styles.recaptchaContainer}>
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}
+              onChange={setCaptchaToken}
+              theme="dark"
+            />
           </div>
 
           {/* Submit Button */}
