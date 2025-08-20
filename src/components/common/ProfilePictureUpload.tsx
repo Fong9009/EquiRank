@@ -33,10 +33,10 @@ export default function ProfilePictureUpload({
             return;
         }
 
-        // Validate file size (max 5MB)
-        const maxSize = 5 * 1024 * 1024; // 5MB
+        // Validate file size (max 10MB, will be compressed)
+        const maxSize = 10 * 1024 * 1024; // 10MB
         if (file.size > maxSize) {
-            setError('File size must be less than 5MB');
+            setError('File size must be less than 10MB. Large images will be automatically compressed and optimized.');
             return;
         }
 
@@ -138,6 +138,9 @@ export default function ProfilePictureUpload({
 
             <p className={styles.uploadHint}>
                 Click to upload a new profile picture
+            </p>
+            <p className={styles.uploadHint}>
+                Images will be automatically optimized to 400x400 resolution and compressed for best performance
             </p>
         </div>
     );

@@ -12,7 +12,8 @@ import AdminFrontPage from "@/components/pages/admin/AdminFrontEnd";
 import AdminHomePage from "@/components/pages/admin/AdminHomepage";
 import AdminUserPage from "@/components/pages/admin/AdminUserPage";
 import AddAdmin from "@/components/pages/admin/AddAdmin";
-import ProfileSettings from "@/components/pages/profile/ProfileSettings";
+import ProfileSettings from "@/components/pages/settings/ProfileSettings";
+import FileCleanup from "@/components/pages/admin/FileCleanup";
 
 function AdminDashboardContent() {
     const { data: session, status } = useSession();
@@ -41,7 +42,7 @@ function AdminDashboardContent() {
     useEffect(() => {
         // Check if there's a tab parameter in the URL
         const tabParam = searchParams.get('tab');
-        if (tabParam && ['home', 'Manage Users', 'Manage Contact', 'Add Admin', 'settings'].includes(tabParam)) {
+        if (tabParam && ['home', 'Manage Users', 'Manage Contact', 'Add Admin', 'File Cleanup', 'settings'].includes(tabParam)) {
             setActiveTab(tabParam);
         }
     }, [searchParams]);
@@ -76,6 +77,8 @@ function AdminDashboardContent() {
                 return <AdminFrontPage/>;
             case "Add Admin":
                 return isSuperAdmin ? <AddAdmin/> : <div>Forbidden</div>;
+            case "File Cleanup":
+                return <FileCleanup/>;
             case "settings":
                 return <ProfileSettings/>;
             default:
