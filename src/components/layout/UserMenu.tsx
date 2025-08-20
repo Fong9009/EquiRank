@@ -4,6 +4,7 @@ import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import styles from '@/styles/layout/userMenu.module.css';
 import ProfilePicture from '@/components/common/ProfilePicture';
+import UserTypeBadge from '@/components/common/UserTypeBadge';
 import { useProfilePicture } from '@/hooks/useProfilePicture';
 
 export default function UserMenu() {
@@ -47,7 +48,6 @@ export default function UserMenu() {
             <button
                 className={styles.userMenuButton}
                 onClick={() => setIsOpen(!isOpen)}
-                aria-label="User menu"
             >
                 <ProfilePicture
                     src={profilePicture}
@@ -56,8 +56,14 @@ export default function UserMenu() {
                     className={styles.userAvatar}
                 />
                 <span className={styles.userName}>
-                    {session.user.name || session.user.email}
+                    {session.user.name || 'User'}
                 </span>
+                <UserTypeBadge
+                    userType={session.user.userType || 'user'}
+                    isSuperAdmin={(session.user as any).isSuperAdmin}
+                    size="small"
+                    className={styles.userTypeBadge}
+                />
                 <span className={`${styles.dropdownArrow} ${isOpen ? styles.rotated : ''}`}>
                     ▼
                 </span>
@@ -76,10 +82,12 @@ export default function UserMenu() {
                             <h4 className={styles.menuUserName}>
                                 {session.user.name || 'User'}
                             </h4>
-                            <p className={styles.menuUserRole}>
-                                {(session.user as any).isSuperAdmin ? 'Super Admin' : 
-                                 session.user.userType?.charAt(0).toUpperCase() + session.user.userType?.slice(1)}
-                            </p>
+                            <UserTypeBadge
+                                userType={session.user.userType || 'user'}
+                                isSuperAdmin={(session.user as any).isSuperAdmin}
+                                size="medium"
+                                className={styles.menuUserTypeBadge}
+                            />
                         </div>
                     </div>
 

@@ -24,3 +24,62 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* User Type Badge Styles */
+.userTypeBadge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    text-align: center;
+    white-space: nowrap;
+    font-family: 'MyCustomFont', sans-serif;
+}
+
+.userTypeBadge.small {
+    font-size: 8px;
+    padding: 1px 6px;
+}
+
+.userTypeBadge.medium {
+    font-size: 10px;
+    padding: 2px 8px;
+}
+
+.userTypeBadge.large {
+    font-size: 12px;
+    padding: 3px 10px;
+}
+
+.borrowerBadge {
+    background-color: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #93c5fd;
+}
+
+.lenderBadge {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fcd34d;
+}
+
+.adminBadge {
+    background-color: #fce7f3;
+    color: #be185d;
+    border: 1px solid #f9a8d4;
+}
+
+.superAdminBadge {
+    background-color: #f3e8ff;
+    color: #7c3aed;
+    border: 1px solid #c4b5fd;
+}
+
+.userBadge {
+    background-color: #e5e7eb;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}

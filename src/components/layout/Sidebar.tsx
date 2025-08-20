@@ -4,11 +4,12 @@ import { useEffect, useState } from 'react';
 import { Home, Settings, Users, Briefcase, Phone, User, Trash2 } from "lucide-react";
 import styles from '@/styles/layout/sidebar.module.css'
 import ProfilePicture from '@/components/common/ProfilePicture';
+import UserTypeBadge from '@/components/common/UserTypeBadge';
 import { useSession } from 'next-auth/react';
 import { useProfilePicture } from '@/hooks/useProfilePicture';
 
 interface SidebarProps {
-    role: string;
+    role: 'borrower' | 'lender' | 'admin';
     activeTab: string;
     setActiveTab: (tab: string) => void;
     isOpen: boolean;
@@ -110,10 +111,12 @@ export default function Sidebar({ role, activeTab, setActiveTab, isOpen, toggleS
                         <h3 className={styles.userName}>
                             {session?.user?.name || 'User'}
                         </h3>
-                        <p className={styles.userRole}>
-                            {(session?.user as any)?.isSuperAdmin ? 'Super Admin' : 
-                             role.charAt(0).toUpperCase() + role.slice(1)}
-                        </p>
+                        <UserTypeBadge
+                            userType={role}
+                            isSuperAdmin={isSuperAdmin}
+                            size="medium"
+                            className={styles.sidebarUserTypeBadge}
+                        />
                     </div>
                 </div>
                 

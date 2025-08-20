@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import styles from '@/styles/pages/admin/adminActiveUser.module.css';
 import { useSession } from "next-auth/react";
+import ProfilePictureUpload from '@/components/common/ProfilePictureUpload';
 
 interface User {
     id: number;
@@ -14,6 +15,7 @@ interface User {
     company?: string;
     phone?: string;
     address?: string;
+    profile_picture?: string;
     is_super_admin?: boolean;
     created_at: string;
 }
@@ -22,6 +24,9 @@ function validateName(name: string) {
     const nameRegex = /^[A-Za-z]+([A-Za-z\s']*[A-Za-z])?$/;
     if (!name || name.trim() === "") {
         return "Name cannot be blank";
+    }
+    if (name.trim().length < 2) {
+        return "Name must be at least 2 characters long";
     }
     if (!nameRegex.test(name)) {
         return "Name can only contain letters, spaces, and apostrophes";
@@ -182,18 +187,79 @@ export default function ActiveUsers() {
         }
     };
 
+    // Helper function to check if current user can edit a specific user
+    const canEditUser = (user: User): boolean => {
+        const currentUserId = session?.user?.id;
+        const targetUserId = user.id;
+        const targetUserType = user.user_type;
+        const targetIsSuperAdmin = Boolean(user.is_super_admin);
+        const currentUserIsSuperAdmin = Boolean((session?.user as any)?.isSuperAdmin);
+        
+        // Cannot edit own account
+        if (String(currentUserId) === String(targetUserId)) {
+            return false;
+        }
+        
+        // Regular admins can only edit borrowers and lenders
+        if (!currentUserIsSuperAdmin && targetUserType === 'admin') {
+            return false;
+        }
+        
+        // Super admins cannot edit other super admins
+        if (currentUserIsSuperAdmin && targetIsSuperAdmin && String(currentUserId) !== String(targetUserId)) {
+            return false;
+        }
+        
+        return true;
+    };
+
     const openEditModal = (user: User) => {
-        setEditFormData((prev) => ({
-            ...prev,
+        // Check if current user can edit this user
+        const currentUserId = session?.user?.id;
+        const targetUserId = user.id;
+        const targetUserType = user.user_type;
+        const targetIsSuperAdmin = Boolean(user.is_super_admin);
+        const currentUserIsSuperAdmin = Boolean((session?.user as any)?.isSuperAdmin);
+        
+        // Prevent editing own account
+        if (String(currentUserId) === String(targetUserId)) {
+            alert('You cannot edit your own account through the admin interface. Use your profile settings instead.');
+            return;
+        }
+        
+        // Regular admins can only edit borrowers and lenders
+        if (!currentUserIsSuperAdmin && targetUserType === 'admin') {
+            alert('Regular admins can only edit borrower and lender accounts. Super admin access required to edit admin accounts.');
+            return;
+        }
+        
+        // Super admins cannot edit other super admins
+        if (currentUserIsSuperAdmin && targetIsSuperAdmin && String(currentUserId) !== String(targetUserId)) {
+            alert('Super admins cannot edit other super admin accounts.');
+            return;
+        }
+        
+        // If all checks pass, open the edit modal
+        setShowEditModal(user.id);
+        setEditFormData({
             [user.id]: {
                 email: user.email,
                 first_name: user.first_name,
                 last_name: user.last_name,
-                phone: user.phone,
-                address: user.address,
-            },
-        }));
-        setShowEditModal(user.id);
+                phone: user.phone || '',
+                address: user.address || '',
+                profile_picture: user.profile_picture || ''
+            }
+        });
+        setEmail(user.email);
+        setFirstName(user.first_name);
+        setLastName(user.last_name);
+        setErrors({
+            first_name: '',
+            last_name: '',
+            address: '',
+        });
+        setEmailError(null);
     };
 
     const openViewModal = (user: User) => {
@@ -386,7 +452,21 @@ export default function ActiveUsers() {
                             return (
                             <div key={user.id} className={`${styles.userCard} ${styles.borrowerCard}`}>
                                 <div className={styles.userInfo}>
-                                    <h3>{user.first_name} {user.last_name}</h3>
+                                    <div className={styles.userHeader}>
+                                        {user.profile_picture && (
+                                            <img 
+                                                src={user.profile_picture} 
+                                                alt={`${user.first_name} ${user.last_name}`}
+                                                className={styles.userProfilePicture}
+                                            />
+                                        )}
+                                        <div className={styles.userNameAndType}>
+                                            <h3>{user.first_name} {user.last_name}</h3>
+                                            <span className={`${styles.userTypeBadge} ${styles.borrowerBadge}`}>
+                                                Borrower
+                                            </span>
+                                        </div>
+                                    </div>
                                     <p><strong>Email:</strong> {user.email}</p>
                                     {user.company && <p><strong>Company:</strong> {user.company}</p>}
                                     {user.phone && <p><strong>Phone:</strong> {user.phone}</p>}
@@ -400,12 +480,21 @@ export default function ActiveUsers() {
                                     >
                                         View
                                     </button>
-                                    <button
-                                        onClick={() => openEditModal(user)}
-                                        className={styles.editButton}
-                                    >
-                                        Edit
-                                    </button>
+                                    {canEditUser(user) ? (
+                                        <button
+                                            onClick={() => openEditModal(user)}
+                                            className={styles.editButton}
+                                        >
+                                            Edit
+                                        </button>
+                                    ) : (
+                                        <span className={styles.helperText}>
+                                            {String(user.id) === String(session?.user?.id) 
+                                                ? 'Use profile settings to edit your own account' 
+                                                : 'Insufficient permissions to edit this account'
+                                            }
+                                        </span>
+                                    )}
                                     {isSelf ? (
                                         <span className={styles.helperText}>You cannot deactivate your own account</span>
                                     ) : (
@@ -459,7 +548,21 @@ export default function ActiveUsers() {
                             return (
                             <div key={user.id} className={`${styles.userCard} ${styles.lenderCard}`}>
                                 <div className={styles.userInfo}>
-                                    <h3>{user.first_name} {user.last_name}</h3>
+                                    <div className={styles.userHeader}>
+                                        {user.profile_picture && (
+                                            <img 
+                                                src={user.profile_picture} 
+                                                alt={`${user.first_name} ${user.last_name}`}
+                                                className={styles.userProfilePicture}
+                                            />
+                                        )}
+                                        <div className={styles.userNameAndType}>
+                                            <h3>{user.first_name} {user.last_name}</h3>
+                                            <span className={`${styles.userTypeBadge} ${styles.lenderBadge}`}>
+                                                Lender
+                                            </span>
+                                        </div>
+                                    </div>
                                     <p><strong>Email:</strong> {user.email}</p>
                                     {user.company && <p><strong>Company:</strong> {user.company}</p>}
                                     {user.phone && <p><strong>Phone:</strong> {user.phone}</p>}
@@ -473,12 +576,21 @@ export default function ActiveUsers() {
                                     >
                                         View
                                     </button>
-                                    <button
-                                        onClick={() => openEditModal(user)}
-                                        className={styles.editButton}
-                                    >
-                                        Edit
-                                    </button>
+                                    {canEditUser(user) ? (
+                                        <button
+                                            onClick={() => openEditModal(user)}
+                                            className={styles.editButton}
+                                        >
+                                            Edit
+                                        </button>
+                                    ) : (
+                                        <span className={styles.helperText}>
+                                            {String(user.id) === String(session?.user?.id) 
+                                                ? 'Use profile settings to edit your own account' 
+                                                : 'Insufficient permissions to edit this account'
+                                            }
+                                        </span>
+                                    )}
                                     {isSelf ? (
                                         <span className={styles.helperText}>You cannot deactivate your own account</span>
                                     ) : (
@@ -534,7 +646,21 @@ export default function ActiveUsers() {
                             return (
                             <div key={user.id} className={`${styles.userCard} ${styles.adminCard}`}>
                                 <div className={styles.userInfo}>
-                                    <h3>{user.first_name} {user.last_name}</h3>
+                                    <div className={styles.userHeader}>
+                                        {user.profile_picture && (
+                                            <img 
+                                                src={user.profile_picture} 
+                                                alt={`${user.first_name} ${user.last_name}`}
+                                                className={styles.userProfilePicture}
+                                            />
+                                        )}
+                                        <div className={styles.userNameAndType}>
+                                            <h3>{user.first_name} {user.last_name}</h3>
+                                            <span className={`${styles.userTypeBadge} ${styles.adminBadge}`}>
+                                                Admin
+                                            </span>
+                                        </div>
+                                    </div>
                                     <p><strong>Email:</strong> {user.email}</p>
                                     {user.company && <p><strong>Company:</strong> {user.company}</p>}
                                     {user.phone && <p><strong>Phone:</strong> {user.phone}</p>}
@@ -548,12 +674,24 @@ export default function ActiveUsers() {
                                     >
                                         View
                                     </button>
-                                    <button
-                                        onClick={() => openEditModal(user)}
-                                        className={styles.editButton}
-                                    >
-                                        Edit
-                                    </button>
+                                    {canEditUser(user) ? (
+                                        <button
+                                            onClick={() => openEditModal(user)}
+                                            className={styles.editButton}
+                                        >
+                                            Edit
+                                        </button>
+                                    ) : (
+                                        <span className={String(user.id) === String(session?.user?.id) 
+                                            ? `${styles.helperText} ${styles.ownAccount}` 
+                                            : styles.helperText
+                                        }>
+                                            {String(user.id) === String(session?.user?.id) 
+                                                ? 'Use profile settings to edit your own account' 
+                                                : 'Only Super Admin can deactivate or edit other admins'
+                                            }
+                                        </span>
+                                    )}
                                     {canArchive ? (
                                     <button
                                         onClick={async () => {
@@ -580,17 +718,11 @@ export default function ActiveUsers() {
                                         Deactivate
                                     </button>
                                     ) : (
-                                        (() => {
-                                            let reasonText = '';
-                                            if (isSelf) {
-                                                reasonText = 'You cannot deactivate your own account';
-                                            } else if (targetIsSuper) {
-                                                reasonText = 'You cannot deactivate a Super Admin';
-                                            } else if (!isSuperAdmin) {
-                                                reasonText = 'Only Super Admin can deactivate other admins';
-                                            }
-                                            return <span className={styles.helperText}>{reasonText}</span>;
-                                        })()
+                                        String(user.id) === String(session?.user?.id) && (
+                                            <span className={styles.helperText}>
+                                                You cannot deactivate your own account
+                                            </span>
+                                        )
                                     )}
                                 </div>
                             </div>
@@ -617,7 +749,21 @@ export default function ActiveUsers() {
                             return (
                             <div key={user.id} className={`${styles.userCard} ${styles.superAdminCard}`}>
                                 <div className={styles.userInfo}>
-                                    <h3>{user.first_name} {user.last_name}</h3>
+                                    <div className={styles.userHeader}>
+                                        {user.profile_picture && (
+                                            <img 
+                                                src={user.profile_picture} 
+                                                alt={`${user.first_name} ${user.last_name}`}
+                                                className={styles.userProfilePicture}
+                                            />
+                                        )}
+                                        <div className={styles.userNameAndType}>
+                                            <h3>{user.first_name} {user.last_name}</h3>
+                                            <span className={`${styles.userTypeBadge} ${styles.superAdminBadge}`}>
+                                                Super Admin
+                                            </span>
+                                        </div>
+                                    </div>
                                     <p><strong>Email:</strong> {user.email}</p>
                                     {user.company && <p><strong>Company:</strong> {user.company}</p>}
                                     {user.phone && <p><strong>Phone:</strong> {user.phone}</p>}
@@ -631,15 +777,26 @@ export default function ActiveUsers() {
                                     >
                                         View
                                     </button>
-                                    <button
-                                        onClick={() => openEditModal(user)}
-                                        className={styles.editButton}
-                                    >
-                                        Edit
-                                    </button>
-                                    <span className={styles.helperText}>
-                                        {isSelf ? 'You cannot deactivate your own account' : 'You cannot deactivate a Super Admin'}
-                                    </span>
+                                    {canEditUser(user) ? (
+                                        <button
+                                            onClick={() => openEditModal(user)}
+                                            className={styles.editButton}
+                                        >
+                                            Edit
+                                        </button>
+                                    ) : (
+                                        <span className={styles.helperText}>
+                                            {String(user.id) === String(session?.user?.id) 
+                                                ? 'Use profile settings to edit your own account' 
+                                                : 'Super Admin cannot be edited or deactivated by other admins'
+                                            }
+                                        </span>
+                                    )}
+                                    
+                                    {/* Deactivate restriction for super admins */}
+                                    {String(user.id) === String(session?.user?.id) && (
+                                        <span className={styles.helperText}>You cannot deactivate your own account</span>
+                                    )}
                                 </div>
                             </div>
                         )})}
@@ -753,6 +910,31 @@ export default function ActiveUsers() {
                                 />
                                 {errors.address && <p className={styles.errorText}>{errors.address}</p>}
 
+                                <label>Profile Picture</label>
+                                <div className={styles.profilePictureSection}>
+                                    <ProfilePictureUpload
+                                        currentImageUrl={editFormData[showEditModal]?.profile_picture}
+                                        onImageUpload={(imageUrl) => {
+                                            handleEditChange(showEditModal, 'profile_picture', imageUrl);
+                                        }}
+                                        size="medium"
+                                        userName={`${editFormData[showEditModal]?.first_name} ${editFormData[showEditModal]?.last_name}`}
+                                    />
+                                    {editFormData[showEditModal]?.profile_picture && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                if (confirm('Remove profile picture?')) {
+                                                    handleEditChange(showEditModal, 'profile_picture', '');
+                                                }
+                                            }}
+                                            className={styles.removePictureButton}
+                                        >
+                                            Remove Picture
+                                        </button>
+                                    )}
+                                </div>
+
                                 <div className={styles.editActions}>
                                     <button
                                         type="submit"
@@ -781,15 +963,13 @@ export default function ActiveUsers() {
                     <div className={styles.viewModal}>
                         <div className={styles.viewContent}>
                             <div className={styles.viewHeader}>
-                                <div className={styles.viewTitleSection}>
-                                    <h4 className={styles.viewTitle}>User Profile</h4>
-                                    <div className={styles.viewUserNameDisplay}>
-                                        {(() => {
-                                            const allUsers = [...borrowers, ...lenders, ...adminUsers, ...superAdmins];
-                                            const viewedUser = allUsers.find(u => u.id === showViewModal);
-                                            return viewedUser ? `${viewedUser.first_name} ${viewedUser.last_name}` : 'Unknown User';
-                                        })()}
-                                    </div>
+                                <h4 className={styles.viewTitle}>User Profile</h4>
+                                <div className={styles.userNameDisplay}>
+                                    {(() => {
+                                        const allUsers = [...borrowers, ...lenders, ...adminUsers, ...superAdmins];
+                                        const viewedUser = allUsers.find(u => u.id === showViewModal);
+                                        return viewedUser ? `${viewedUser.first_name} ${viewedUser.last_name}` : 'Unknown User';
+                                    })()}
                                 </div>
                                 <button 
                                     onClick={closeViewModal}
@@ -811,6 +991,15 @@ export default function ActiveUsers() {
                                         <>
                                             <div className={styles.profileSection}>
                                                 <h5>Personal Information</h5>
+                                                {viewedUser.profile_picture && (
+                                                    <div className={styles.profilePictureDisplay}>
+                                                        <img 
+                                                            src={viewedUser.profile_picture} 
+                                                            alt={`${viewedUser.first_name} ${viewedUser.last_name}`}
+                                                            className={styles.viewProfilePicture}
+                                                        />
+                                                    </div>
+                                                )}
                                                 <div className={styles.infoRow}>
                                                     <span className={styles.label}>Email:</span>
                                                     <span className={styles.value}>{viewedUser.email}</span>

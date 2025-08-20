@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import PasswordInput from '@/components/common/PasswordInput';
 import styles from '@/styles/pages/auth/resetPasswordForm.module.css';
 
 interface ResetPasswordFormProps {
@@ -79,16 +80,15 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
             <label htmlFor="newPassword" className={styles.label}>
               New Password
             </label>
-            <input
-              type="password"
+            <PasswordInput
               id="newPassword"
+              name="newPassword"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               className={styles.input}
               placeholder="Enter new password"
               required
               disabled={isLoading}
-              minLength={8}
             />
           </div>
 
@@ -96,16 +96,15 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
             <label htmlFor="confirmPassword" className={styles.label}>
               Confirm Password
             </label>
-            <input
-              type="password"
+            <PasswordInput
               id="confirmPassword"
+              name="confirmPassword"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               className={styles.input}
               placeholder="Confirm new password"
               required
               disabled={isLoading}
-              minLength={8}
             />
           </div>
 

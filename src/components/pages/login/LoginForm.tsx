@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
+import PasswordInput from '@/components/common/PasswordInput';
 import styles from '@/styles/pages/login/loginForm.module.css';
 
 export default function LoginForm() {
@@ -90,8 +91,7 @@ export default function LoginForm() {
 
           <div className={styles.formGroup}>
             <label htmlFor="password">Password</label>
-            <input
-              type="password"
+            <PasswordInput
               id="password"
               name="password"
               value={formData.password}

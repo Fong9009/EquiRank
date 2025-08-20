@@ -4,7 +4,7 @@ import styles from '@/styles/layout/dashboard.module.css';
 import {useEffect, useState} from "react";
 
 interface DashboardLayoutProps {
-    role: string;
+    role: 'borrower' | 'lender' | 'admin';
     children: React.ReactNode;
     activeTab: string;
     setActiveTab: (tab: string) => void;

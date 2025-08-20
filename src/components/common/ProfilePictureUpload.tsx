@@ -139,9 +139,6 @@ export default function ProfilePictureUpload({
             <p className={styles.uploadHint}>
                 Click to upload a new profile picture
             </p>
-            <p className={styles.uploadHint}>
-                Images will be automatically optimized to 400x400 resolution and compressed for best performance
-            </p>
         </div>
     );
 }

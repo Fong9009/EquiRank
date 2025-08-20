@@ -37,6 +37,15 @@
     font-size: 16px;
 }
 
+.userTypeBadge {
+    flex-shrink: 0;
+    margin-left: 8px;
+}
+
+.menuUserTypeBadge {
+    margin-top: 4px;
+}
+
 .dropdownArrow {
     font-size: 10px;
     transition: transform 0.3s ease;
@@ -169,6 +178,10 @@
         font-size: 14px;
     }
     
+    .userTypeBadge {
+        margin-left: 6px;
+    }
+    
     .dropdownMenu {
         right: -10px;
         min-width: 220px;
@@ -187,8 +200,8 @@
         font-size: 18px;
     }
     
-    .menuUserRole {
-        font-size: 14px;
+    .menuUserTypeBadge {
+        margin-top: 3px;
     }
 }
 
@@ -199,6 +212,10 @@
     
     .userName {
         display: none;
+    }
+    
+    .userTypeBadge {
+        margin-left: 4px;
     }
     
     .dropdownMenu {
@@ -214,7 +231,7 @@
         font-size: 16px;
     }
     
-    .menuUserRole {
-        font-size: 13px;
+    .menuUserTypeBadge {
+        margin-top: 2px;
     }
 }

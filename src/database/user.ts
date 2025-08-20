@@ -295,6 +295,101 @@ export async function updateUserByID(email:string, first_name:string, last_name:
     return result.affectedRows > 0;
 }
 
+/**
+ * Comprehensive admin update function that handles profile picture updates and cleanup
+ */
+export async function updateUserByIDAdmin(
+    userId: number,
+    updates: {
+        email?: string;
+        first_name?: string;
+        last_name?: string;
+        phone?: string;
+        address?: string;
+        company?: string;
+        profile_picture?: string;
+        bio?: string;
+        website?: string;
+        linkedin?: string;
+        user_type?: 'borrower' | 'lender' | 'admin';
+        entity_type?: 'company' | 'individual';
+        is_active?: boolean;
+        is_approved?: boolean;
+        is_super_admin?: boolean;
+    }
+): Promise<boolean> {
+    try {
+        // Get current user data to check for profile picture changes
+        const currentUser = await getUserById(userId);
+        if (!currentUser) {
+            console.error(`User ${userId} not found for admin update`);
+            return false;
+        }
+
+        const fields = [];
+        const values = [];
+        
+        // Build dynamic query based on provided fields
+        Object.entries(updates).forEach(([key, value]) => {
+            if (value !== undefined) {
+                fields.push(`${key} = ?`);
+                values.push(value);
+            }
+        });
+        
+        if (fields.length === 0) return false;
+        
+        // Add updated_at timestamp
+        fields.push('updated_at = CURRENT_TIMESTAMP');
+        
+        const query = `
+            UPDATE users 
+            SET ${fields.join(', ')}
+            WHERE id = ?
+        `;
+        
+        values.push(userId);
+        
+        // Execute the update
+        const result = await executeSingleQuery(query, values);
+        
+        if (result.affectedRows > 0) {
+            // Handle profile picture cleanup if profile_picture was updated
+            if (updates.profile_picture !== undefined && updates.profile_picture !== currentUser.profile_picture) {
+                try {
+                    // Extract filename from the new profile picture URL
+                    const newProfilePictureUrl = updates.profile_picture;
+                    let newFilename: string | undefined;
+                    
+                    if (newProfilePictureUrl && newProfilePictureUrl.startsWith('/uploads/profile-pictures/')) {
+                        newFilename = newProfilePictureUrl.split('/').pop();
+                    }
+                    
+                    // Clean up old profile pictures for this user (excluding the new one)
+                    const { cleanupUserProfilePictures } = await import('@/lib/fileCleanup');
+                    const cleanupResult = await cleanupUserProfilePictures(userId, newFilename);
+                    
+                    if (cleanupResult.success) {
+                        console.log(`Admin update: Cleaned up ${cleanupResult.filesRemoved} old profile pictures for user ${userId}`);
+                    } else {
+                        console.warn(`Admin update: Profile picture cleanup had issues for user ${userId}:`, cleanupResult.errors);
+                    }
+                } catch (error) {
+                    console.error(`Admin update: Failed to cleanup old profile pictures for user ${userId}:`, error);
+                    // Don't fail the update if cleanup fails
+                }
+            }
+            
+            return true;
+        }
+        
+        return false;
+    } catch (error) {
+        console.error('Error in admin user update:', error);
+        return false;
+    }
+}
+
 export async function updateUserPassword(hashedPassword:string,userId: number): Promise<boolean> {
     const query = `UPDATE users SET password_hash = ? WHERE id = ?`
     const result = await executeSingleQuery(query, [hashedPassword, userId]);

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import ReCAPTCHA from 'react-google-recaptcha';
+import PasswordInput from '@/components/common/PasswordInput';
 import styles from '@/styles/pages/register/registrationForm.module.css';
 
 interface FormData {
@@ -56,13 +57,87 @@ export default function RegistrationForm() {
       [name]: value
     }));
     
-    // Clear error when user starts typing
-    if (errors[name]) {
+    // Real-time validation for specific fields
+    if (name === 'firstName' || name === 'lastName') {
+      validateNameField(name, value);
+    } else if (name === 'phone') {
+      validatePhoneField(value);
+    } else if (name === 'password' || name === 'confirmPassword') {
+      validatePasswordConfirmation();
+    }
+  };
+
+  // Validate name fields (alphabetic only)
+  const validateNameField = (fieldName: string, value: string) => {
+    if (value && value.length < 2) {
+      setErrors(prev => ({
+        ...prev,
+        [fieldName]: 'Name must be at least 2 characters long'
+      }));
+    } else if (value && value.length > 50) {
+      setErrors(prev => ({
+        ...prev,
+        [fieldName]: 'Name cannot exceed 50 characters'
+      }));
+    } else if (value && !/^[A-Za-z\s]+$/.test(value)) {
+      setErrors(prev => ({
+        ...prev,
+        [fieldName]: 'Name can only contain letters and spaces (A-Z, a-z, space)'
+      }));
+    } else if (errors[fieldName]) {
+      // Clear error if validation passes
       setErrors(prev => {
         const newErrors = { ...prev };
-        delete newErrors[name];
+        delete newErrors[fieldName];
         return newErrors;
       });
+    }
+  };
+
+  // Validate phone field (numbers only)
+  const validatePhoneField = (value: string) => {
+    if (value && !/^[0-9]+$/.test(value)) {
+      setErrors(prev => ({
+        ...prev,
+        phone: 'Phone number can only contain numbers (0-9)'
+      }));
+    } else if (value && value.length < 10) {
+      setErrors(prev => ({
+        ...prev,
+        phone: 'Phone number must contain at least 10 digits'
+      }));
+    } else if (value && value.length > 15) {
+      setErrors(prev => ({
+        ...prev,
+        phone: 'Phone number cannot exceed 15 digits'
+      }));
+    } else if (errors.phone) {
+      // Clear error if validation passes
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.phone;
+        return newErrors;
+      });
+    }
+  };
+
+  // Validate password confirmation in real-time
+  const validatePasswordConfirmation = () => {
+    try {
+      if (formData.confirmPassword && formData.password !== formData.confirmPassword) {
+        setErrors(prev => ({
+          ...prev,
+          confirmPassword: 'Passwords do not match'
+        }));
+      } else if (formData.confirmPassword && formData.password === formData.confirmPassword) {
+        setErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors.confirmPassword;
+          return newErrors;
+        });
+      }
+    } catch (error) {
+      console.error('Error in password confirmation validation:', error);
     }
   };
 
@@ -88,26 +163,59 @@ export default function RegistrationForm() {
       newErrors.email = 'Please enter a valid email address';
     }
 
+    // First name validation
+    if (formData.firstName) {
+      if (!/^[A-Za-z]+$/.test(formData.firstName)) {
+        newErrors.firstName = 'First name can only contain letters (A-Z, a-z)';
+      } else if (formData.firstName.length < 2) {
+        newErrors.firstName = 'First name must be at least 2 characters long';
+      } else if (formData.firstName.length > 50) {
+        newErrors.firstName = 'First name cannot exceed 50 characters';
+      }
+    }
+
+    // Last name validation
+    if (formData.lastName) {
+      if (!/^[A-Za-z]+$/.test(formData.lastName)) {
+        newErrors.lastName = 'Last name can only contain letters (A-Z, a-z)';
+      } else if (formData.lastName.length < 2) {
+        newErrors.lastName = 'Last name must be at least 2 characters long';
+      } else if (formData.lastName.length > 50) {
+        newErrors.lastName = 'Last name cannot exceed 50 characters';
+      }
+    }
+
+    // Phone validation (if provided)
+    if (formData.phone) {
+      if (!/^[0-9]+$/.test(formData.phone)) {
+        newErrors.phone = 'Phone number can only contain numbers (0-9)';
+      } else if (formData.phone.length < 10) {
+        newErrors.phone = 'Phone number must contain at least 10 digits';
+      } else if (formData.phone.length > 15) {
+        newErrors.phone = 'Phone number cannot exceed 15 digits';
+      }
+    }
+
     // Password validation
     if (formData.password) {
       if (formData.password.length < 12) {
         newErrors.password = 'Password must be at least 12 characters long.';
       } else {
-        const errors = [];
+        const passwordErrors = [];
         if (!/[a-z]/.test(formData.password)) {
-          errors.push("one lowercase letter");
+          passwordErrors.push("one lowercase letter");
         }
         if (!/[A-Z]/.test(formData.password)) {
-          errors.push("one uppercase letter");
+          passwordErrors.push("one uppercase letter");
         }
         if (!/[0-9]/.test(formData.password)) {
-          errors.push("one number");
+          passwordErrors.push("one number");
         }
         if (!/[!@#$%^&*(),.?":{}|<>_]/.test(formData.password)) {
-          errors.push("one special character");
+          passwordErrors.push("one special character");
         }
-        if (errors.length > 0) {
-          newErrors.password = `Password must contain at least ${errors.join(", ")}.`;
+        if (passwordErrors.length > 0) {
+          newErrors.password = `Password must contain at least ${passwordErrors.join(", ")}.`;
         }
       }
     } else {
@@ -135,6 +243,7 @@ export default function RegistrationForm() {
       return;
     }
 
+    console.log('Form submission - captchaToken:', captchaToken);
     if (!captchaToken) {
       setSubmitMessage({
         type: 'error',
@@ -147,24 +256,27 @@ export default function RegistrationForm() {
     setSubmitMessage(null);
 
           try {
+        const requestBody = {
+          email: formData.email,
+          password: formData.password,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          userType: formData.userType,
+          entityType: formData.entityType,
+          company: formData.company,
+          phone: formData.phone,
+          address: formData.address,
+          csrfToken,
+          captchaToken
+        };
+        
         const response = await fetch('/api/users', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'X-CSRF-Token': csrfToken,
           },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            userType: formData.userType,
-            entityType: formData.entityType,
-            company: formData.company,
-            phone: formData.phone,
-            address: formData.address,
-            csrfToken
-          }),
+          body: JSON.stringify(requestBody),
         });
 
       if (response.ok) {
@@ -316,7 +428,10 @@ export default function RegistrationForm() {
                   value={formData.firstName}
                   onChange={handleInputChange}
                   className={`${styles.input} ${errors.firstName ? styles.errorInput : ''}`}
-                  placeholder="Enter your first name"
+                  placeholder="e.g., John (letters only)"
+                  maxLength={50}
+                  pattern="[A-Za-z]+"
+                  title="Only letters (A-Z, a-z) are allowed"
                 />
                 {errors.firstName && <span className={styles.error}>{errors.firstName}</span>}
               </div>
@@ -330,7 +445,10 @@ export default function RegistrationForm() {
                   value={formData.lastName}
                   onChange={handleInputChange}
                   className={`${styles.input} ${errors.lastName ? styles.errorInput : ''}`}
-                  placeholder="Enter your last name"
+                  placeholder="e.g., Smith (letters only)"
+                  maxLength={50}
+                  pattern="[A-Za-z]+"
+                  title="Only letters (A-Z, a-z) are allowed"
                 />
                 {errors.lastName && <span className={styles.error}>{errors.lastName}</span>}
               </div>
@@ -382,9 +500,13 @@ export default function RegistrationForm() {
                 name="phone"
                 value={formData.phone}
                 onChange={handleInputChange}
-                className={styles.input}
-                placeholder="Enter your phone number"
+                className={`${styles.input} ${errors.phone ? styles.errorInput : ''}`}
+                placeholder="e.g., 5551234567 (numbers only)"
+                maxLength={15}
+                pattern="[0-9]+"
+                title="Only numbers (0-9) are allowed"
               />
+              {errors.phone && <span className={styles.error}>{errors.phone}</span>}
             </div>
 
             <div className={styles.inputGroup}>
@@ -405,45 +527,47 @@ export default function RegistrationForm() {
           <div className={styles.formSection}>
             <h3 className={styles.sectionTitle}>Security</h3>
             
-            <div className={styles.row}>
-              <div className={styles.inputGroup}>
-                <label htmlFor="password" className={styles.label}>Password *</label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className={`${styles.input} ${errors.password ? styles.errorInput : ''}`}
-                  placeholder="Create a password"
-                />
-                <div className={styles.passwordRequirements}>
-                  <small>Password must contain:</small>
-                  <ul>
-                    <li>At least 12 characters</li>
-                    <li>At least one uppercase letter (A-Z)</li>
-                    <li>At least one lowercase letter (a-z)</li>
-                    <li>At least one number (0-9)</li>
-                    <li>At least one special character (e.g., !@#$%^&*_)</li>
-                  </ul>
-                </div>
-                {errors.password && <span className={styles.error}>{errors.password}</span>}
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label htmlFor="confirmPassword" className={styles.label}>Confirm Password *</label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  className={`${styles.input} ${errors.confirmPassword ? styles.errorInput : ''}`}
-                  placeholder="Confirm your password"
-                />
-                {errors.confirmPassword && <span className={styles.error}>{errors.confirmPassword}</span>}
+            <div className={styles.inputGroup}>
+              <label htmlFor="password" className={styles.label}>Password *</label>
+              <PasswordInput
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                className={`${styles.input} ${errors.password ? styles.errorInput : ''}`}
+                placeholder="Create a strong password"
+                required
+              />
+              {errors.password && <span className={styles.error}>{errors.password}</span>}
+              <div className={styles.validationHint}>
+                <strong>Password Requirements:</strong> At least 12 characters with uppercase, lowercase, number, and special character
               </div>
             </div>
+
+            <div className={styles.inputGroup}>
+              <label htmlFor="confirmPassword" className={styles.label}>Confirm Password *</label>
+              <PasswordInput
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+                className={`${styles.input} ${errors.confirmPassword ? styles.errorInput : ''}`}
+                placeholder="Confirm your password"
+                required
+              />
+              {errors.confirmPassword && <span className={styles.error}>{errors.confirmPassword}</span>}
+            </div>
+          </div>
+
+          {/* Validation Hints */}
+          <div className={styles.validationHints}>
+            <h4 className={styles.hintsTitle}>Field Requirements:</h4>
+            <ul className={styles.hintsList}>
+              <li><strong>Names:</strong> Letters and spaces only (A-Z, a-z, space) - no special characters or symbols</li>
+              <li><strong>Phone:</strong> Numbers only (0-9) </li>
+              <li><strong>Email:</strong> Valid email format (e.g., user@domain.com)</li>
+              <li><strong>Password:</strong> Minimum 12 characters with mixed character types</li>
+            </ul>
           </div>
 
           {/* reCAPTCHA */}
@@ -451,7 +575,10 @@ export default function RegistrationForm() {
             <ReCAPTCHA
               ref={recaptchaRef}
               sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}
-              onChange={setCaptchaToken}
+              onChange={(token) => {
+                console.log('reCAPTCHA token received:', token);
+                setCaptchaToken(token);
+              }}
               theme="dark"
             />
           </div>

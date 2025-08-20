@@ -106,6 +106,10 @@
     text-transform: capitalize;
 }
 
+.sidebarUserTypeBadge {
+    margin-top: 8px;
+}
+
 .toggleCircle {
     position: fixed;
     top: 70px;
@@ -137,4 +141,61 @@
     margin: 0;
     letter-spacing: 1px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 250px;
+        padding: 15px;
+    }
+    
+    .sidebar.closed {
+        transform: translateX(-250px);
+    }
+    
+    .sidebarTitle {
+        font-size: 28px;
+    }
+    
+    .navLink {
+        font-size: 18px;
+        padding: 8px 15px;
+    }
+    
+    .userName {
+        font-size: 20px;
+    }
+    
+    .sidebarUserTypeBadge {
+        margin-top: 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar {
+        width: 220px;
+        padding: 10px;
+    }
+    
+    .sidebar.closed {
+        transform: translateX(-220px);
+    }
+    
+    .sidebarTitle {
+        font-size: 24px;
+    }
+    
+    .navLink {
+        font-size: 16px;
+        padding: 6px 12px;
+    }
+    
+    .userName {
+        font-size: 18px;
+    }
+    
+    .sidebarUserTypeBadge {
+        margin-top: 4px;
+    }
 }

@@ -530,6 +530,24 @@
     white-space: normal;
     word-break: break-word;
 }
+
+.helperText.insufficientPermissions {
+    color: #dc2626;
+    background-color: #fef2f2;
+    border-color: #fecaca;
+}
+
+.helperText.ownAccount {
+    color: #059669;
+    background-color: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+.helperText.superAdminCannotEdit {
+    color: #7c3aed;
+    background-color: #f5f3ff;
+    border-color: #ddd6fe;
+}
 .saveButton:disabled {
     background-color: #ccc;
     cursor: not-allowed;
@@ -570,16 +588,18 @@
 
 /* Overlay that darkens the background */
 .editModal {
-    position: fixed; /* stays on top */
+    position: fixed; 
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6); /* dark overlay */
+    background: rgba(0, 0, 0, 0.6); 
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 9999;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
 /* The modal box itself */
@@ -589,8 +609,13 @@
     border-radius: 12px;
     max-width: 500px;
     width: 90%;
+    max-height: 90vh; 
+    overflow-y: auto; 
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     animation: fadeInScale 0.3s ease-out;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 /* Nice little pop animation */
@@ -602,6 +627,27 @@
     to {
         opacity: 1;
         transform: scale(1);
+    }
+}
+
+/* Responsive modal adjustments */
+@media (max-width: 768px) {
+    .editContent {
+        max-width: 95%;
+        max-height: 85vh;
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .editContent {
+        max-width: 98%;
+        max-height: 80vh;
+        padding: 1rem;
+    }
+    
+    .editModal {
+        padding: 10px;
     }
 }
 
@@ -640,7 +686,7 @@
 .editForm {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.75rem; /* Reduce gap between form fields */
 }
 
 .editInput,
@@ -650,6 +696,13 @@
     border: 1px solid #ccc;
     border-radius: 6px;
     font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.editTextarea {
+    resize: vertical; /* Allow vertical resizing only */
+    min-height: 60px; /* Set minimum height */
+    max-height: 120px; /* Limit maximum height */
 }
 
 /* Action buttons */
@@ -657,7 +710,9 @@
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
-    margin-top: 1rem;
+    margin-top: 0.75rem; /* Reduce top margin */
+    padding-top: 0.75rem; /* Add padding top for visual separation */
+    border-top: 1px solid #3a3f45; /* Add subtle border for separation */
 }
 
 .saveButton {
@@ -859,4 +914,137 @@
     .value {
         text-align: left;
     }
+}
+
+/* Profile Picture Styles */
+.userHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.userNameAndType {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.userTypeBadge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    align-self: flex-start;
+}
+
+.borrowerBadge {
+    background-color: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #93c5fd;
+}
+
+.lenderBadge {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fcd34d;
+}
+
+.adminBadge {
+    background-color: #fce7f3;
+    color: #be185d;
+    border: 1px solid #f9a8d4;
+}
+
+.superAdminBadge {
+    background-color: #f3e8ff;
+    color: #7c3aed;
+    border: 1px solid #c4b5fd;
+}
+
+.userProfilePicture {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e5e7eb;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.profilePictureSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background-color: #f9fafb;
+    margin: 8px 0; /* Reduce vertical margin */
+}
+
+.profilePictureSection .uploadContainer {
+    gap: 8px; /* Reduce gap between elements */
+}
+
+.profilePictureSection .profilePictureWrapper {
+    width: 80px; /* Limit size */
+    height: 80px;
+}
+
+.removePictureButton {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.removePictureButton:hover {
+    background-color: #dc2626;
+}
+
+.profilePictureDisplay {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.viewProfilePicture {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e5e7eb;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Custom scrollbar for modal */
+.editContent::-webkit-scrollbar {
+    width: 8px;
+}
+
+.editContent::-webkit-scrollbar-track {
+    background: #2d3748;
+    border-radius: 4px;
+}
+
+.editContent::-webkit-scrollbar-thumb {
+    background: #4a5568;
+    border-radius: 4px;
+}
+
+.editContent::-webkit-scrollbar-thumb:hover {
+    background: #718096;
+}
+
+/* Firefox scrollbar */
+.editContent {
+    scrollbar-width: thin;
+    scrollbar-color: #4a5568 #2d3748;
 }

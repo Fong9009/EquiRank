@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import PasswordInput from '@/components/common/PasswordInput';
 import styles from '@/styles/pages/admin/addAdmin.module.css';
 
 export default function AddAdmin() {
@@ -98,7 +99,7 @@ export default function AddAdmin() {
           <div className={styles.row}>
             <div className={styles.inputGroup}>
               <label className={styles.label}>Password</label>
-              <input className={styles.input} name="password" type="password" value={form.password} onChange={onChange} required />
+              <PasswordInput className={styles.input} name="password" value={form.password} onChange={onChange} required />
               <div className={styles.passwordRequirements}>
                 <small>Password must contain:</small>
                 <ul>
@@ -112,7 +113,7 @@ export default function AddAdmin() {
             </div>
             <div className={styles.inputGroup}>
               <label className={styles.label}>Confirm Password</label>
-              <input className={styles.input} name="confirmPassword" type="password" value={form.confirmPassword} onChange={onChange} required />
+              <PasswordInput className={styles.input} name="confirmPassword" value={form.confirmPassword} onChange={onChange} required />
             </div>
           </div>
 
