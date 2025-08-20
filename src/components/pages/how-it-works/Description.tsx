@@ -45,11 +45,16 @@ export default function Description() {
             </div>
 
             <hr></hr>
+            <div className={styles.titleSection}>
+                <TitleText
+                    titleText={<h1>Second Stage, The Dashboard</h1>}
+                />
+            </div>
             {/*Second Row*/}
             <div className={styles.splitBox}>
                 <SlideOnView direction={"bottom"}>
                     <div className={styles.imageBox}>
-                        <img className={styles.imageBoxImage} src="/images/optic.jpg" alt="Picture of Optic Lines"/>
+                        <img className={styles.imageBoxImage} src="/images/dashboard.png" alt="Dashboard photo"/>
                     </div>
                 </SlideOnView>
                 <SlideOnView direction={"top"}>
@@ -57,12 +62,13 @@ export default function Description() {
                         <h2 className={styles.titleText}>Your Own Personal Dashboard</h2>
                         <hr className={styles.textDivider}></hr>
                         <p className={styles.paraText}>
-                            Over the years we have developed our Engine to provide insight into the performance of companies.
-                            We refined it over a long time taking in accurate data to one day be able to perform data analysis.
+                            With EquiRank, once we have approved of your account, you will be able to access your own personal dashboard
+                            Here you will be able perform company searches to do some more investigation into companies.
+                            Make your decisions count.
                         </p>
                         <p className={styles.paraText}>
                             <br></br>
-                            And Now We can. Our Vision to compare companies with data driven statistics.
+                            With this dashboard, now you can.
                         </p>
                         <div className={styles.wavePattern}>
                             <svg viewBox="0 0 500 150" preserveAspectRatio="none">
