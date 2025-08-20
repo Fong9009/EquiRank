@@ -1,0 +1,80 @@
+@font-face {
+    font-family: 'MyCustomFont';
+    src: url('/fonts/Iceland-Regular.ttf') format('truetype');
+}
+
+.customFont {
+    font-family: 'MyCustomFont', sans-serif;
+}
+
+.splashImage {
+    min-height: 80vh;
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    color: white;
+    text-align: center;
+    padding: 0 20px;
+}
+
+.splashParaText {
+    font-family: 'MyCustomFont', sans-serif;
+    font-size: 26px;
+    animation: titleFadeIn 2s ease-in;
+    width: 50vw;
+}
+
+.titleSplashText {
+    color: #AAE66B;
+    font-family: 'MyCustomFont', sans-serif;
+    font-size: 150px;
+    animation: titleFadeIn 1s ease-in;
+}
+
+.secondTitleText {
+    font-family: 'MyCustomFont', sans-serif;
+    font-size: 60px;
+    animation: titleFadeIn 2s ease-in;
+}
+
+.splashTextBox {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    text-align: left;
+    padding: 40px;
+}
+
+@media (max-width: 768px) {
+    .titleSplashText {
+        font-size: 70px;
+    }
+    .secondTitleText {
+        font-size: 50px;
+    }
+    .splashParaText {
+        font-size: 30px;
+    }
+
+    .splashTextBox {
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+    }
+}
+
+
+@keyframes titleFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
