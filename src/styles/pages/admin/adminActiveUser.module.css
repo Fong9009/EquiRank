@@ -607,6 +607,7 @@
     background: #1f2123;
     padding: 2rem;
     border-radius: 12px;
+    max-height: 780px;
     max-width: 500px;
     width: 90%;
     max-height: 90vh; 
@@ -616,6 +617,17 @@
     position: relative;
     top: 50%;
     transform: translateY(-50%);
+}
+
+.nameRow {
+    display: flex;
+    gap: 16px; /* space between inputs */
+}
+
+.nameField {
+    flex: 1; /* each field takes equal width */
+    display: flex;
+    flex-direction: column; /* label above input */
 }
 
 /* Nice little pop animation */

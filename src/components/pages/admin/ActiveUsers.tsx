@@ -846,42 +846,46 @@ export default function ActiveUsers() {
                                 />
                                 {emailError && <p className={styles.errorText}>{emailError}</p>}
 
-                                <label>First Name</label>
-                                <input
-                                    type="text"
-                                    value={editFormData[showEditModal]?.first_name || ''}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        handleEditChange(showEditModal, 'first_name',  value)
-                                        const error = validateName(value);
-                                        setErrors((prev) => ({
-                                            ...prev,
-                                            first_name: error || "",
-                                        }));
-                                    }}
-                                    className={styles.editInput}
-                                />
-                                {errors.first_name && <p className={styles.errorText}>{errors.first_name}</p>}
+                                <div className={styles.nameRow}>
+                                    <div className={styles.nameField}>
+                                        <label>First Name</label>
+                                        <input
+                                            type="text"
+                                            value={editFormData[showEditModal]?.first_name || ''}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                handleEditChange(showEditModal, 'first_name',  value)
+                                                const error = validateName(value);
+                                                setErrors((prev) => ({
+                                                    ...prev,
+                                                    first_name: error || "",
+                                                }));
+                                            }}
+                                            className={styles.editInput}
+                                        />
+                                        {errors.first_name && <p className={styles.errorText}>{errors.first_name}</p>}
+                                    </div>
+                                    <div className={styles.nameField}>
+                                        <label>Last Name</label>
+                                        <input
+                                            type="text"
+                                            value={editFormData[showEditModal]?.last_name || ''}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                handleEditChange(showEditModal, 'last_name', e.target.value)
+                                                const error = validateName(value);
+                                                setErrors((prev) => ({
+                                                    ...prev,
+                                                    last_name: error || "",
+                                                }));
+                                            }
 
-                                <label>Last Name</label>
-                                <input
-                                    type="text"
-                                    value={editFormData[showEditModal]?.last_name || ''}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        handleEditChange(showEditModal, 'last_name', e.target.value)
-                                        const error = validateName(value);
-                                        setErrors((prev) => ({
-                                            ...prev,
-                                            last_name: error || "",
-                                        }));
-                                    }
-
-                                    }
-                                    className={styles.editInput}
-                                />
-                                {errors.last_name && <p className={styles.errorText}>{errors.last_name}</p>}
-
+                                            }
+                                            className={styles.editInput}
+                                        />
+                                        {errors.last_name && <p className={styles.errorText}>{errors.last_name}</p>}
+                                    </div>
+                                </div>
                                 <label>Phone</label>
                                 <input
                                     type="text"
