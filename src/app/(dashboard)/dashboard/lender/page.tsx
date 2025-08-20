@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
 import LenderHomepage from "@/components/pages/lender/LenderHomepage";
-import ProfileSettings from "@/components/pages/profile/ProfileSettings";
+import ProfileSettings from "@/components/pages/settings/ProfileSettings";
 
 function LenderDashboardContent() {
     const { data: session, status } = useSession();
