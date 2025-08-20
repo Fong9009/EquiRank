@@ -54,13 +54,81 @@ src/
 │   └── schema.sql        # Database schema
 ├── lib/                  # Utility libraries
 │   ├── auth.ts           # NextAuth configuration
-│   └── security.ts       # Security utilities
+│   ├── security.ts       # Security utilities
+│   └── fileCleanup.ts    # File cleanup utilities
 ├── middleware.ts         # Global security middleware
 └── styles/               # CSS Modules
     ├── components/       # Component styles
     ├── layout/          # Layout styles
     └── pages/           # Page styles
+├── scripts/              # Utility scripts
+    └── cleanup.js       # File cleanup CLI tool
 ```
+
+## 🧹 File Cleanup System
+
+### Overview
+The platform includes an automated file cleanup system that manages orphaned profile picture files to prevent storage waste and maintain system cleanliness. This system automatically identifies and removes profile pictures from deleted users or invalid uploads.
+
+### Features
+- **Automatic Cleanup**: Removes orphaned files when users are deleted or profile pictures are changed
+- **Image Optimization**: Automatically compresses and resizes images to 400x400 resolution in WebP format
+- **Real-time Monitoring**: Tracks file usage and storage consumption in admin dashboard
+- **Admin Dashboard**: Web interface for monitoring and manual cleanup operations
+- **CLI Tools**: Command-line scripts for server maintenance and batch operations
+- **Safety Checks**: Only removes confirmed orphaned files with comprehensive validation
+
+### How It Works
+1. **File Naming Convention**: Profile pictures follow `profile_{userId}_{timestamp}.webp` pattern
+2. **Image Processing**: All images are automatically resized to 400x400px and compressed to WebP format
+3. **Orphaned Detection**: Files are marked orphaned if user ID doesn't exist in database
+4. **Automatic Triggers**: Cleanup occurs on user deletion and profile picture updates
+5. **Manual Operations**: Admins can perform system-wide cleanup operations
+
+### Usage
+
+#### Web Interface (Admin Dashboard)
+1. Navigate to Admin Dashboard → File Cleanup
+2. View real-time statistics and storage metrics
+3. Perform manual cleanup operations with confirmation dialogs
+
+#### Command Line Interface
+```bash
+# View cleanup statistics
+node scripts/cleanup.js --stats
+
+# Preview cleanup (dry run)
+node scripts/cleanup.js --dry-run
+
+# Perform cleanup
+node scripts/cleanup.js --cleanup
+
+# Get help
+node scripts/cleanup.js --help
+```
+
+#### Environment Variables for CLI
+```bash
+DB_HOST=localhost          # Database host
+DB_USER=root              # Database user
+DB_PASSWORD=password      # Database password
+DB_NAME=fit3048_team071   # Database name
+```
+
+### Safety Features
+- **Confirmation Dialogs**: Multiple confirmation steps before file deletion
+- **Validation**: Only removes files with confirmed orphaned status
+- **Error Handling**: Graceful degradation with detailed error reporting
+- **Access Control**: Admin-only access to cleanup operations
+- **Audit Logging**: Comprehensive logging of all cleanup activities
+
+### Integration Points
+- **User Deletion**: Profile pictures automatically cleaned up
+- **Profile Updates**: Old files removed when new ones uploaded
+- **System Maintenance**: Scheduled cleanup operations possible
+- **Error Recovery**: Non-blocking operations with fallback handling
+
+For detailed documentation, see [FILE_CLEANUP.md](./FILE_CLEANUP.md)
 
 ## 🔐 Authentication System
 

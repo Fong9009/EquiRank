@@ -118,7 +118,6 @@ export default function ProfileSettings() {
                     type: 'success',
                     text: 'Profile updated successfully!'
                 });
-                // Emit profile update event to refresh other components
                 profileEvents.emit();
             } else {
                 const error = await response.json();
@@ -240,6 +239,7 @@ export default function ProfileSettings() {
                                 onImageUpload={(imageUrl) => handleProfileChange('profile_picture', imageUrl)}
                                 size="large"
                                 className={styles.profilePictureUpload}
+                                userName={`${profileData.first_name} ${profileData.last_name}`}
                             />
                         </div>
 

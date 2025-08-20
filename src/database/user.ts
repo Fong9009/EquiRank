@@ -304,6 +304,18 @@ export async function updateUserPassword(hashedPassword:string,userId: number): 
 export async function deleteUserById(userId: number): Promise<boolean> {
     const query = `DELETE FROM users WHERE id = ?`;
     const result = await executeSingleQuery(query, [userId]);
+    
+    if (result.affectedRows > 0) {
+        // Import cleanup function dynamically to avoid circular dependencies
+        try {
+            const { cleanupUserProfilePictures } = await import('@/lib/fileCleanup');
+            await cleanupUserProfilePictures(userId);
+        } catch (error) {
+            console.error(`Failed to cleanup profile pictures for user ${userId}:`, error);
+            // Don't fail the user deletion if cleanup fails
+        }
+    }
+    
     return result.affectedRows > 0;
 }
 

@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
+import sharp from 'sharp';
 
 export async function POST(request: NextRequest) {
     try {
@@ -33,11 +34,11 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Validate file size (max 5MB)
-        const maxSize = 5 * 1024 * 1024; // 5MB
+        // Validate file size (max 10MB for original upload, will be compressed)
+        const maxSize = 10 * 1024 * 1024; // 10MB
         if (file.size > maxSize) {
             return NextResponse.json(
-                { error: 'File size must be less than 5MB' },
+                { error: 'File size must be less than 10MB. Large images will be automatically compressed.' },
                 { status: 400 }
             );
         }
@@ -48,17 +49,30 @@ export async function POST(request: NextRequest) {
             await mkdir(uploadsDir, { recursive: true });
         }
 
-        // Generate unique filename
+        // Generate unique filename (always use .webp for better compression)
         const timestamp = Date.now();
         const userId = session.user.id;
-        const fileExtension = file.name.split('.').pop();
-        const filename = `profile_${userId}_${timestamp}.${fileExtension}`;
+        const filename = `profile_${userId}_${timestamp}.webp`;
         const filepath = join(uploadsDir, filename);
 
-        // Convert file to buffer and save
+        // Convert file to buffer and process with Sharp
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
-        await writeFile(filepath, buffer);
+
+        // Process image: resize, compress, and convert to WebP
+        const processedImage = await sharp(buffer)
+            .resize(400, 400, { // Optimal size for profile pictures
+                fit: 'cover',    // Crop to maintain aspect ratio
+                position: 'center' // Center the crop
+            })
+            .webp({ 
+                quality: 85,     // High quality with good compression
+                effort: 6        // Higher compression effort
+            })
+            .toBuffer();
+
+        // Save the processed image
+        await writeFile(filepath, processedImage);
 
         // Clean up old profile pictures for this user (excluding the new one)
         try {
@@ -72,12 +86,19 @@ export async function POST(request: NextRequest) {
         // Return the public URL
         const publicUrl = `/uploads/profile-pictures/${filename}`;
         
-        console.log('Profile picture uploaded successfully:', {
+        const originalSize = file.size;
+        const compressedSize = processedImage.length;
+        const compressionRatio = ((originalSize - compressedSize) / originalSize * 100).toFixed(1);
+        
+        console.log('Profile picture uploaded and processed successfully:', {
             userId: session.user.id,
             filename,
             publicUrl,
-            fileSize: file.size,
-            fileType: file.type
+            originalSize: `${(originalSize / 1024 / 1024).toFixed(2)} MB`,
+            compressedSize: `${(compressedSize / 1024 / 1024).toFixed(2)} MB`,
+            compressionRatio: `${compressionRatio}%`,
+            resolution: '400x400',
+            format: 'WebP'
         });
 
         return NextResponse.json({

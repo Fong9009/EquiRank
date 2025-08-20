@@ -1,7 +1,7 @@
 // components/Sidebar.tsx
 'use client';
 import { useEffect, useState } from 'react';
-import { Home, Settings, Users, Briefcase, Phone, User } from "lucide-react";
+import { Home, Settings, Users, Briefcase, Phone, User, Trash2 } from "lucide-react";
 import styles from '@/styles/layout/sidebar.module.css'
 import ProfilePicture from '@/components/common/ProfilePicture';
 import { useSession } from 'next-auth/react';
@@ -51,6 +51,12 @@ export default function Sidebar({ role, activeTab, setActiveTab, isOpen, toggleS
                     items: [
                         { name: 'Manage Users', icon: Users },
                         { name: 'Manage Contact', icon: Phone }
+                    ]
+                },
+                {
+                    title: 'System',
+                    items: [
+                        { name: 'File Cleanup', icon: Trash2 }
                     ]
                 }
             ]
