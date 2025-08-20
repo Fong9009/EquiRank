@@ -71,7 +71,7 @@
 }
 
 .listBodyText {
-    max-width: 700px;
+    max-width: 1000px;
     font-family: 'MyCustomFont', sans-serif;
     font-size: 24px;
     color: rgba(255, 255, 255, 0.8);
@@ -88,6 +88,34 @@
     margin: 10px 0;
     color: white;
     font-size: 26px;
+}
+.cog {
+    animation: spin 4s linear infinite;
+}
+
+.magGlass {
+    animation: scan 3s ease-in-out infinite;
+}
+
+@keyframes scan {
+    0% { transform: rotate(-10deg); }
+    50% { transform: rotate(10deg); }
+    100% { transform: rotate(-10deg); }
+}
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (min-width: 1629px){
+    .imageContainer {
+        width: 450px;
+        height: 450px;
+    }
 }
 
 @media (max-width: 768px) {

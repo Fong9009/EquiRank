@@ -20,7 +20,7 @@ export default function Footer() {
                 <div className={styles.footerColumn}>
                     <h3 className={clsx(styles.columnTitle,styles.columnTitleUnderline)}>Resources</h3>
                     <Link className={styles.columnLink} href="/how-it-works">How It Works</Link>
-                    <Link className={styles.columnLink} href="/doc">Documentation</Link>
+                    {/*} <Link className={styles.columnLink} href="/doc">Documentation</Link> */}
                 </div>
                 <div className={styles.footerColumn}>
                     <h3 className={clsx(styles.columnTitle,styles.columnTitleUnderline)}>Support</h3>

@@ -57,7 +57,7 @@ function BorrowerDashboardContent(){
             case "PLACEHOLDER2":
                 return <div>PLACEHOLDER</div>;
             default:
-                return <div><h1>Borrower Dashboard</h1></div>;
+                return <BorrowerHomepage/>;
         }
     };
 

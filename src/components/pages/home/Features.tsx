@@ -55,7 +55,7 @@ export default function Features() {
                                     <li>Multiple Comparisons</li>
                                 </ul>
                             </div>
-                            <img className={styles.imageContainer} src="/images/search.png" alt="Search Icon" />
+                            <img className={clsx(styles.imageContainer,styles.magGlass)} src="/images/search.png" alt="Search Icon" />
                         </div>
                     </div>
                 </SwiperSlide>
@@ -107,7 +107,7 @@ export default function Features() {
                                     <li>Many Filters to Choose From</li>
                                 </ul>
                             </div>
-                            <img className={styles.imageContainer} src="/images/cog.png" alt="Picture of Cog" />
+                            <img className={clsx(styles.imageContainer, styles.cog)} src="/images/cog.png" alt="Picture of Cog" />
                         </div>
                     </div>
                 </SwiperSlide>
