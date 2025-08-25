@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
-import sharp from 'sharp';
+import { executeQuery, executeSingleQuery } from '@/database/index';
 
 export async function POST(request: NextRequest) {
     try {
@@ -34,83 +31,66 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Validate file size (max 10MB for original upload, will be compressed)
-        const maxSize = 10 * 1024 * 1024; // 10MB
+        // Validate file size (max 5MB for database storage)
+        const maxSize = 5 * 1024 * 1024; // 5MB
         if (file.size > maxSize) {
             return NextResponse.json(
-                { error: 'File size must be less than 10MB. Large images will be automatically compressed.' },
+                { error: 'File size must be less than 5MB for database storage' },
                 { status: 400 }
             );
         }
 
-        // Create uploads directory if it doesn't exist
-        const uploadsDir = join(process.cwd(), 'public', 'uploads', 'profile-pictures');
-        if (!existsSync(uploadsDir)) {
-            await mkdir(uploadsDir, { recursive: true });
-        }
-
-        // Generate unique filename (always use .webp for better compression)
-        const timestamp = Date.now();
-        const userId = session.user.id;
-        const filename = `profile_${userId}_${timestamp}.webp`;
-        const filepath = join(uploadsDir, filename);
-
-        // Convert file to buffer and process with Sharp
+        // Convert file to base64
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
+        const base64Data = buffer.toString('base64');
 
-        // Process image: resize, compress, and convert to WebP
-        const processedImage = await sharp(buffer)
-            .resize(400, 400, { // Optimal size for profile pictures
-                fit: 'cover',    // Crop to maintain aspect ratio
-                position: 'center' // Center the crop
-            })
-            .webp({ 
-                quality: 85,     // High quality with good compression
-                effort: 6        // Higher compression effort
-            })
-            .toBuffer();
+        const userId = session.user.id;
 
-        // Save the processed image
-        await writeFile(filepath, processedImage);
+        // Check if user already has a profile picture
+        const [existingRows] = await executeSingleQuery(
+            'SELECT id FROM profile_pictures WHERE user_id = ?',
+            [parseInt(userId)]
+        );
 
-        // Clean up old profile pictures for this user (excluding the new one)
-        try {
-            const { cleanupUserProfilePictures } = await import('@/lib/fileCleanup');
-            await cleanupUserProfilePictures(parseInt(userId), filename);
-        } catch (error) {
-            console.error(`Failed to cleanup old profile pictures for user ${userId}:`, error);
-            // Don't fail the upload if cleanup fails
+        if (existingRows && existingRows.length > 0) {
+            // Update existing profile picture
+            await executeQuery(
+                'UPDATE profile_pictures SET image_data = ?, image_type = ?, image_size = ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?',
+                [base64Data, file.type, file.size, parseInt(userId)]
+            );
+        } else {
+            // Insert new profile picture
+            await executeQuery(
+                'INSERT INTO profile_pictures (user_id, image_data, image_type, image_size) VALUES (?, ?, ?, ?)',
+                [parseInt(userId), base64Data, file.type, file.size]
+            );
         }
 
-        // Return the public URL
-        const publicUrl = `/uploads/profile-pictures/${filename}`;
-        
-        const originalSize = file.size;
-        const compressedSize = processedImage.length;
-        const compressionRatio = ((originalSize - compressedSize) / originalSize * 100).toFixed(1);
-        
-        console.log('Profile picture uploaded and processed successfully:', {
+        // Update the users table profile_picture field to point to the new API endpoint
+        const profilePictureUrl = `/api/profile-picture/${userId}`;
+        await executeQuery(
+            'UPDATE users SET profile_picture = ? WHERE id = ?',
+            [profilePictureUrl, parseInt(userId)]
+        );
+
+        console.log('Profile picture uploaded to database successfully:', {
             userId: session.user.id,
-            filename,
-            publicUrl,
-            originalSize: `${(originalSize / 1024 / 1024).toFixed(2)} MB`,
-            compressedSize: `${(compressedSize / 1024 / 1024).toFixed(2)} MB`,
-            compressionRatio: `${compressionRatio}%`,
-            resolution: '400x400',
-            format: 'WebP'
+            fileType: file.type,
+            fileSize: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
+            databaseUrl: profilePictureUrl
         });
 
         return NextResponse.json({
             success: true,
-            url: publicUrl,
-            filename: filename
+            url: profilePictureUrl,
+            message: 'Profile picture stored in database'
         }, { status: 200 });
 
     } catch (error) {
-        console.error('Error uploading profile picture:', error);
+        console.error('Error uploading profile picture to database:', error);
         return NextResponse.json(
-            { error: 'Failed to upload file' },
+            { error: 'Failed to upload file to database' },
             { status: 500 }
         );
     }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import styles from '@/styles/pages/admin/approvalDashboard.module.css';
+import CustomConfirmation from '@/components/common/CustomConfirmation';
 
 interface User {
   id: number;
@@ -22,6 +23,14 @@ export default function ApprovalDashboard() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [rejectionReasons, setRejectionReasons] = useState<{ [key: number]: string }>({});
   const [showRejectionModal, setShowRejectionModal] = useState<number | null>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [confirmationData, setConfirmationData] = useState<{
+    action: 'approve' | 'reject';
+    userName: string;
+    userId: number;
+    message: string;
+    title: string;
+  } | null>(null);
 
   useEffect(() => {
     fetchPendingUsers();
@@ -90,6 +99,43 @@ export default function ApprovalDashboard() {
     } catch (error) {
       setMessage({ type: 'error', text: 'Error processing request' });
     }
+  };
+
+  // Custom confirmation handlers
+  const showApproveConfirmation = (user: User) => {
+    setConfirmationData({
+      action: 'approve',
+      userName: `${user.first_name} ${user.last_name}`,
+      userId: user.id,
+      title: 'Approve User',
+      message: 'Are you sure you want to approve this user? They will gain access to the system.'
+    });
+    setShowConfirmation(true);
+  };
+
+  const showRejectConfirmation = (user: User) => {
+    setConfirmationData({
+      action: 'reject',
+      userName: `${user.first_name} ${user.last_name}`,
+      userId: user.id,
+      title: 'Reject User',
+      message: 'Are you sure you want to reject this user? They will not be able to access the system.'
+    });
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmation = async () => {
+    if (!confirmationData) return;
+
+    if (confirmationData.action === 'approve') {
+      await handleApproval(confirmationData.userId, 'approve');
+    } else if (confirmationData.action === 'reject') {
+      setShowRejectionModal(confirmationData.userId);
+      setRejectionReasons(prev => ({ ...prev, [confirmationData.userId]: '' }));
+    }
+    
+    setShowConfirmation(false);
+    setConfirmationData(null);
   };
 
   const handleRejectClick = (userId: number) => {
@@ -185,13 +231,13 @@ export default function ApprovalDashboard() {
               ) : (
                 <div className={styles.actions}>
                   <button
-                    onClick={() => handleApproval(user.id, 'approve')}
+                    onClick={() => showApproveConfirmation(user)}
                     className={styles.approveButton}
                   >
                     Approve
                   </button>
                   <button
-                    onClick={() => handleRejectClick(user.id)}
+                    onClick={() => showRejectConfirmation(user)}
                     className={styles.rejectButton}
                   >
                     Reject
@@ -201,6 +247,20 @@ export default function ApprovalDashboard() {
             </div>
           ))}
         </div>
+      )}
+
+      {showConfirmation && confirmationData && (
+        <CustomConfirmation
+          isOpen={showConfirmation}
+          onClose={() => setShowConfirmation(false)}
+          onConfirm={handleConfirmation}
+          title={confirmationData.title}
+          message={confirmationData.message}
+          userName={confirmationData.userName}
+          action={confirmationData.action}
+          confirmText={confirmationData.action === 'approve' ? 'Approve' : 'Reject'}
+          cancelText="Cancel"
+        />
       )}
     </div>
   );

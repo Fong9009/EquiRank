@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import styles from '@/styles/pages/admin/contactMessages.module.css';
+import CustomConfirmation from '@/components/common/CustomConfirmation';
 
 interface ContactMessage {
   id: number;
@@ -27,6 +28,14 @@ export default function ArchivedMessages() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'new' | 'read' | 'replied' | 'closed'>('all');
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'subject'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  
+  // Custom confirmation states
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [confirmationData, setConfirmationData] = useState<{
+    action: 'restore' | 'delete';
+    conversationId?: string;
+    userName?: string;
+  } | null>(null);
 
   useEffect(() => {
     fetchArchivedMessages();
@@ -57,50 +66,80 @@ export default function ArchivedMessages() {
   };
 
   const restoreConversation = async (conversationId: string) => {
-    if (!confirm('Are you sure you want to restore this conversation? It will be moved back to the main inbox.')) return;
-
-    try {
-      const response = await fetch(`/api/admin/contact-messages/conversation/${conversationId}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ archived: false }),
-        headers: { 'Content-Type': 'application/json' }
-      });
-      if (response.ok) {
-        setMessage({ type: 'success', text: 'Conversation restored successfully.' });
-        setArchivedThreads(prev => {
-          const updated = { ...prev };
-          delete updated[conversationId];
-          return updated;
-        });
-      } else {
-        const error = await response.json();
-        setMessage({ type: 'error', text: `Failed to restore: ${error.error}` });
-      }
-    } catch (error) {
-      setMessage({ type: 'error', text: 'Network error while restoring.' });
-    }
+    const thread = archivedThreads[conversationId];
+    if (!thread) return;
+    
+    setConfirmationData({
+      action: 'restore',
+      conversationId: conversationId,
+      userName: thread[0]?.name,
+    });
+    setShowConfirmation(true);
   };
 
   const deleteConversationPermanently = async (conversationId: string) => {
-    if (!confirm('This action is irreversible. Are you sure you want to permanently delete this conversation?')) return;
+    const thread = archivedThreads[conversationId];
+    if (!thread) return;
     
-    try {
-      const response = await fetch(`/api/admin/contact-messages/conversation/${conversationId}`, { method: 'DELETE' });
-      console.log("response check", response);
-      if (response.ok) {
-        setMessage({ type: 'success', text: 'Conversation permanently deleted.' });
-        setArchivedThreads(prev => {
-          const updated = { ...prev };
-          delete updated[conversationId];
-          return updated;
-        });
-      } else {
-        const error = await response.json();
-        setMessage({ type: 'error', text: `Failed to delete: ${error.error}` });
-      }
-    } catch (error) {
-      setMessage({ type: 'error', text: 'Network error while deleting.' });
+    setConfirmationData({
+      action: 'delete',
+      conversationId: conversationId,
+      userName: thread[0]?.name,
+    });
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmation = async (confirmed: boolean) => {
+    if (!confirmed) {
+      setShowConfirmation(false);
+      setConfirmationData(null);
+      return;
     }
+
+    if (!confirmationData?.conversationId) return;
+
+    if (confirmationData.action === 'restore') {
+      try {
+        const response = await fetch(`/api/admin/contact-messages/conversation/${confirmationData.conversationId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ archived: false }),
+          headers: { 'Content-Type': 'application/json' }
+        });
+        if (response.ok) {
+          setMessage({ type: 'success', text: 'Conversation restored successfully.' });
+          setArchivedThreads(prev => {
+            const updated = { ...prev };
+            delete updated[confirmationData.conversationId!];
+            return updated;
+          });
+        } else {
+          const error = await response.json();
+          setMessage({ type: 'error', text: `Failed to restore: ${error.error}` });
+        }
+      } catch (error) {
+        setMessage({ type: 'error', text: 'Network error while restoring.' });
+      }
+    } else if (confirmationData.action === 'delete') {
+      try {
+        const response = await fetch(`/api/admin/contact-messages/conversation/${confirmationData.conversationId}`, { method: 'DELETE' });
+        if (response.ok) {
+          setMessage({ type: 'success', text: 'Conversation permanently deleted.' });
+          setArchivedThreads(prev => {
+            const updated = { ...prev };
+            delete updated[confirmationData.conversationId!];
+            return updated;
+          });
+        } else {
+          const error = await response.json();
+          setMessage({ type: 'error', text: `Failed to delete: ${error.error}` });
+        }
+      } catch (error) {
+        setMessage({ type: 'error', text: 'Network error while deleting.' });
+      }
+    }
+
+    setShowConfirmation(false);
+    setConfirmationData(null);
   };
   
   const toggleConversation = (conversationId: string) => {
@@ -270,6 +309,31 @@ export default function ArchivedMessages() {
             );
           })}
         </div>
+      )}
+      {/* Custom Confirmation Modal */}
+      {showConfirmation && confirmationData && (
+        <CustomConfirmation
+          isOpen={showConfirmation}
+          onClose={() => {
+            setShowConfirmation(false);
+            setConfirmationData(null);
+          }}
+          onConfirm={() => handleConfirmation(true)}
+          title={
+            confirmationData.action === 'restore'
+              ? 'Restore Conversation'
+              : 'Delete Conversation Permanently'
+          }
+          message={
+            confirmationData.action === 'restore'
+              ? 'Are you sure you want to restore this conversation? It will be moved back to the main inbox.'
+              : 'This action is irreversible. Are you sure you want to permanently delete this conversation?'
+          }
+          userName={confirmationData.userName || 'User'}
+          action={confirmationData.action === 'restore' ? 'restore' : 'delete'}
+          confirmText="Confirm"
+          cancelText="Cancel"
+        />
       )}
     </div>
   );

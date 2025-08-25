@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllUsers, getUsersByType, createAdminUser } from '@/database/user';
+import { getAllUsersForAdmin, getUsersByType, createAdminUser } from '@/database/user';
 import { hashPassword } from '@/lib/security';
 import { auth } from '@/lib/auth';
 
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     if (userType && ['borrower', 'lender', 'admin'].includes(userType)) {
       users = await getUsersByType(userType as any);
     } else {
-      users = await getAllUsers();
+      users = await getAllUsersForAdmin();
     }
 
     // Remove password hashes from response for security

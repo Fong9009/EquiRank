@@ -18,7 +18,24 @@ export default function AddAdmin() {
   const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
+    
+    // Clear message when user starts typing
     if (message) setMessage(null);
+    
+    // Real-time password validation
+    if (name === 'password' || name === 'confirmPassword') {
+      validatePasswordMatch();
+    }
+  };
+
+  // Validate password matching in real-time
+  const validatePasswordMatch = () => {
+    if (form.password && form.confirmPassword) {
+      if (form.password !== form.confirmPassword) {
+        // Passwords don't match - this will be handled on form submission
+        // We don't show error here to avoid confusion during typing
+      }
+    }
   };
 
   const onSubmit = async (e: React.FormEvent) => {

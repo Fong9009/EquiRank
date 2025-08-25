@@ -50,6 +50,13 @@ export default function RegistrationForm() {
     setCsrfToken(generateToken());
   }, []);
 
+  // Validate password confirmation when formData changes
+  useEffect(() => {
+    if (formData.password || formData.confirmPassword) {
+      validatePasswordConfirmation(formData.password, formData.confirmPassword);
+    }
+  }, [formData.password, formData.confirmPassword]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -63,7 +70,10 @@ export default function RegistrationForm() {
     } else if (name === 'phone') {
       validatePhoneField(value);
     } else if (name === 'password' || name === 'confirmPassword') {
-      validatePasswordConfirmation();
+      // Pass the current values to avoid stale state issues
+      const currentPassword = name === 'password' ? value : formData.password;
+      const currentConfirmPassword = name === 'confirmPassword' ? value : formData.confirmPassword;
+      validatePasswordConfirmation(currentPassword, currentConfirmPassword);
     }
   };
 
@@ -122,19 +132,35 @@ export default function RegistrationForm() {
   };
 
   // Validate password confirmation in real-time
-  const validatePasswordConfirmation = () => {
+  const validatePasswordConfirmation = (password: string, confirmPassword: string) => {
     try {
-      if (formData.confirmPassword && formData.password !== formData.confirmPassword) {
+      console.log('🔍 Password validation:', { password, confirmPassword, match: password === confirmPassword });
+      
+      // Clear any existing confirmPassword error first
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.confirmPassword;
+        return newErrors;
+      });
+
+      // Only validate if both fields have values
+      if (password && confirmPassword) {
+        if (password !== confirmPassword) {
+          console.log('❌ Passwords do not match, setting error');
+          setErrors(prev => ({
+            ...prev,
+            confirmPassword: 'Passwords do not match'
+          }));
+        } else {
+          console.log('✅ Passwords match, error should be cleared');
+        }
+        // If passwords match, error is already cleared above
+      } else if (confirmPassword && !password) {
+        // Show error if confirm password is filled but password is empty
         setErrors(prev => ({
           ...prev,
-          confirmPassword: 'Passwords do not match'
+          confirmPassword: 'Please enter your password first'
         }));
-      } else if (formData.confirmPassword && formData.password === formData.confirmPassword) {
-        setErrors(prev => {
-          const newErrors = { ...prev };
-          delete newErrors.confirmPassword;
-          return newErrors;
-        });
       }
     } catch (error) {
       console.error('Error in password confirmation validation:', error);

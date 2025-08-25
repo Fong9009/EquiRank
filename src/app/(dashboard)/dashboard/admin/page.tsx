@@ -1,13 +1,13 @@
 'use client';
-{/*Utility*/}
+
 import { useEffect, useState, Suspense } from "react";
 import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-{/*Layout*/}
+// Layout
 import DashboardLayout from '@/components/layout/DashboardLayout';
 
-{/*Pages*/}
+// Pages
 import AdminFrontPage from "@/components/pages/admin/AdminFrontEnd";
 import AdminHomePage from "@/components/pages/admin/AdminHomepage";
 import AdminUserPage from "@/components/pages/admin/AdminUserPage";

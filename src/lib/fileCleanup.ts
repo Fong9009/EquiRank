@@ -26,7 +26,9 @@ export interface FileInfo {
  * Get the profile pictures upload directory path
  */
 export function getProfilePicturesDir(): string {
-    return join(process.cwd(), 'public', 'uploads', 'profile-pictures');
+    return process.env.NODE_ENV === 'production'
+        ? '/tmp/uploads/profile-pictures'  // Railway's writable temp directory
+        : join(process.cwd(), 'public', 'uploads', 'profile-pictures');
 }
 
 /**

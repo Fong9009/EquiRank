@@ -192,10 +192,19 @@ export async function getAllUsers(): Promise<User[]> {
     return await executeQuery<User>(query);
 }
 
+// Get all users for admin management (including unapproved)
+export async function getAllUsersForAdmin(): Promise<User[]> {
+    const query = `
+    SELECT * FROM users 
+    ORDER BY created_at DESC
+  `;
+    return await executeQuery<User>(query);
+}
+
 export async function getAllActiveUsers(): Promise<User[]> {
     const query = `
     SELECT id,email,first_name,last_name,user_type,entity_type,company,phone,address,is_super_admin FROM users
-    WHERE is_active = 1
+    WHERE is_active = 1 AND is_approved = 1
     ORDER by first_name DESC`;
     return await executeQuery<User>(query);
 }
@@ -228,7 +237,7 @@ export async function getApprovalUsers(): Promise<User[]> {
 export async function getUsersByType(userType: 'borrower' | 'lender' | 'admin'): Promise<User[]> {
     const query = `
     SELECT * FROM users 
-    WHERE user_type = ? AND is_active = true
+    WHERE user_type = ? AND is_active = true AND is_approved = true
     ORDER BY created_at DESC
   `;
     return await executeQuery<User>(query, [userType]);

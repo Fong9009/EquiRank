@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from 'react';
 import styles from '@/styles/pages/admin/adminActiveUser.module.css';
 import { useSession } from "next-auth/react";
 import ProfilePictureUpload from '@/components/common/ProfilePictureUpload';
+import CustomConfirmation from '@/components/common/CustomConfirmation';
 
 interface User {
     id: number;
@@ -71,12 +72,97 @@ export default function ActiveUsers() {
     const [sortBy, setSortBy] = useState<'name' | 'email' | 'company' | 'created_at'>('name');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
+    // Custom confirmation dialog state
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const [confirmationData, setConfirmationData] = useState<{
+        action: 'archive' | 'delete' | 'edit' | 'removePicture';
+        userName: string;
+        userId: number;
+        message: string;
+        title: string;
+    } | null>(null);
+
     // Toggle section expansion
     const toggleSection = (section: keyof typeof expandedSections) => {
         setExpandedSections(prev => ({
             ...prev,
             [section]: !prev[section]
         }));
+    };
+
+    // Custom confirmation handlers
+    const showArchiveConfirmation = (user: User) => {
+        setConfirmationData({
+            action: 'archive',
+            userName: `${user.first_name} ${user.last_name}`,
+            userId: user.id,
+            title: 'Deactivate User',
+            message: 'Are you sure you want to deactivate this user? They will no longer be able to access the system.'
+        });
+        setShowConfirmation(true);
+    };
+
+    const showEditConfirmation = (user: User) => {
+        setConfirmationData({
+            action: 'edit',
+            userName: `${user.first_name} ${user.last_name}`,
+            userId: user.id,
+            title: 'Save Changes',
+            message: 'Are you sure you want to save these changes to this user\'s profile?'
+        });
+        setShowConfirmation(true);
+    };
+
+    const showRemovePictureConfirmation = (user: User) => {
+        setConfirmationData({
+            action: 'removePicture',
+            userName: `${user.first_name} ${user.last_name}`,
+            userId: user.id,
+            title: 'Remove Profile Picture',
+            message: 'Are you sure you want to remove this user\'s profile picture?'
+        });
+        setShowConfirmation(true);
+    };
+
+    const handleConfirmation = async () => {
+        if (!confirmationData) return;
+
+        switch (confirmationData.action) {
+            case 'archive':
+                await archiveUser(confirmationData.userId);
+                break;
+            case 'edit':
+                if (showEditModal) {
+                    handleUserUpdate(showEditModal, editFormData[showEditModal]);
+                }
+                break;
+            case 'removePicture':
+                if (showEditModal) {
+                    handleEditChange(showEditModal, 'profile_picture', '');
+                }
+                break;
+        }
+        setShowConfirmation(false);
+        setConfirmationData(null);
+    };
+
+    const archiveUser = async (userId: number) => {
+        try {
+            const res = await fetch('/api/admin/users/archive', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, archived: true })
+            });
+            if (res.ok) {
+                setMessage({ type: 'success', text: 'User deactivated' });
+                fetchActiveUsers();
+            } else {
+                const e = await res.json();
+                setMessage({ type: 'error', text: e.error || 'Failed to deactivate user' });
+            }
+        } catch (_) {
+            setMessage({ type: 'error', text: 'Network error while deactivating user' });
+        }
     };
 
     useEffect(() => {
@@ -499,25 +585,7 @@ export default function ActiveUsers() {
                                         <span className={styles.helperText}>You cannot deactivate your own account</span>
                                     ) : (
                                         <button
-                                            onClick={async () => {
-                                                if (!confirm('Deactivate this user? They will lose access until restored.')) return;
-                                                try {
-                                                    const res = await fetch('/api/admin/users/archive', {
-                                                        method: 'PATCH',
-                                                        headers: { 'Content-Type': 'application/json' },
-                                                        body: JSON.stringify({ userId: user.id, archived: true })
-                                                    });
-                                                    if (res.ok) {
-                                                        setMessage({ type: 'success', text: 'User archived' });
-                                                        fetchActiveUsers();
-                                                    } else {
-                                                        const e = await res.json();
-                                                        setMessage({ type: 'error', text: e.error || 'Failed to deactivate user' });
-                                                    }
-                                                } catch (_) {
-                                                    setMessage({ type: 'error', text: 'Network error while deactivating user' });
-                                                }
-                                            }}
+                                            onClick={() => showArchiveConfirmation(user)}
                                             className={styles.deleteButton}
                                         >
                                             Deactivate
@@ -595,25 +663,7 @@ export default function ActiveUsers() {
                                         <span className={styles.helperText}>You cannot deactivate your own account</span>
                                     ) : (
                                         <button
-                                            onClick={async () => {
-                                                if (!confirm('Deactivate this user? They will lose access until restored.')) return;
-                                                try {
-                                                    const res = await fetch('/api/admin/users/archive', {
-                                                        method: 'PATCH',
-                                                        headers: { 'Content-Type': 'application/json' },
-                                                        body: JSON.stringify({ userId: user.id, archived: true })
-                                                    });
-                                                    if (res.ok) {
-                                                        setMessage({ type: 'success', text: 'User deactivated' });
-                                                        fetchActiveUsers();
-                                                    } else {
-                                                        const e = await res.json();
-                                                        setMessage({ type: 'error', text: e.error || 'Failed to deactivate user' });
-                                                    }
-                                                } catch (_) {
-                                                    setMessage({ type: 'error', text: 'Network error while deactivating user' });
-                                                }
-                                            }}
+                                            onClick={() => showArchiveConfirmation(user)}
                                             className={styles.deleteButton}
                                         >
                                             Deactivate
@@ -694,25 +744,7 @@ export default function ActiveUsers() {
                                     )}
                                     {canArchive ? (
                                     <button
-                                        onClick={async () => {
-                                            if (!confirm('Deactivate this admin? Only Super Admin can reverse this. Proceed?')) return;
-                                            try {
-                                                const res = await fetch('/api/admin/users/archive', {
-                                                    method: 'PATCH',
-                                                    headers: { 'Content-Type': 'application/json' },
-                                                    body: JSON.stringify({ userId: user.id, archived: true })
-                                                });
-                                                if (res.ok) {
-                                                    setMessage({ type: 'success', text: 'User deactivated' });
-                                                    fetchActiveUsers();
-                                                } else {
-                                                    const e = await res.json();
-                                                    setMessage({ type: 'error', text: e.error || 'Failed to deactivate user' });
-                                                }
-                                            } catch (_) {
-                                                setMessage({ type: 'error', text: 'Network error while deactivating user' });
-                                            }
-                                        }}
+                                        onClick={() => showArchiveConfirmation(user)}
                                         className={styles.deleteButton}
                                     >
                                         Deactivate
@@ -819,13 +851,11 @@ export default function ActiveUsers() {
                                 onSubmit={(e) => {
                                     e.preventDefault();
                                     
-                                    // Add confirmation dialog before saving changes
-                                    const userName = `${editFormData[showEditModal]?.first_name} ${editFormData[showEditModal]?.last_name}`;
-                                    if (!confirm(`Are you sure you want to save these changes to ${userName}'s profile?`)) {
-                                        return;
+                                    // Show custom confirmation dialog
+                                    const user = editFormData[showEditModal];
+                                    if (user) {
+                                        showEditConfirmation(user);
                                     }
-                                    
-                                    handleUserUpdate(showEditModal, editFormData[showEditModal]);
                                 }}
                                 className={styles.editForm}
                             >
@@ -928,8 +958,10 @@ export default function ActiveUsers() {
                                         <button
                                             type="button"
                                             onClick={() => {
-                                                if (confirm('Remove profile picture?')) {
-                                                    handleEditChange(showEditModal, 'profile_picture', '');
+                                                const allUsers = [...borrowers, ...lenders, ...adminUsers, ...superAdmins];
+                                                const user = allUsers.find(u => u.id === showEditModal);
+                                                if (user) {
+                                                    showRemovePictureConfirmation(user);
                                                 }
                                             }}
                                             className={styles.removePictureButton}
@@ -1059,6 +1091,21 @@ export default function ActiveUsers() {
                         </div>
                     </div>
                 </div>
+            )}
+            
+            {/* Custom Confirmation Dialog */}
+            {showConfirmation && confirmationData && (
+                <CustomConfirmation
+                    isOpen={showConfirmation}
+                    onClose={() => setShowConfirmation(false)}
+                    onConfirm={handleConfirmation}
+                    title={confirmationData.title}
+                    message={confirmationData.message}
+                    userName={confirmationData.userName}
+                    action={confirmationData.action === 'archive' ? 'archive' : 'approve'}
+                    confirmText={confirmationData.action === 'archive' ? 'Deactivate' : 'Save Changes'}
+                    cancelText="Cancel"
+                />
             )}
             </div>
         </div>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import styles from '@/styles/pages/admin/adminActiveUser.module.css';
+import CustomConfirmation from '@/components/common/CustomConfirmation';
 
 interface User {
   id: number;
@@ -26,6 +27,14 @@ export default function ArchivedUsers() {
   const [userTypeFilter, setUserTypeFilter] = useState<'all' | 'borrower' | 'lender' | 'admin'>('all');
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'email'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  
+  // Custom confirmation states
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [confirmationData, setConfirmationData] = useState<{
+    action: 'restore' | 'delete';
+    userName: string;
+    userId: number;
+  } | null>(null);
 
   // Separate users by type
   const borrowers = users.filter(user => user.user_type === 'borrower');
@@ -54,40 +63,72 @@ export default function ArchivedUsers() {
   }, []);
 
   const restore = async (userId: number) => {
-    if (!confirm('Are you sure you want to restore this user? They will regain access to the system.')) return;
+    const user = users.find(u => u.id === userId);
+    if (!user) return;
     
-    try {
-      const res = await fetch('/api/admin/users/archive', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, archived: false })
-      });
-      if (res.ok) {
-        setMessage({ type: 'success', text: 'User restored' });
-        fetchUsers();
-      } else {
-        const e = await res.json();
-        setMessage({ type: 'error', text: e.error || 'Failed to restore user' });
-      }
-    } catch (_) {
-      setMessage({ type: 'error', text: 'Network error while restoring user' });
-    }
+    setConfirmationData({
+      action: 'restore',
+      userName: `${user.first_name} ${user.last_name}`,
+      userId: userId,
+    });
+    setShowConfirmation(true);
   };
 
   const remove = async (userId: number) => {
-    if (!confirm('This action is irreversible. Delete this user permanently?')) return;
-    try {
-      const res = await fetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
-      if (res.ok) {
-        setMessage({ type: 'success', text: 'User deleted' });
-        fetchUsers();
-      } else {
-        const e = await res.json();
-        setMessage({ type: 'error', text: e.error || 'Failed to delete user' });
-      }
-    } catch (_) {
-      setMessage({ type: 'error', text: 'Network error while deleting user' });
+    const user = users.find(u => u.id === userId);
+    if (!user) return;
+    
+    setConfirmationData({
+      action: 'delete',
+      userName: `${user.first_name} ${user.last_name}`,
+      userId: userId,
+    });
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmation = async (confirmed: boolean) => {
+    if (!confirmed) {
+      setShowConfirmation(false);
+      setConfirmationData(null);
+      return;
     }
+
+    if (!confirmationData) return;
+
+    if (confirmationData.action === 'restore') {
+      try {
+        const res = await fetch('/api/admin/users/archive', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: confirmationData.userId, archived: false })
+        });
+        if (res.ok) {
+          setMessage({ type: 'success', text: 'User restored' });
+          fetchUsers();
+        } else {
+          const e = await res.json();
+          setMessage({ type: 'error', text: e.error || 'Failed to restore user' });
+        }
+      } catch (_) {
+        setMessage({ type: 'error', text: 'Network error while restoring user' });
+      }
+    } else if (confirmationData.action === 'delete') {
+      try {
+        const res = await fetch(`/api/admin/users/${confirmationData.userId}`, { method: 'DELETE' });
+        if (res.ok) {
+          setMessage({ type: 'success', text: 'User deleted' });
+          fetchUsers();
+        } else {
+          const e = await res.json();
+          setMessage({ type: 'error', text: e.error || 'Failed to delete user' });
+        }
+      } catch (_) {
+        setMessage({ type: 'error', text: 'Network error while deleting user' });
+      }
+    }
+
+    setShowConfirmation(false);
+    setConfirmationData(null);
   };
 
   const filteredAndSortedUsers = (userList: User[]) => {
@@ -144,6 +185,32 @@ export default function ArchivedUsers() {
 
       {message && (
         <div className={`${styles.message} ${styles[message.type]}`}>{message.text}</div>
+      )}
+
+      {/* Custom Confirmation Modal */}
+      {showConfirmation && confirmationData && (
+        <CustomConfirmation
+          isOpen={showConfirmation}
+          onClose={() => {
+            setShowConfirmation(false);
+            setConfirmationData(null);
+          }}
+          onConfirm={() => handleConfirmation(true)}
+          title={
+            confirmationData.action === 'restore'
+              ? 'Restore User'
+              : 'Delete User Permanently'
+          }
+          message={
+            confirmationData.action === 'restore'
+              ? 'Are you sure you want to restore this user? They will regain access to the system.'
+              : 'This action is irreversible. Are you sure you want to permanently delete this user?'
+          }
+          userName={confirmationData.userName}
+          action={confirmationData.action === 'restore' ? 'restore' : 'delete'}
+          confirmText="Confirm"
+          cancelText="Cancel"
+        />
       )}
 
       {/* Search and Filter Controls */}

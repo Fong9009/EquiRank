@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import styles from '@/styles/pages/admin/contactMessages.module.css';
+import CustomConfirmation from '@/components/common/CustomConfirmation';
 
 interface ContactMessage {
   id: number;
@@ -33,6 +34,16 @@ export default function ContactMessages() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'subject'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  
+  // Custom confirmation states
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [confirmationData, setConfirmationData] = useState<{
+    action: 'archive' | 'markAllRead';
+    conversationId?: string;
+    userName?: string;
+    userMessageCount?: number;
+    adminReplyCount?: number;
+  } | null>(null);
 
   useEffect(() => {
     fetchContactMessages();
@@ -138,47 +149,66 @@ export default function ContactMessages() {
     const userMessageCount = thread.filter(msg => msg.message_type === 'user_message').length;
     const adminReplyCount = thread.filter(msg => msg.message_type === 'admin_reply').length;
 
-    if (!confirm(`Are you sure you want to archive this conversation?\n\nThis will move the following to the archive:\n• ${userMessageCount} user message(s)\n• ${adminReplyCount} admin reply(s)`)) {
+    setConfirmationData({
+      action: 'archive',
+      conversationId: conversationId,
+      userName: thread[0]?.name,
+      userMessageCount: userMessageCount,
+      adminReplyCount: adminReplyCount,
+    });
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmation = async (confirmed: boolean) => {
+    if (!confirmed) {
+      setShowConfirmation(false);
+      setConfirmationData(null);
       return;
     }
 
-    try {
-      const response = await fetch(`/api/admin/contact-messages/conversation/${conversationId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ archived: true }),
-      });
-
-      if (response.ok) {
-        setMessage({
-          type: 'success',
-          text: 'Conversation archived successfully'
-        });
-        
-        // Remove the conversation from local state
-        setConversationThreads(prev => {
-          const updated = { ...prev };
-          delete updated[conversationId];
-          return updated;
+    if (confirmationData?.action === 'archive') {
+      try {
+        const response = await fetch(`/api/admin/contact-messages/conversation/${confirmationData.conversationId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ archived: true }),
         });
 
-        setMessages(prev => prev.filter(msg => msg.conversation_id !== conversationId));
-        
-      } else {
-        const error = await response.json();
+        if (response.ok) {
+          setMessage({
+            type: 'success',
+            text: 'Conversation archived successfully'
+          });
+          
+          // Remove the conversation from local state
+          setConversationThreads(prev => {
+            const updated = { ...prev };
+            if (confirmationData.conversationId) {
+              delete updated[confirmationData.conversationId];
+            }
+            return updated;
+          });
+
+          setMessages(prev => prev.filter(msg => msg.conversation_id !== confirmationData.conversationId));
+          
+        } else {
+          const error = await response.json();
+          setMessage({
+            type: 'error',
+            text: error.error || 'Failed to archive conversation'
+          });
+        }
+      } catch (error) {
         setMessage({
           type: 'error',
-          text: error.error || 'Failed to archive conversation'
+          text: 'Network error while archiving conversation'
         });
       }
-    } catch (error) {
-      setMessage({
-        type: 'error',
-        text: 'Network error while archiving conversation'
-      });
     }
+    setShowConfirmation(false);
+    setConfirmationData(null);
   };
 
   const handleReplyClick = (messageId: number) => {
@@ -335,20 +365,31 @@ export default function ContactMessages() {
   };
 
   const markAllAsRead = async () => {
-    if (!confirm('Are you sure you want to mark all new messages as read?')) {
+    const newMessages = messages.filter(msg => msg.status === 'new');
+    if (newMessages.length === 0) {
+      setMessage({
+        type: 'success',
+        text: 'No new messages to mark as read'
+      });
+      return;
+    }
+
+    setConfirmationData({
+      action: 'markAllRead',
+      userMessageCount: newMessages.length,
+    });
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmMarkAllAsRead = async (confirmed: boolean) => {
+    if (!confirmed) {
+      setShowConfirmation(false);
+      setConfirmationData(null);
       return;
     }
 
     try {
       const newMessages = messages.filter(msg => msg.status === 'new');
-      if (newMessages.length === 0) {
-        setMessage({
-          type: 'success',
-          text: 'No new messages to mark as read'
-        });
-        return;
-      }
-
       // Update all new messages to read status
       const updatePromises = newMessages.map(msg => 
         updateMessageStatus(msg.id, 'read')
@@ -371,6 +412,8 @@ export default function ContactMessages() {
         text: 'Failed to mark messages as read'
       });
     }
+    setShowConfirmation(false);
+    setConfirmationData(null);
   };
 
   if (loading) {
@@ -655,6 +698,38 @@ export default function ContactMessages() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Custom Confirmation Modal */}
+      {showConfirmation && confirmationData && (
+        <CustomConfirmation
+          isOpen={showConfirmation}
+          onClose={() => {
+            setShowConfirmation(false);
+            setConfirmationData(null);
+          }}
+          onConfirm={() => {
+            if (confirmationData.action === 'archive') {
+              handleConfirmation(true);
+            } else if (confirmationData.action === 'markAllRead') {
+              handleConfirmMarkAllAsRead(true);
+            }
+          }}
+          title={
+            confirmationData.action === 'archive'
+              ? `Archive Conversation`
+              : `Mark All as Read`
+          }
+          message={
+            confirmationData.action === 'archive'
+              ? `Are you sure you want to archive this conversation?\n\nThis will move the following to the archive:\n• ${confirmationData.userMessageCount} user message(s)\n• ${confirmationData.adminReplyCount} admin reply(s)`
+              : `Are you sure you want to mark all new messages as read?\n\nThis will update the status of ${confirmationData.userMessageCount} new messages to "read".`
+          }
+          userName={confirmationData.userName || 'User'}
+          action={confirmationData.action === 'archive' ? 'archive' : 'approve'}
+          confirmText="Confirm"
+          cancelText="Cancel"
+        />
       )}
     </div>
   );
