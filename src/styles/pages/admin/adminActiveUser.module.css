@@ -586,6 +586,22 @@
 
 }
 
+/* Modal Overlay */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
 /* Overlay that darkens the background */
 .editModal {
     position: fixed; 
@@ -613,10 +629,8 @@
     max-height: 90vh; 
     overflow-y: auto; 
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    animation: fadeInScale 0.3s ease-out;
+    animation: fadeIn 0.3s ease-out;
     position: relative;
-    top: 50%;
-    transform: translateY(-50%);
 }
 
 .nameRow {
@@ -630,15 +644,13 @@
     flex-direction: column; /* label above input */
 }
 
-/* Nice little pop animation */
-@keyframes fadeInScale {
+/* Clean fade-in animation */
+@keyframes fadeIn {
     from {
         opacity: 0;
-        transform: scale(0.9);
     }
     to {
         opacity: 1;
-        transform: scale(1);
     }
 }
 
@@ -778,13 +790,13 @@
     max-height: 80vh;
     overflow-y: auto;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    animation: fadeInScale 0.3s ease-out;
+    animation: fadeIn 0.3s ease-out;
 }
 
 .viewHeader {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     margin-bottom: 1.5rem;
     border-bottom: 2px solid #3a3f45;
     padding-bottom: 1rem;
@@ -792,17 +804,18 @@
 
 .viewTitleSection {
     flex: 1;
-    text-align: center;
+    text-align: left;
 }
 
 .viewTitle {
     color: #9ca3af;
     font-size: 1.1rem;
     font-weight: 500;
-    margin: 0 0 0.5rem 0;
+    margin: 0;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-family: inherit;
+    line-height: 1;
 }
 
 .viewUserNameDisplay {
@@ -817,6 +830,8 @@
     border: 1px solid rgba(176, 230, 110, 0.2);
     display: inline-block;
     min-width: 200px;
+    line-height: 1;
+    vertical-align: middle;
 }
 
 .viewHeader h4 {
@@ -840,6 +855,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    line-height: 1;
+    vertical-align: middle;
 }
 
 .closeButton:hover {

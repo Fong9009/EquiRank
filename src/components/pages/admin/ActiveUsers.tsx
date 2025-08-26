@@ -999,7 +999,9 @@ export default function ActiveUsers() {
                     <div className={styles.viewModal}>
                         <div className={styles.viewContent}>
                             <div className={styles.viewHeader}>
-                                <h4 className={styles.viewTitle}>User Profile</h4>
+                                <div className={styles.viewTitleSection}>
+                                    <h4 className={styles.viewTitle}>User Profile</h4>
+                                </div>
                                 <div className={styles.userNameDisplay}>
                                     {(() => {
                                         const allUsers = [...borrowers, ...lenders, ...adminUsers, ...superAdmins];
