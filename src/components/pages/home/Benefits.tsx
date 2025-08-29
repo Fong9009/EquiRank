@@ -1,13 +1,30 @@
-
+"use client";
 import clsx from 'clsx';
 import styles from '@/styles/pages/home/benefits.module.css'
 import FlipCard from "@/components/common/FlipCard";
 import TitleText from "@/components/common/TitleText";
-import React from "react";
+import React, {useEffect, useState} from "react";
+import {useSession} from "next-auth/react";
 
 export default function Benefits() {
+    const { data: session} = useSession();
+    const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
+    const boxClass = theme === "light" ? styles.lightFeatureBox : styles.darkFeatureBox;
+    useEffect(() => {
+        if (!session) return;
+        fetch("/api/users/theme")
+            .then(res => res.json())
+            .then(data => {
+                if (data.theme) {
+                    setTheme(data.theme.theme);
+                } else {
+                    setTheme("auto");
+                }
+            });
+    }, [session]);
+
     return (
-        <div className={styles.featureBox}>
+        <div className={boxClass}>
             <div className={styles.titleTextSection}>
                 <TitleText
                     titleText={<p>Benefits of Using EquiRank</p>}

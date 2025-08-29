@@ -85,6 +85,7 @@ export async function getUserByEmail(email: string): Promise<User | null> {
     return results.length > 0 ? results[0] : null;
 }
 
+// SELECT QUERIES
 // Get user by email including inactive users
 export async function getUserByEmailAny(email: string): Promise<User | null> {
     const query = `
@@ -146,6 +147,67 @@ export async function getUserByIdAny(id: number): Promise<User | null> {
     return results.length > 0 ? results[0] : null;
 }
 
+export async function getAllUsers(): Promise<User[]> {
+    const query = `
+    SELECT * FROM users 
+    ORDER BY created_at DESC
+  `;
+    return await executeQuery<User>(query);
+}
+
+// Get all users for admin management (including unapproved)
+export async function getAllUsersForAdmin(): Promise<User[]> {
+    const query = `
+    SELECT * FROM users 
+    ORDER BY created_at DESC
+  `;
+    return await executeQuery<User>(query);
+}
+
+export async function getAllActiveUsers(): Promise<User[]> {
+    const query = `
+    SELECT id,email,first_name,last_name,user_type,entity_type,company,phone,address,is_super_admin FROM users
+    WHERE is_active = 1 AND is_approved = 1
+    ORDER by first_name DESC`;
+    return await executeQuery<User>(query);
+}
+
+export async function getAllArchivedUsers(): Promise<User[]> {
+    const query = `
+    SELECT id,email,first_name,last_name,user_type,entity_type,company,phone,address,is_super_admin,created_at,updated_at FROM users
+    WHERE is_active = 0
+    ORDER BY first_name DESC`;
+    return await executeQuery<User>(query);
+}
+
+export async function getApprovalUsers(): Promise<User[]> {
+    const query = `
+    SELECT * FROM users
+    WHERE is_approved = 0`;
+
+    return await executeQuery<User>(query);
+}
+
+export async function getUsersByType(userType: 'borrower' | 'lender' | 'admin'): Promise<User[]> {
+    const query = `
+    SELECT * FROM users 
+    WHERE user_type = ? AND is_active = true AND is_approved = true
+    ORDER BY created_at DESC
+  `;
+    return await executeQuery<User>(query, [userType]);
+}
+
+export async function getTheme(id: number): Promise<User | null> {
+    const query = `
+    SELECT theme FROM users
+    WHERE id = ?
+    `;
+    const results = await executeQuery<User>(query, [id]);
+    return results.length > 0 ? results[0] : null;
+}
+
+// END OF SELECT QUERIES
+
 export async function updateUser(
     id: number,
     updates: Partial<Omit<User, 'id' | 'created_at' | 'updated_at'>>
@@ -184,39 +246,6 @@ export async function deactivateUser(id: number): Promise<boolean> {
     return result.affectedRows > 0;
 }
 
-export async function getAllUsers(): Promise<User[]> {
-    const query = `
-    SELECT * FROM users 
-    ORDER BY created_at DESC
-  `;
-    return await executeQuery<User>(query);
-}
-
-// Get all users for admin management (including unapproved)
-export async function getAllUsersForAdmin(): Promise<User[]> {
-    const query = `
-    SELECT * FROM users 
-    ORDER BY created_at DESC
-  `;
-    return await executeQuery<User>(query);
-}
-
-export async function getAllActiveUsers(): Promise<User[]> {
-    const query = `
-    SELECT id,email,first_name,last_name,user_type,entity_type,company,phone,address,is_super_admin FROM users
-    WHERE is_active = 1 AND is_approved = 1
-    ORDER by first_name DESC`;
-    return await executeQuery<User>(query);
-}
-
-export async function getAllArchivedUsers(): Promise<User[]> {
-    const query = `
-    SELECT id,email,first_name,last_name,user_type,entity_type,company,phone,address,is_super_admin,created_at,updated_at FROM users
-    WHERE is_active = 0
-    ORDER BY first_name DESC`;
-    return await executeQuery<User>(query);
-}
-
 export async function archiveUser(userId: number, archived: boolean): Promise<boolean> {
     const query = `
     UPDATE users
@@ -225,24 +254,6 @@ export async function archiveUser(userId: number, archived: boolean): Promise<bo
     const result = await executeSingleQuery(query, [archived ? 0 : 1, userId]);
     return result.affectedRows > 0;
 }
-
-export async function getApprovalUsers(): Promise<User[]> {
-    const query = `
-    SELECT * FROM users
-    WHERE is_approved = 0`;
-
-    return await executeQuery<User>(query);
-}
-
-export async function getUsersByType(userType: 'borrower' | 'lender' | 'admin'): Promise<User[]> {
-    const query = `
-    SELECT * FROM users 
-    WHERE user_type = ? AND is_active = true AND is_approved = true
-    ORDER BY created_at DESC
-  `;
-    return await executeQuery<User>(query, [userType]);
-}
-
 
 export async function getBorrowers(): Promise<User[]> {
     return await getUsersByType('borrower');
