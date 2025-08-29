@@ -7,22 +7,38 @@
     font-family: 'MyCustomFont', sans-serif;
 }
 
-.bottomBanner {
-    background-image: url('/images/hexPattern.svg');
+.lightBottomBanner,
+.darkBottomBanner {
     display: flex;
     height: 70px;
     width: 100%;
     margin-top: 20px;
 }
-.feature-box {
+
+
+.lightBottomBanner {
+    background-image: url('/images/lightHex.svg');
+}
+
+.darkBottomBanner {
+    background-image: url('/images/hexPattern.svg');
+}
+
+.lightFeatureBox,
+.darkFeatureBox {
     margin: 0 auto;
     min-height: 100vh;
     width: 100%;
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    background-color: #1f2123;
+    flex-direction: column;
+}
+
+.lightFeatureBox {
+    background-color: #eae9e9;
+}
+
+.darkFeatureBox {
+    background-color: black;
 }
 
 .splitBox {
@@ -34,19 +50,52 @@
     gap: 20px;
 }
 
-.paraTextBox {
+/*Para Mode Colours*/
+.lightParaTextBox,
+.darkParaTextBox {
     flex: 1 1;
     min-width: 0;
     max-width: 1000px;
     height: auto;
-    background-color: #1f2123;
     padding: 40px;
     border-radius: 8px;
 }
 
-.paraText {
+.lightParaTextBox {
+    background-color: #bfbfbf;
+}
+
+.darkParaTextBox {
+    background-color: #1f2123;
+}
+
+/*Text Mode Colours*/
+.lightTitleText,
+.darkTitleText {
+    font-family: 'MyCustomFont', sans-serif;
+    font-size: 60px;
+}
+
+.lightTitleText {
+    color: black;
+}
+
+.darkTitleText {
+    color: white;
+}
+
+.lightParaText,
+.darkParaText {
     font-family: 'MyCustomFont', sans-serif;
     font-size: 26px;
+}
+
+.lightParaText {
+    color: black;
+}
+
+.darkParaText{
+    color: white;
 }
 
 .imageBox {
@@ -75,6 +124,14 @@
 .titleSection {
     padding-top: 40px;
     padding-left: 30px;
+    background: linear-gradient(
+            135deg,        /* angle of the gradient */
+            #121212,       /* start color (darker) */
+            #1a1a1a 50%,   /* mid-tone (darker) */
+            #121212 100%   /* end color (darker) */
+    );
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    width: 100%;
 }
 
 .titleText{

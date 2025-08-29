@@ -7,7 +7,9 @@
     font-family: 'MyCustomFont', sans-serif;
 }
 
-.contactBox {
+/*Background Mode Colour */
+.lightContactBox,
+.darkContactBox {
     margin: 0 auto;
     min-height: 100vh;
     width: 100%;
@@ -15,6 +17,13 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+.lightContactBox {
+    background-color: #eae9e9;
+}
+
+.darkContactBox {
     background-color: #1f2123;
 }
 
@@ -29,20 +38,30 @@
     max-width: 1400px;
 }
 
-.formBox {
+/*Center Box Colours*/
+.lightFormBox,
+.darkFormBox,
+.lightInfoBox,
+.darkInfoBox {
     flex: 1;
     max-width: 600px;
-    background-color: #1f2123;
     padding: 40px;
     border-radius: 8px;
 }
 
-.infoBox {
-    flex: 1;
-    max-width: 600px;
+.lightFormBox {
     background-color: #1f2123;
-    padding: 40px;
-    border-radius: 8px;
+}
+
+.darkFormBox {
+    background-color: #1f2123;
+}
+
+.lightInfoBox {
+    background-color: #1f2123;
+}
+.darkInfoBox {
+    background-color: #1f2123;
 }
 
 .formTitle, .infoTitle {
@@ -93,10 +112,11 @@
     gap: 8px;
 }
 
-.formLabel {
+/*Labels */
+.lightFormLabel,
+.darkFormLabel {
     font-family: 'MyCustomFont', sans-serif;
     font-size: 20px;
-    color: white;
     font-weight: bold;
 }
 
@@ -239,7 +259,13 @@
 .titleSection {
     padding-left: 30px;
     width: 100%;
-    max-width: 1400px;
+    background: linear-gradient(
+            135deg,
+            #121212,
+            #1a1a1a 50%,
+            #121212 100%
+    );
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
 @media (max-width: 768px) {

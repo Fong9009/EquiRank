@@ -41,8 +41,10 @@
     transform-style: preserve-3d;
 }
 
-.flipCardFront,
-.flipCardBack {
+.lightFlipCardFront,
+.darkFlipCardFront,
+.lightFlipCardBack,
+.darkFlipCardBack {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -56,27 +58,58 @@
     cursor: pointer;
 }
 
-.flipCardFront {
+.lightFlipCardFront {
+    background-color: #bfbfbf;
+    padding: 30px;
+}
+
+.lightFlipCardBack {
+    background-color: #bfbfbf;
+    padding: 30px;
+    transform: rotateY(180deg);
+}
+
+.darkFlipCardFront {
     background-color: #1b1b1b;
-    color: white;
+    padding: 30px;
+}
+
+.darkFlipCardBack {
+    background-color: #1b1b1b;
+    padding: 30px;
+    transform: rotateY(180deg);
+}
+
+
+
+.flipCardFront {
+    background-color: #9c9c9c;
     padding: 30px;
 }
 
 .flipCardBack {
     background-color: #1b1b1b;
-    color: white;
     transform: rotateY(180deg);
 }
 
-.flipCardTitleText {
-    color: white;
+/* Title Texts*/
+.lightFrontTitleText,
+.darkFrontTitleText {
     font-size: 46px;
     font-family: 'MyCustomFont', sans-serif;
     padding-top: 20px;
 }
 
-.flipCardBackTitleText {
+.lightFrontTitleText {
+    color: black;
+}
+
+.darkFrontTitleText {
     color: white;
+}
+
+.lightCardBackTitleText,
+.darkCardBackTitleText {
     font-size: 46px;
     font-family: 'MyCustomFont', sans-serif;
     padding-top: 40px;
@@ -85,12 +118,29 @@
     text-align: left;
 }
 
-.flipCardText {
+.lightCardBackTitleText {
+    color: black;
+}
+
+.darkCardBackTitleText {
     color: white;
+}
+
+/* Paragraph Texts*/
+.lightFlipCardText,
+.darkFlipCardText {
     font-size: 26px;
     font-family: 'MyCustomFont', sans-serif;
     padding-top: 20px;
     text-align: left;
+}
+
+.lightFlipCardText {
+    color: black;
+}
+
+.darkFlipCardText {
+    color: white;
 }
 
 .imageContainer {

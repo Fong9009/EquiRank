@@ -10,6 +10,8 @@ export default function Benefits() {
     const { data: session} = useSession();
     const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
     const boxClass = theme === "light" ? styles.lightFeatureBox : styles.darkFeatureBox;
+    const dotList = theme === "light" ? styles.lightDotList : styles.darkDotList;
+
     useEffect(() => {
         if (!session) return;
         fetch("/api/users/theme")
@@ -48,7 +50,7 @@ export default function Benefits() {
                                 as you need to make an informed decision when it comes to investing.
                                 You will be able to see company statistics such as:
                         </p>
-                            <ul className={styles.dotList}>
+                            <ul className={dotList}>
                                 <li>Annual Turnover</li>
                                 <li>Industry Type</li>
                                 <li>Number of Employees</li>
@@ -71,7 +73,7 @@ export default function Benefits() {
                             With data Driven Statistics, you will be able to make a more informed decision on your
                             investments. It is only a guide, not an advisor on your investments but a great way to broaden your vision.
                         </p>
-                        <ul className={styles.dotList}>
+                        <ul className={dotList}>
                             <li>Provides warnings about Companies</li>
                             <li>Provides insight on their business operations</li>
                             <li>Provides the Health of the Business</li>
@@ -95,7 +97,7 @@ export default function Benefits() {
                                 This engine is one of a kind. With it's enhanced search capabilities and filtering
                                 you will be able to observe The state of Australian businesses in the market.
                             </p>
-                            <ul className={styles.dotList}>
+                            <ul className={dotList}>
                                 <li>See the earnings of the company</li>
                                 <li>See the debt of the company</li>
                                 <li>You have the control of what to search</li>
@@ -117,7 +119,7 @@ export default function Benefits() {
                                 This engine does not only allow you to observe data, you can also add your own business in.
                                 Allowing you to have a public presence in the market
                             </p>
-                            <ul className={styles.dotList}>
+                            <ul className={dotList}>
                                 <li>See the health of your company</li>
                                 <li>See what your company is worth</li>
                                 <li>Mark Areas of Improvement</li>

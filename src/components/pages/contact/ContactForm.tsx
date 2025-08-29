@@ -3,8 +3,11 @@ import ReCAPTCHA from "react-google-recaptcha";
 import styles from "@/styles/pages/contact/contactForm.module.css";
 import TitleText from "@/components/common/TitleText";
 import { useState, useRef, useEffect} from "react";
+import {useSession} from "next-auth/react";
 
 export default function ContactForm() {
+    const {data: session} = useSession();
+    const [theme, setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
     const [captchaToken, setCaptchaToken] = useState<string | null>(null);
     const recaptchaRef = useRef<any>(null);
     const [formData, setFormData] = useState({
@@ -15,6 +18,25 @@ export default function ContactForm() {
     });
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    {/*Theme Mode Settings*/}
+    const background = theme === "light" ? styles.lightContactBox : styles.darkContactBox;
+    const formBoxColour = theme === "light" ? styles.lightFormBox : styles.darkFormBox;
+    const infoColour = theme === "light" ? styles.lightInfoBox : styles.darkInfoBox;
+    const formLabel = theme === "light" ? styles.lightFormLabel : styles.darkFormLabel;
+
+    useEffect(() => {
+        if (!session) return;
+        fetch("/api/users/theme")
+            .then(res => res.json())
+            .then(data => {
+                if (data.theme) {
+                    setTheme(data.theme.theme);
+                } else {
+                    setTheme("auto");
+                }
+            });
+    }, [session]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setFormData({
@@ -104,7 +126,7 @@ export default function ContactForm() {
     };
 
     return (
-        <div className={styles.contactBox}>
+        <div className={background}>
             <div className={styles.titleSection}>
                 <TitleText
                     titleText={<h1>Let's Start a Conversation</h1>}
@@ -112,7 +134,7 @@ export default function ContactForm() {
             </div>
 
             <div className={styles.splitBox}>
-                <div className={styles.formBox}>
+                <div className={formBoxColour}>
                     <h2 className={styles.formTitle}>Send Us a Message</h2>
                     <hr className={styles.textDivider}></hr>
 
@@ -124,7 +146,7 @@ export default function ContactForm() {
 
                     <form onSubmit={handleSubmit} className={styles.contactForm}>
                         <div className={styles.formGroup}>
-                            <label htmlFor="name" className={styles.formLabel}>Name</label>
+                            <label htmlFor="name" className={formLabel}>Name</label>
                             <input
                                 type="text"
                                 id="name"
@@ -141,7 +163,7 @@ export default function ContactForm() {
                         </div>
 
                         <div className={styles.formGroup}>
-                            <label htmlFor="email" className={styles.formLabel}>Email</label>
+                            <label htmlFor="email" className={formLabel}>Email</label>
                             <input
                                 type="email"
                                 id="email"
@@ -154,7 +176,7 @@ export default function ContactForm() {
                         </div>
 
                         <div className={styles.formGroup}>
-                            <label htmlFor="subject" className={styles.formLabel}>Subject</label>
+                            <label htmlFor="subject" className={formLabel}>Subject</label>
                             <select
                                 id="subject"
                                 name="subject"
@@ -173,7 +195,7 @@ export default function ContactForm() {
                         </div>
 
                         <div className={styles.formGroup}>
-                            <label htmlFor="message" className={styles.formLabel}>Message</label>
+                            <label htmlFor="message" className={formLabel}>Message</label>
                             <textarea
                                 id="message"
                                 name="message"
@@ -206,7 +228,7 @@ export default function ContactForm() {
                     </form>
                 </div>
 
-                <div className={styles.infoBox}>
+                <div className={infoColour}>
                     <h2 className={styles.infoTitle}>Get In Touch</h2>
                     <hr className={styles.textDivider}></hr>
 
