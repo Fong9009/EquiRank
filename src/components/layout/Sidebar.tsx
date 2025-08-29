@@ -1,7 +1,7 @@
 // components/Sidebar.tsx
 'use client';
 import { useEffect, useState } from 'react';
-import { Home, Settings, Users, Briefcase, Phone, User, Trash2 } from "lucide-react";
+import { Home, Settings, Users, Briefcase, Phone, User, Trash2, FileText, Plus } from "lucide-react";
 import styles from '@/styles/layout/sidebar.module.css'
 import ProfilePicture from '@/components/common/ProfilePicture';
 import UserTypeBadge from '@/components/common/UserTypeBadge';
@@ -67,6 +67,7 @@ export default function Sidebar({ role, activeTab, setActiveTab, isOpen, toggleS
                         title: 'Lender',
                         items: [
                             { name: 'home', icon: Home },
+                            { name: 'loan-requests', icon: FileText },
                             { name: 'settings', icon: Settings }
                         ]
                     }
@@ -76,12 +77,15 @@ export default function Sidebar({ role, activeTab, setActiveTab, isOpen, toggleS
                         title: 'Borrower',
                         items: [
                             { name: 'home', icon: Home },
+                            { name: 'loan-requests', icon: FileText },
+                            { name: 'new-request', icon: Plus },
                             { name: 'settings', icon: Settings }
                         ]
                     }
                 ];
 
     const handleTabClick = (name: string) => {
+        console.log('Sidebar tab clicked:', name);
         setActiveTab(name);
         // Save tab to localStorage for persistence
         localStorage.setItem('activeTab', name);
@@ -132,7 +136,7 @@ export default function Sidebar({ role, activeTab, setActiveTab, isOpen, toggleS
                             {section.items.map(({ name, icon: Icon }) => (
                                 <li key={name} className={activeTab === name ? styles.navLinkActive : ''}>
                                     <button
-                                        onClick={() => { setActiveTab(name); handleTabClick(name); }}
+                                        onClick={() => handleTabClick(name)}
                                         className={styles.navLink}
                                     >
                                         <Icon size={20} />

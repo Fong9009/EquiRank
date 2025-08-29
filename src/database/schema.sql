@@ -126,6 +126,46 @@ INSERT INTO `users` (`id`, `email`, `password_hash`, `first_name`, `last_name`, 
 (4, 'borrower2@individual.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Mike', 'Johnson', 'borrower', 'individual', NULL, '+1234567893', '321 Personal St, Individual City', 1, 1, 0, 0, NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37'),
 (5, 'lender2@investor.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Sarah', 'Wilson', 'lender', 'individual', NULL, '+1234567894', '654 Investor Ave, Investment City', 0, 0, 0, 0, NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37');
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `loan_requests`
+--
+
+CREATE TABLE `loan_requests` (
+  `id` int NOT NULL,
+  `borrower_id` int NOT NULL COMMENT 'Foreign key to users table',
+  `amount_requested` decimal(15,2) NOT NULL COMMENT 'Amount of money requested',
+  `currency` enum('USD','EUR','GBP','CAD','AUD','JPY','CHF','CNY') DEFAULT 'USD' COMMENT 'Currency of the loan',
+
+  `company_description` text COMMENT 'Description of the company',
+  `social_media_links` json DEFAULT NULL COMMENT 'JSON object containing social media links',
+  `loan_purpose` text NOT NULL COMMENT 'Reason for loan requirement',
+  `loan_type` enum('equipment','expansion','working_capital','inventory','real_estate','startup','other') NOT NULL COMMENT 'Type of loan',
+  `status` enum('pending','active','funded','closed','expired') DEFAULT 'pending' COMMENT 'Current status of the loan request',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `expires_at` timestamp NULL DEFAULT NULL COMMENT 'When the request expires'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `company_statistics`
+--
+
+CREATE TABLE `company_statistics` (
+  `id` int NOT NULL,
+  `user_id` int NOT NULL COMMENT 'Foreign key to users table',
+  `annual_revenue` decimal(15,2) DEFAULT NULL COMMENT 'Annual revenue of the company',
+  `employee_count` int DEFAULT NULL COMMENT 'Number of employees',
+  `years_in_business` int DEFAULT NULL COMMENT 'Years the company has been in business',
+  `credit_score` int DEFAULT NULL COMMENT 'Credit score (300-850)',
+  `industry` varchar(100) DEFAULT NULL COMMENT 'Industry sector',
+  `financial_ratios` json DEFAULT NULL COMMENT 'JSON object containing financial ratios',
+  `last_updated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 --
 -- Indexes for dumped tables
 --
@@ -169,8 +209,39 @@ ALTER TABLE `users`
   ADD UNIQUE KEY `email` (`email`);
 
 --
+-- Indexes for table `loan_requests`
+--
+ALTER TABLE `loan_requests`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_loan_requests_borrower_id` (`borrower_id`),
+  ADD KEY `idx_loan_requests_status` (`status`),
+  ADD KEY `idx_loan_requests_loan_type` (`loan_type`),
+  ADD KEY `idx_loan_requests_created_at` (`created_at`),
+  ADD KEY `idx_loan_requests_expires_at` (`expires_at`);
+
+--
+-- Indexes for table `company_statistics`
+--
+ALTER TABLE `company_statistics`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `user_id` (`user_id`),
+  ADD KEY `idx_company_statistics_industry` (`industry`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `loan_requests`
+--
+ALTER TABLE `loan_requests`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `company_statistics`
+--
+ALTER TABLE `company_statistics`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `contact_messages`
@@ -211,6 +282,18 @@ ALTER TABLE `contact_messages`
 --
 ALTER TABLE `password_reset_tokens`
   ADD CONSTRAINT `fk_password_reset_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `loan_requests`
+--
+ALTER TABLE `loan_requests`
+  ADD CONSTRAINT `fk_loan_requests_borrower` FOREIGN KEY (`borrower_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `company_statistics`
+--
+ALTER TABLE `company_statistics`
+  ADD CONSTRAINT `fk_company_statistics_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

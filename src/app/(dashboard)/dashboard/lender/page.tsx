@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
 import LenderHomepage from "@/components/pages/lender/LenderHomepage";
 import ProfileSettings from "@/components/pages/settings/ProfileSettings";
+import LoanRequestsList from "@/components/pages/lender/LoanRequestsList";
 
 function LenderDashboardContent() {
     const { data: session, status } = useSession();
@@ -33,7 +34,7 @@ function LenderDashboardContent() {
     useEffect(() => {
         // Check if there's a tab parameter in the URL
         const tabParam = searchParams.get('tab');
-        if (tabParam && ['home', 'settings'].includes(tabParam)) {
+        if (tabParam && ['home', 'loan-requests', 'settings'].includes(tabParam)) {
             setActiveTab(tabParam);
         }
     }, [searchParams]);
@@ -52,10 +53,10 @@ function LenderDashboardContent() {
         switch (activeTab) {
             case "home":
                 return <LenderHomepage/>;
+            case "loan-requests":
+                return <LoanRequestsList/>;
             case "settings":
                 return <ProfileSettings/>;
-            case "PLACEHOLDER2":
-                return <div>PLACEHOLDER</div>;
             default:
                 return <LenderHomepage/>;
         }
