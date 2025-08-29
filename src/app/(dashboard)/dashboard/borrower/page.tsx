@@ -5,13 +5,23 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
 import BorrowerHomepage from "@/components/pages/borrower/BorrowerHomepage";
 import ProfileSettings from "@/components/pages/settings/ProfileSettings";
+import LoanRequestForm from "@/components/pages/borrower/LoanRequestForm";
+import LoanRequestList from "@/components/pages/borrower/LoanRequestList";
 
 function BorrowerDashboardContent(){
     const { data: session, status } = useSession();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const [activeTab, setActiveTab] = useState('dashboard');
+    const [activeTab, setActiveTab] = useState('home');
     const [isReady, setIsReady] = useState(false);
+
+    // Load active tab from localStorage on component mount
+    useEffect(() => {
+        const savedTab = localStorage.getItem('activeTab');
+        if (savedTab && ['home', 'loan-requests', 'new-request', 'settings'].includes(savedTab)) {
+            setActiveTab(savedTab);
+        }
+    }, []);
 
     useEffect(() => {
         if (status === 'loading') return;
@@ -33,10 +43,27 @@ function BorrowerDashboardContent(){
     useEffect(() => {
         // Check if there's a tab parameter in the URL
         const tabParam = searchParams.get('tab');
-        if (tabParam && ['home', 'settings'].includes(tabParam)) {
+        if (tabParam && ['home', 'loan-requests', 'new-request', 'settings'].includes(tabParam)) {
             setActiveTab(tabParam);
+        } else if (!tabParam) {
+            // If no tab parameter, default to home
+            setActiveTab('home');
         }
     }, [searchParams]);
+
+    // Update URL when activeTab changes (for browser back/forward)
+    useEffect(() => {
+        console.log('activeTab changed to:', activeTab);
+        if (activeTab && activeTab !== 'home') {
+            const url = new URL(window.location.href);
+            url.searchParams.set('tab', activeTab);
+            window.history.replaceState({}, '', url.toString());
+        } else if (activeTab === 'home') {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('tab');
+            window.history.replaceState({}, '', url.toString());
+        }
+    }, [activeTab]);
 
     if (status === 'loading') {
         return <div>Loading...</div>;
@@ -49,21 +76,27 @@ function BorrowerDashboardContent(){
     const role = (session.user as any).userType;
 
     const renderTab = () => {
+        console.log('Rendering tab:', activeTab);
         switch (activeTab) {
             case "home":
                 return <BorrowerHomepage/>;
+            case "loan-requests":
+                return <LoanRequestList/>;
+            case "new-request":
+                return <LoanRequestForm/>;
             case "settings":
                 return <ProfileSettings/>;
-            case "PLACEHOLDER2":
-                return <div>PLACEHOLDER</div>;
             default:
+                console.log('Default case, returning BorrowerHomepage');
                 return <BorrowerHomepage/>;
         }
     };
 
     return (
         <DashboardLayout role={role} activeTab={activeTab} setActiveTab={setActiveTab}>
-            {renderTab()}
+            <div key={activeTab}>
+                {renderTab()}
+            </div>
         </DashboardLayout>
     );
 }

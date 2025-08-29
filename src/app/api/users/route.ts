@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { email, password, firstName, lastName, userType, entityType, company, phone, address, csrfToken, website, captchaToken } = body;
+    const { email, password, firstName, lastName, userType, company, phone, address, csrfToken, website, captchaToken } = body;
 
     // Honeypot check - if website field is filled, it's likely a bot
     if (website && website.trim() !== '') {
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Input validation
-    if (!email || !password || !firstName || !lastName || !userType || !entityType) {
+    if (!email || !password || !firstName || !lastName || !userType || !company) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
         first_name: firstName,
         last_name: lastName,
         user_type: userType,
-        entity_type: entityType,
+        entity_type: 'company', // All users are companies
         company,
         phone,
         address,
@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
           message: 'Account reactivated successfully',
           userId: existing.id,
           userType: userType,
-          entityType: entityType,
+          entityType: 'company', // All users are companies
           isApproved: false,
           email
         },
@@ -176,13 +176,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Entity type validation
-    if (!['company', 'individual'].includes(entityType)) {
-      return NextResponse.json(
-        { error: 'Invalid entity type' },
-        { status: 400 }
-      );
-    }
+
 
     // Hash password
     const hashedPassword = await hashPassword(password);
@@ -194,7 +188,7 @@ export async function POST(request: NextRequest) {
       firstName,
       lastName,
       userType,
-      entityType,
+      'company', // All users are companies
       company,
       phone,
       address
@@ -205,7 +199,7 @@ export async function POST(request: NextRequest) {
         message: 'User created successfully',
         userId,
         userType,
-        entityType,
+        entityType: 'company', // All users are companies
         isApproved: false, // New users need admin approval
         email: email // Return email for confirmation
       },

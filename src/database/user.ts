@@ -8,7 +8,6 @@ export interface User {
     first_name: string;
     last_name: string;
     user_type: 'borrower' | 'lender' | 'admin';
-    entity_type: 'company' | 'individual';
     company?: string;
     phone?: string;
     address?: string;
@@ -35,16 +34,15 @@ export async function createUser(
     firstName: string,
     lastName: string,
     userType: 'borrower' | 'lender' | 'admin',
-    entityType: 'company' | 'individual',
     company?: string,
     phone?: string,
     address?: string
 ): Promise<number> {
     const query = `
     INSERT INTO users (email, password_hash, first_name, last_name, user_type, entity_type, company, phone, address, is_approved)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, false)
+    VALUES (?, ?, ?, ?, 'company', ?, ?, ?, false)
   `;
-    const result = await executeSingleQuery(query, [email, passwordHash, firstName, lastName, userType, entityType, company, phone, address]);
+    const result = await executeSingleQuery(query, [email, passwordHash, firstName, lastName, userType, company, phone, address]);
     return result.insertId;
 }
 
@@ -54,21 +52,19 @@ export async function createAdminUser(
     passwordHash: string,
     firstName: string,
     lastName: string,
-    entityType: 'company' | 'individual' = 'company',
     company?: string,
     phone?: string,
     address?: string
 ): Promise<number> {
     const query = `
     INSERT INTO users (email, password_hash, first_name, last_name, user_type, entity_type, company, phone, address, is_approved)
-    VALUES (?, ?, ?, ?, 'admin', ?, ?, ?, ?, true)
+    VALUES (?, ?, ?, ?, 'admin', 'company', ?, ?, ?, true)
   `;
     const result = await executeSingleQuery(query, [
         email,
         passwordHash,
         firstName,
         lastName,
-        entityType,
         company ?? null,
         phone ?? null,
         address ?? null,

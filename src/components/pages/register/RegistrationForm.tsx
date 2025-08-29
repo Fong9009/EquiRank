@@ -13,7 +13,6 @@ interface FormData {
   firstName: string;
   lastName: string;
   userType: 'borrower' | 'lender';
-  entityType: 'company' | 'individual';
   company: string;
   phone: string;
   address: string;
@@ -27,7 +26,6 @@ export default function RegistrationForm() {
     firstName: '',
     lastName: '',
     userType: 'borrower',
-    entityType: 'company',
     company: '',
     phone: '',
     address: ''
@@ -253,8 +251,8 @@ export default function RegistrationForm() {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
-    // Company required for company entities
-    if (formData.entityType === 'company' && !formData.company) {
+    // Company name is always required
+    if (!formData.company) {
       newErrors.company = 'Company name is required';
     }
 
@@ -288,7 +286,6 @@ export default function RegistrationForm() {
           firstName: formData.firstName,
           lastName: formData.lastName,
           userType: formData.userType,
-          entityType: formData.entityType,
           company: formData.company,
           phone: formData.phone,
           address: formData.address,
@@ -355,16 +352,7 @@ export default function RegistrationForm() {
     }
   };
 
-  const getEntityTypeDescription = (type: string) => {
-    switch (type) {
-      case 'company':
-        return 'Business entity (Corporation, LLC, Partnership)';
-      case 'individual':
-        return 'Personal account (Sole Proprietor, Independent)';
-      default:
-        return '';
-    }
-  };
+
 
   return (
     <div className={styles.registerContainer}>
@@ -416,29 +404,7 @@ export default function RegistrationForm() {
                    {errors.userType && <span className={styles.error}>{errors.userType}</span>}
                  </div>
 
-                 {/* Entity Type Selection */}
-                 <div className={styles.entityTypeSection}>
-                   <label className={styles.sectionLabel}>Entity Type:</label>
-                   <div className={styles.entityTypeOptions}>
-                     {(['company', 'individual'] as const).map((type) => (
-                       <label key={type} className={styles.entityTypeOption}>
-                         <input
-                           type="radio"
-                           name="entityType"
-                           value={type}
-                           checked={formData.entityType === type}
-                           onChange={handleInputChange}
-                           className={styles.radioInput}
-                         />
-                         <div className={styles.radioContent}>
-                           <span className={styles.radioLabel}>{type.charAt(0).toUpperCase() + type.slice(1)}</span>
-                           <span className={styles.radioDescription}>{getEntityTypeDescription(type)}</span>
-                         </div>
-                       </label>
-                     ))}
-                   </div>
-                   {errors.entityType && <span className={styles.error}>{errors.entityType}</span>}
-                 </div>
+
 
           {/* Personal Information */}
           <div className={styles.formSection}>
@@ -494,26 +460,25 @@ export default function RegistrationForm() {
               {errors.email && <span className={styles.error}>{errors.email}</span>}
             </div>
           </div>
-                {/* Company Information (only for company entities) */}
-                 {formData.entityType === 'company' && (
-                   <div className={styles.formSection}>
-                     <h3 className={styles.sectionTitle}>Company Information</h3>
+                {/* Company Information */}
+                 <div className={styles.formSection}>
+                   <h3 className={styles.sectionTitle}>Company Information</h3>
 
-                     <div className={styles.inputGroup}>
-                       <label htmlFor="company" className={styles.label}>Company Name *</label>
-                       <input
-                         type="text"
-                         id="company"
-                         name="company"
-                         value={formData.company}
-                         onChange={handleInputChange}
-                         className={`${styles.input} ${errors.company ? styles.errorInput : ''}`}
-                         placeholder="Enter your company name"
-                       />
-                       {errors.company && <span className={styles.error}>{errors.company}</span>}
-                     </div>
+                   <div className={styles.inputGroup}>
+                     <label htmlFor="company" className={styles.label}>Company Name *</label>
+                     <input
+                       type="text"
+                       id="company"
+                       name="company"
+                       value={formData.company}
+                       onChange={handleInputChange}
+                       className={`${styles.input} ${errors.company ? styles.errorInput : ''}`}
+                       placeholder="Enter your company name"
+                       required
+                     />
+                     {errors.company && <span className={styles.error}>{errors.company}</span>}
                    </div>
-                 )}   
+                 </div>   
           {/* Contact Information */}
           <div className={styles.formSection}>
             <h3 className={styles.sectionTitle}>Contact Information</h3>

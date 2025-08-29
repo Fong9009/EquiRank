@@ -14,6 +14,7 @@ import AdminUserPage from "@/components/pages/admin/AdminUserPage";
 import AddAdmin from "@/components/pages/admin/AddAdmin";
 import ProfileSettings from "@/components/pages/settings/ProfileSettings";
 import FileCleanup from "@/components/pages/admin/FileCleanup";
+import AdminLoanRequestsList from "@/components/pages/admin/AdminLoanRequestsList";
 
 function AdminDashboardContent() {
     const { data: session, status } = useSession();
@@ -42,7 +43,7 @@ function AdminDashboardContent() {
     useEffect(() => {
         // Check if there's a tab parameter in the URL
         const tabParam = searchParams.get('tab');
-        if (tabParam && ['home', 'Manage Users', 'Manage Contact', 'Add Admin', 'File Cleanup', 'settings'].includes(tabParam)) {
+        if (tabParam && ['home', 'Manage Users', 'Manage Contact', 'Add Admin', 'File Cleanup', 'settings', 'loan-requests'].includes(tabParam)) {
             setActiveTab(tabParam);
         }
     }, [searchParams]);
@@ -75,6 +76,8 @@ function AdminDashboardContent() {
                 return <AdminUserPage/>;
             case "Manage Contact":
                 return <AdminFrontPage/>;
+            case "loan-requests":
+                return <AdminLoanRequestsList/>;
             case "Add Admin":
                 return isSuperAdmin ? <AddAdmin/> : <div>Forbidden</div>;
             case "File Cleanup":
