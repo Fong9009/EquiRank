@@ -1,11 +1,10 @@
-import { executeQuery } from './index';
+import { executeQuery, executeSingleQuery } from './index';
 
 export interface LoanRequest {
   id?: number;
   borrower_id: number;
   amount_requested: number;
   currency: 'USD' | 'EUR' | 'GBP' | 'CAD' | 'AUD' | 'JPY' | 'CHF' | 'CNY';
-  company_description?: string;
   social_media_links?: {
     linkedin?: string;
     twitter?: string;
@@ -24,7 +23,6 @@ export interface LoanRequest {
 export interface LoanRequestWithBorrower extends LoanRequest {
   borrower_name: string;
   borrower_company?: string;
-  borrower_entity_type: 'company' | 'individual';
 }
 
 /**
@@ -34,57 +32,73 @@ export async function createLoanRequest(request: Omit<LoanRequest, 'id' | 'creat
       const query = `
       INSERT INTO loan_requests (
         borrower_id, amount_requested, currency, 
-        company_description, social_media_links, loan_purpose, 
+        loan_purpose, 
         loan_type, status, expires_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
     
     const params = [
       request.borrower_id,
       request.amount_requested,
       request.currency,
-      request.company_description || null,
-      request.social_media_links ? JSON.stringify(request.social_media_links) : null,
       request.loan_purpose,
       request.loan_type,
       request.status,
       request.expires_at || null
     ];
 
-  console.log('Executing query:', query);
-  console.log('With params:', params);
+  // for INSERT statements, we need to use executeSingleQuery to get the ResultSetHeader
+  const result = await executeSingleQuery(query, params);
   
-  const result = await executeQuery<{ insertId: number }>(query, params);
-  console.log('Query result:', result);
-  
-  return result[0]?.insertId || 0;
+  return result.insertId || 0;
 }
 
 /**
  * Get a loan request by ID with borrower information
  */
-export async function getLoanRequestById(id: number): Promise<(LoanRequest & { borrower_name: string; borrower_company?: string; borrower_entity_type: string }) | null> {
+export async function getLoanRequestById(id: number): Promise<(LoanRequest & { borrower_name: string; borrower_company?: string; website?: string; linkedin?: string }) | null> {
   const query = `
     SELECT lr.*, 
            CONCAT(u.first_name, ' ', u.last_name) as borrower_name,
            u.company as borrower_company,
-           u.entity_type as borrower_entity_type
+           u.website,
+           u.linkedin
     FROM loan_requests lr
     JOIN users u ON lr.borrower_id = u.id
     WHERE lr.id = ?
   `;
   
   try {
-    const result = await executeQuery<LoanRequest & { borrower_name: string; borrower_company?: string; borrower_entity_type: string }>(query, [id]);
-    if (result.length === 0) return null;
+    const result = await executeQuery<LoanRequest & { borrower_name: string; borrower_company?: string; website?: string; linkedin?: string }>(query, [id]);
+    
+    if (result.length === 0) {
+      return null;
+    }
     
     const row = result[0];
-    return {
-      ...row,
-      social_media_links: row.social_media_links ? JSON.parse(row.social_media_links as any) : null
+    
+    // Create social media links from user profile
+    const socialMediaLinks = {
+      linkedin: row.linkedin || '',
+      twitter: '', // Not stored in user profile yet
+      facebook: '', // Not stored in user profile yet
+      instagram: '', // Not stored in user profile yet
+      website: row.website || ''
     };
+    
+    const processedRow = {
+      ...row,
+      social_media_links: socialMediaLinks
+    };
+    
+    return processedRow;
+    
   } catch (error) {
-    console.error('Error fetching loan request by ID:', error);
+    console.error('Error in getLoanRequestById for ID:', id, error);
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
     throw error;
   }
 }
@@ -93,17 +107,26 @@ export async function getLoanRequestById(id: number): Promise<(LoanRequest & { b
  * Get all loan requests for a specific borrower
  */
 export async function getLoanRequestsByBorrower(borrowerId: number): Promise<LoanRequest[]> {
-  const query = 'SELECT * FROM loan_requests WHERE borrower_id = ? ORDER BY created_at DESC';
-  const result = await executeQuery<LoanRequest>(query, [borrowerId]);
+  const query = `
+    SELECT lr.*, u.website, u.linkedin
+    FROM loan_requests lr
+    JOIN users u ON lr.borrower_id = u.id
+    WHERE lr.borrower_id = ?
+    ORDER BY lr.created_at DESC
+  `;
+  const result = await executeQuery<LoanRequest & { website?: string; linkedin?: string }>(query, [borrowerId]);
   
   return result.map(request => {
-    if (request.social_media_links) {
-      try {
-        request.social_media_links = JSON.parse(request.social_media_links as any);
-      } catch (e) {
-        request.social_media_links = null;
-      }
-    }
+    // Create social media links from user profile
+    const socialMediaLinks = {
+      linkedin: (request as any).linkedin || '',
+      twitter: '', // Not stored in user profile yet
+      facebook: '', // Not stored in user profile yet
+      instagram: '', // Not stored in user profile yet
+      website: (request as any).website || ''
+    };
+    
+    request.social_media_links = socialMediaLinks;
     return request;
   });
 }
@@ -116,7 +139,8 @@ export async function getActiveLoanRequests(): Promise<LoanRequestWithBorrower[]
     SELECT lr.*, 
            CONCAT(u.first_name, ' ', u.last_name) as borrower_name,
            u.company as borrower_company,
-           u.entity_type as borrower_entity_type
+           u.website,
+           u.linkedin
     FROM loan_requests lr
     JOIN users u ON lr.borrower_id = u.id
     WHERE lr.status IN ('pending', 'active')
@@ -130,10 +154,39 @@ export async function getActiveLoanRequests(): Promise<LoanRequestWithBorrower[]
   return result.map(request => {
     if (request.social_media_links) {
       try {
-        request.social_media_links = JSON.parse(request.social_media_links as any);
+        // Handle case where it's already an object or "[object Object]"
+        if (typeof request.social_media_links === 'object') {
+          // Already parsed, keep as is
+        } else if (typeof request.social_media_links === 'string') {
+          if (request.social_media_links === '[object Object]') {
+            request.social_media_links = {
+              linkedin: '',
+              twitter: '',
+              facebook: '',
+              instagram: '',
+              website: ''
+            };
+          } else {
+            request.social_media_links = JSON.parse(request.social_media_links);
+          }
+        }
       } catch (e) {
-        request.social_media_links = null;
+        request.social_media_links = {
+          linkedin: '',
+          twitter: '',
+          facebook: '',
+          instagram: '',
+          website: ''
+        };
       }
+    } else {
+      request.social_media_links = {
+        linkedin: '',
+        twitter: '',
+        facebook: '',
+        instagram: '',
+        website: ''
+      };
     }
     return request;
   });
@@ -144,8 +197,8 @@ export async function getActiveLoanRequests(): Promise<LoanRequestWithBorrower[]
  */
 export async function updateLoanRequest(id: number, updates: Partial<LoanRequest>): Promise<boolean> {
   const allowedFields = [
-    'amount_requested', 'currency', 'company_description',
-    'social_media_links', 'loan_purpose', 'loan_type', 'status', 'expires_at'
+    'amount_requested', 'currency',
+    'loan_purpose', 'loan_type', 'status', 'expires_at'
   ];
   
   const setFields: string[] = [];
@@ -154,11 +207,7 @@ export async function updateLoanRequest(id: number, updates: Partial<LoanRequest
   for (const [key, value] of Object.entries(updates)) {
     if (allowedFields.includes(key) && value !== undefined) {
       setFields.push(`${key} = ?`);
-      if (key === 'social_media_links' && value) {
-        params.push(JSON.stringify(value));
-      } else {
-        params.push(value);
-      }
+      params.push(value);
     }
   }
   
@@ -187,17 +236,26 @@ export async function deleteLoanRequest(id: number): Promise<boolean> {
  * Get loan requests by status
  */
 export async function getLoanRequestsByStatus(status: LoanRequest['status']): Promise<LoanRequest[]> {
-  const query = 'SELECT * FROM loan_requests WHERE status = ? ORDER BY created_at DESC';
-  const result = await executeQuery<LoanRequest>(query, [status]);
+  const query = `
+    SELECT lr.*, u.website, u.linkedin
+    FROM loan_requests lr
+    JOIN users u ON lr.borrower_id = u.id
+    WHERE lr.status = ?
+    ORDER BY lr.created_at DESC
+  `;
+  const result = await executeQuery<LoanRequest & { website?: string; linkedin?: string }>(query, [status]);
   
   return result.map(request => {
-    if (request.social_media_links) {
-      try {
-        request.social_media_links = JSON.parse(request.social_media_links as any);
-      } catch (e) {
-        request.social_media_links = null;
-      }
-    }
+    // Create social media links from user profile
+    const socialMediaLinks = {
+      linkedin: (request as any).linkedin || '',
+      twitter: '', // Not stored in user profile yet
+      facebook: '', // Not stored in user profile yet
+      instagram: '', // Not stored in user profile yet
+      website: (request as any).website || ''
+    };
+    
+    request.social_media_links = socialMediaLinks;
     return request;
   });
 }
@@ -206,17 +264,58 @@ export async function getLoanRequestsByStatus(status: LoanRequest['status']): Pr
  * Get loan requests by loan type
  */
 export async function getLoanRequestsByType(loanType: LoanRequest['loan_type']): Promise<LoanRequest[]> {
-  const query = 'SELECT * FROM loan_requests WHERE loan_type = ? AND status IN ("pending", "active") ORDER BY created_at DESC';
-  const result = await executeQuery<LoanRequest>(query, [loanType]);
+  const query = `
+    SELECT lr.*, u.website, u.linkedin
+    FROM loan_requests lr
+    JOIN users u ON lr.borrower_id = u.id
+    WHERE lr.loan_type = ? AND lr.status IN ("pending", "active")
+    ORDER BY lr.created_at DESC
+  `;
+  const result = await executeQuery<LoanRequest & { website?: string; linkedin?: string }>(query, [loanType]);
   
   return result.map(request => {
-    if (request.social_media_links) {
-      try {
-        request.social_media_links = JSON.parse(request.social_media_links as any);
-      } catch (e) {
-        request.social_media_links = null;
-      }
-    }
+    // Create social media links from user profile
+    const socialMediaLinks = {
+      linkedin: (request as any).linkedin || '',
+      twitter: '', // Not stored in user profile yet
+      facebook: '', // Not stored in user profile yet
+      instagram: '', // Not stored in user profile yet
+      website: (request as any).website || ''
+    };
+    
+    request.social_media_links = socialMediaLinks;
+    return request;
+  });
+}
+
+/**
+ * Get all loan requests for admin view
+ */
+export async function getAllLoanRequests(): Promise<LoanRequestWithBorrower[]> {
+  const query = `
+    SELECT lr.*, 
+           CONCAT(u.first_name, ' ', u.last_name) as borrower_name,
+           u.company as borrower_company,
+           u.website,
+           u.linkedin
+    FROM loan_requests lr
+    JOIN users u ON lr.borrower_id = u.id
+    ORDER BY lr.created_at DESC
+  `;
+  
+  const result = await executeQuery<LoanRequest & { borrower_name: string; borrower_company?: string; website?: string; linkedin?: string }>(query, []);
+  
+  return result.map(request => {
+    // Create social media links from user profile
+    const socialMediaLinks = {
+      linkedin: (request as any).linkedin || '',
+      twitter: '', // Not stored in user profile yet
+      facebook: '', // Not stored in user profile yet
+      instagram: '', // Not stored in user profile yet
+      website: (request as any).website || ''
+    };
+    
+    request.social_media_links = socialMediaLinks;
     return request;
   });
 }
@@ -226,23 +325,28 @@ export async function getLoanRequestsByType(loanType: LoanRequest['loan_type']):
  */
 export async function getLoanRequestsByAmountRange(minAmount: number, maxAmount: number, currency: string = 'USD'): Promise<LoanRequest[]> {
   const query = `
-    SELECT * FROM loan_requests 
-    WHERE amount_requested BETWEEN ? AND ? 
-    AND currency = ? 
-    AND status IN ("pending", "active")
-    ORDER BY amount_requested ASC
+    SELECT lr.*, u.website, u.linkedin
+    FROM loan_requests lr
+    JOIN users u ON lr.borrower_id = u.id
+    WHERE lr.amount_requested BETWEEN ? AND ? 
+    AND lr.currency = ? 
+    AND lr.status IN ("pending", "active")
+    ORDER BY lr.amount_requested ASC
   `;
   
-  const result = await executeQuery<LoanRequest>(query, [minAmount, maxAmount, currency]);
+  const result = await executeQuery<LoanRequest & { website?: string; linkedin?: string }>(query, [minAmount, maxAmount, currency]);
   
   return result.map(request => {
-    if (request.social_media_links) {
-      try {
-        request.social_media_links = JSON.parse(request.social_media_links as any);
-      } catch (e) {
-        request.social_media_links = null;
-      }
-    }
+    // Create social media links from user profile
+    const socialMediaLinks = {
+      linkedin: (request as any).linkedin || '',
+      twitter: '', // Not stored in user profile yet
+      facebook: '', // Not stored in user profile yet
+      instagram: '', // Not stored in user profile yet
+      website: (request as any).website || ''
+    };
+    
+    request.social_media_links = socialMediaLinks;
     return request;
   });
 }

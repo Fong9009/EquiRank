@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import LoanRequestDetailModal from './LoanRequestDetailModal';
+import EditLoanRequestModal from './EditLoanRequestModal';
 import styles from '@/styles/pages/borrower/loanRequestList.module.css';
 
 interface LoanRequest {
@@ -21,6 +23,9 @@ export default function LoanRequestList() {
   const [loanRequests, setLoanRequests] = useState<LoanRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [selectedRequest, setSelectedRequest] = useState<number | null>(null);
+  const [editingRequest, setEditingRequest] = useState<number | null>(null);
 
   useEffect(() => {
     if (session?.user) {
@@ -30,6 +35,8 @@ export default function LoanRequestList() {
 
   const fetchLoanRequests = async () => {
     try {
+      setError(null);
+      setSuccessMessage(null);
       const response = await fetch('/api/loan-requests/my-requests');
       if (response.ok) {
         const data = await response.json();
@@ -79,6 +86,47 @@ export default function LoanRequestList() {
     }).format(amount);
   };
 
+  const handleViewDetails = (requestId: number) => {
+    setSelectedRequest(requestId);
+  };
+
+  const handleEditRequest = (requestId: number) => {
+    setEditingRequest(requestId);
+  };
+
+  const handleDeleteRequest = async (requestId: number) => {
+    if (confirm('Are you sure you want to delete this loan request? This action cannot be undone.')) {
+      try {
+        const response = await fetch(`/api/loan-requests/${requestId}`, {
+          method: 'DELETE',
+        });
+        
+        if (response.ok) {
+          // Remove from list and show success message
+          setLoanRequests(prev => prev.filter(req => req.id !== requestId));
+          setSuccessMessage('Loan request deleted successfully');
+          setError(null);
+          
+          // Clear success message after 3 seconds
+          setTimeout(() => setSuccessMessage(null), 3000);
+        } else {
+          const result = await response.json();
+          setError(result.error || 'Failed to delete loan request');
+          setSuccessMessage(null);
+        }
+      } catch (error) {
+        console.error('Error deleting request:', error);
+        setError('An error occurred while deleting the request');
+        setSuccessMessage(null);
+      }
+    }
+  };
+
+  const handleRequestUpdated = () => {
+    // Refresh the list after update
+    fetchLoanRequests();
+  };
+
   if (!session?.user) {
     return <div>Please log in to view your loan requests.</div>;
   }
@@ -113,6 +161,18 @@ export default function LoanRequestList() {
         <h2 className={styles.title}>My Loan Requests</h2>
         <p className={styles.subtitle}>Track the status of your funding requests</p>
       </div>
+
+      {successMessage && (
+        <div className={`${styles.message} ${styles.success}`}>
+          {successMessage}
+        </div>
+      )}
+
+      {error && (
+        <div className={`${styles.message} ${styles.error}`}>
+          {error}
+        </div>
+      )}
 
       <div className={styles.requestsGrid}>
         {loanRequests.map((request) => (
@@ -173,18 +233,49 @@ export default function LoanRequestList() {
             </div>
 
             <div className={styles.requestActions}>
-              <button className={styles.viewButton}>
+              <button 
+                className={styles.viewButton}
+                onClick={() => handleViewDetails(request.id)}
+              >
                 View Details
               </button>
               {request.status === 'pending' && (
-                <button className={styles.editButton}>
-                  Edit
-                </button>
+                <>
+                  <button 
+                    className={styles.editButton}
+                    onClick={() => handleEditRequest(request.id)}
+                  >
+                    Edit
+                  </button>
+                  <button 
+                    className={styles.deleteButton}
+                    onClick={() => handleDeleteRequest(request.id)}
+                  >
+                    Delete
+                  </button>
+                </>
               )}
             </div>
           </div>
         ))}
       </div>
+
+      {/* View Details Modal */}
+      {selectedRequest && (
+        <LoanRequestDetailModal
+          requestId={selectedRequest}
+          onClose={() => setSelectedRequest(null)}
+        />
+      )}
+
+      {/* Edit Request Modal */}
+      {editingRequest && (
+        <EditLoanRequestModal
+          requestId={editingRequest}
+          onClose={() => setEditingRequest(null)}
+          onUpdate={handleRequestUpdated}
+        />
+      )}
     </div>
   );
 }

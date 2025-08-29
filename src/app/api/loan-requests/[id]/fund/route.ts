@@ -67,6 +67,7 @@ export async function POST(
     }
 
     // Update the loan request status to funded
+    console.log('Updating loan request with status: funded');
     const updateResult = await updateLoanRequest(id, {
       status: 'funded',
       // You could add additional fields here like:
@@ -75,10 +76,14 @@ export async function POST(
       // funded_amount: funded_amount
     });
 
+    console.log('Update result:', updateResult);
+
     if (!updateResult) {
+      console.log('Update failed, returning error');
       return NextResponse.json({ error: 'Failed to update loan request' }, { status: 500 });
     }
 
+    console.log('Returning success response');
     return NextResponse.json({ 
       success: true, 
       message: 'Loan request funded successfully',

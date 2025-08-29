@@ -32,18 +32,18 @@
 }
 
 .header h2 {
-  color: #ffffff;
+  margin: 0;
   font-size: 1.5rem;
   font-weight: 700;
-  margin: 0;
+  color: #ffffff;
 }
 
 .closeButton {
   background: none;
   border: none;
-  color: #a0a0a0;
   font-size: 1.5rem;
   cursor: pointer;
+  color: #a0a0a0;
   padding: 0.5rem;
   border-radius: 4px;
   transition: all 0.3s ease;
@@ -127,7 +127,6 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.borrowerInfo,
 .loanInfo {
   display: flex;
   flex-direction: column;
@@ -143,6 +142,11 @@
 
 .infoRow:not(:last-child) {
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+
+.infoRow:last-child {
+  border-bottom: none;
 }
 
 .label {
@@ -194,150 +198,54 @@
   transform: translateY(-1px);
 }
 
-.successMessage {
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.15));
-  border: 2px solid rgba(34, 197, 94, 0.4);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin: 1.5rem 0;
-  text-align: center;
-  animation: successPulse 0.5s ease-in-out;
-  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
-}
-
-.successMessage p {
-  color: #22c55e;
-  font-weight: 700;
-  margin: 0;
-  font-size: 1.1rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-@keyframes successPulse {
-  0% {
-    transform: scale(0.95);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.02);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-.fundingStatus {
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin: 1.5rem 0;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.fundingStatus p {
-  color: #3b82f6;
-  font-weight: 600;
-  margin: 0;
-  font-size: 1rem;
-}
-
-.spinner {
-  width: 24px;
-  height: 24px;
-  border: 3px solid rgba(59, 130, 246, 0.2);
-  border-top: 3px solid #3b82f6;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
 .actions {
   display: flex;
   gap: 1rem;
   justify-content: center;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.fundButton {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 150px;
-}
-
-.fundButton:hover:not(:disabled) {
-  background: linear-gradient(135deg, #16a34a, #15803d);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
-}
-
-.fundButton:disabled {
-  background: #6b7280;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-.loading,
-.error {
+.loading, .error {
   text-align: center;
-  padding: 3rem;
+  padding: 2.5rem 1.25rem;
+}
+
+.loading {
   color: #a0a0a0;
+  font-size: 1.125rem;
 }
 
 .error h3 {
   color: #ef4444;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.error p {
+  color: #a0a0a0;
+  margin-bottom: 1.25rem;
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
-  .overlay {
-    padding: 0.5rem;
-  }
-  
   .modal {
-    max-height: 95vh;
-  }
-  
-  .header {
-    padding: 1rem 1rem 0.75rem 1rem;
+    width: 95%;
+    margin: 1.25rem;
   }
   
   .content {
-    padding: 1rem;
+    padding: 1.25rem;
+  }
+  
+  .header {
+    padding: 1.25rem 1.25rem 0.75rem 1.25rem;
   }
   
   .amountSection {
     flex-direction: column;
     gap: 1rem;
     text-align: center;
-  }
-  
-  .amount {
-    font-size: 1.5rem;
-  }
-  
-  .actions {
-    flex-direction: column;
   }
   
   .infoRow {
@@ -351,5 +259,6 @@
   
   .value {
     text-align: left;
+    max-width: none;
   }
 }

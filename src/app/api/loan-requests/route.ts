@@ -18,8 +18,6 @@ export async function POST(request: NextRequest) {
     const {
       amount_requested,
       currency,
-      company_description,
-      social_media_links,
       loan_purpose,
       loan_type,
       other_loan_type,
@@ -69,8 +67,6 @@ export async function POST(request: NextRequest) {
       borrower_id: parseInt(session.user.id),
       amount_requested: parseFloat(amount_requested),
       currency,
-      company_description: company_description || null,
-      social_media_links: social_media_links || null,
       loan_purpose,
       loan_type: loan_type === 'other' ? other_loan_type : loan_type,
       status: 'pending' as const,

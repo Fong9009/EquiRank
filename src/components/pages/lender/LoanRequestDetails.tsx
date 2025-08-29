@@ -9,7 +9,6 @@ interface LoanRequestDetails {
   borrower_id: number;
   amount_requested: number;
   currency: string;
-  company_description?: string;
   social_media_links?: {
     linkedin?: string;
     twitter?: string;
@@ -24,7 +23,6 @@ interface LoanRequestDetails {
   expires_at?: string;
   borrower_name: string;
   borrower_company?: string;
-  borrower_entity_type: string;
 }
 
 interface LoanRequestDetailsProps {
@@ -39,6 +37,7 @@ export default function LoanRequestDetails({ requestId, onClose, onFund }: LoanR
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isFunding, setIsFunding] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (requestId) {
@@ -68,30 +67,172 @@ export default function LoanRequestDetails({ requestId, onClose, onFund }: LoanR
   const handleFund = async () => {
     if (!request || !session?.user) return;
     
+    console.log('Starting funding process for request:', requestId);
+    // Clear any previous errors when starting a new funding process
+    setError(null);
+    setSuccessMessage(null);
     setIsFunding(true);
     try {
+      const requestBody = {
+        lender_id: session.user.id,
+        funded_amount: request.amount_requested,
+        currency: request.currency
+      };
+      console.log('Sending funding request with body:', requestBody);
+      
       const response = await fetch(`/api/loan-requests/${requestId}/fund`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          lender_id: session.user.id,
-          funded_amount: request.amount_requested,
-          currency: request.currency
-        }),
+        body: JSON.stringify(requestBody),
       });
 
+      console.log('Funding response received:', response);
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+
       if (response.ok) {
-        onFund(requestId);
-        onClose();
+        console.log('Funding successful, response:', response);
+        setSuccessMessage('Loan request funded successfully! The borrower will be notified.');
+        
+        // Update the request status to 'funded' immediately for visual feedback
+        setRequest(prev => prev ? { ...prev, status: 'funded' } : null);
+        
+        // Show toast notification for better visibility
+        const toast = document.createElement('div');
+        toast.innerHTML = `
+          <div style="
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+            z-index: 10000;
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s ease-out;
+          ">
+            ✅ Loan Funded Successfully!
+          </div>
+        `;
+        document.body.appendChild(toast);
+        
+        // Trigger animation
+        setTimeout(() => {
+          const toastDiv = toast.querySelector('div');
+          if (toastDiv) {
+            toastDiv.style.transform = 'translateX(0)';
+            toastDiv.style.opacity = '1';
+          }
+        }, 10);
+        
+        // Remove toast after 4 seconds
+        setTimeout(() => {
+          if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+          }
+        }, 4000);
+        
+        // Wait to show success message, then close
+        setTimeout(() => {
+          onFund(requestId);
+          onClose();
+        }, 3000);
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Failed to fund loan request');
+        console.log('Funding failed, error data:', errorData);
+        const errorMessage = errorData.error || 'Failed to fund loan request';
+        setError(errorMessage);
+        
+        // Show error toast notification
+        const toast = document.createElement('div');
+        toast.innerHTML = `
+          <div style="
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            z-index: 10000;
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s ease-out;
+            max-width: 300px;
+          ">
+            ❌ ${errorMessage}
+          </div>
+        `;
+        document.body.appendChild(toast);
+        
+        // Trigger animation
+        setTimeout(() => {
+          const toastDiv = toast.querySelector('div');
+          if (toastDiv) {
+            toastDiv.style.transform = 'translateX(0)';
+            toastDiv.style.opacity = '1';
+          }
+        }, 10);
+        
+        // Remove toast after 5 seconds
+        setTimeout(() => {
+          if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+          }
+        }, 5000);
       }
     } catch (error) {
       console.error('Error funding loan request:', error);
-      setError('An error occurred while funding the request');
+      const errorMessage = 'Network error occurred while funding the request';
+      setError(errorMessage);
+      
+      // Show error toast notification
+      const toast = document.createElement('div');
+      toast.innerHTML = `
+        <div style="
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: linear-gradient(135deg, #ef4444, #dc2626);
+          color: white;
+          padding: 1rem 1.5rem;
+          border-radius: 8px;
+          font-weight: 600;
+          box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+          z-index: 10000;
+          transform: translateX(100%);
+          opacity: 0;
+          transition: all 0.3s ease-out;
+          max-width: 300px;
+        ">
+          ❌ ${errorMessage}
+        </div>
+      `;
+      document.body.appendChild(toast);
+      
+      // Trigger animation
+      setTimeout(() => {
+        const toastDiv = toast.querySelector('div');
+        if (toastDiv) {
+          toastDiv.style.transform = 'translateX(0)';
+          toastDiv.style.opacity = '1';
+        }
+      }, 10);
+      
+      // Remove toast after 5 seconds
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 5000);
     } finally {
       setIsFunding(false);
     }
@@ -177,12 +318,7 @@ export default function LoanRequestDetails({ requestId, onClose, onFund }: LoanR
                   <span className={styles.value}>{request.borrower_company}</span>
                 </div>
               )}
-              <div className={styles.infoRow}>
-                <span className={styles.label}>Entity Type:</span>
-                <span className={styles.value}>
-                  {request.borrower_entity_type.charAt(0).toUpperCase() + request.borrower_entity_type.slice(1)}
-                </span>
-              </div>
+
             </div>
           </div>
 
@@ -213,51 +349,40 @@ export default function LoanRequestDetails({ requestId, onClose, onFund }: LoanR
             </div>
           </div>
 
-          {/* Company Information (if available) */}
-          {request.company_description && (
-            <div className={styles.section}>
-              <h3>Company Information</h3>
-              <p className={styles.companyDescription}>{request.company_description}</p>
+
+
+          {/* Success Message */}
+          {successMessage && (
+            <div className={styles.successMessage}>
+              <p>{successMessage}</p>
             </div>
           )}
 
-          {/* Social Media Links (if available) */}
-          {request.social_media_links && Object.values(request.social_media_links).some(link => link) && (
-            <div className={styles.section}>
-              <h3>Social Media & Links</h3>
-              <div className={styles.socialLinks}>
-                {request.social_media_links.linkedin && (
-                  <a href={request.social_media_links.linkedin} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
-                    LinkedIn
-                  </a>
-                )}
-                {request.social_media_links.website && (
-                  <a href={request.social_media_links.website} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
-                    Website
-                  </a>
-                )}
-                {request.social_media_links.twitter && (
-                  <a href={request.social_media_links.twitter} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
-                    Twitter
-                  </a>
-                )}
-              </div>
+          {/* Funding Status */}
+          {isFunding && (
+            <div className={styles.fundingStatus}>
+              <div className={styles.spinner}></div>
+              <p>Processing your funding request...</p>
             </div>
           )}
 
           {/* Action Buttons */}
           <div className={styles.actions}>
-            {request.status === 'pending' && (
+            {request.status === 'pending' && !successMessage && (
               <button
                 onClick={handleFund}
                 disabled={isFunding}
                 className={styles.fundButton}
               >
-                {isFunding ? 'Funding...' : 'Fund This Loan'}
+                {isFunding ? 'Processing...' : 'Fund This Loan'}
               </button>
             )}
-            <button onClick={onClose} className={styles.closeButton}>
-              Close
+            <button 
+              onClick={onClose} 
+              className={styles.closeButton}
+              disabled={isFunding}
+            >
+              {successMessage ? 'Done' : 'Close'}
             </button>
           </div>
         </div>

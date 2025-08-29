@@ -6,19 +6,79 @@
 
 .header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
 .title {
   color: #ffffff;
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .subtitle {
   color: #a0a0a0;
   font-size: 1.1rem;
+  margin: 0;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filterGroup label {
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.filterSelect {
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.filterSelect option {
+  background: #1f2123;
+  color: #ffffff;
+}
+
+.resultsCount {
+  text-align: center;
+  color: #a0a0a0;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 .requestsGrid {
@@ -29,11 +89,12 @@
 
 .requestCard {
   background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   padding: 1.5rem;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .requestCard:hover {
@@ -48,6 +109,7 @@
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .amountSection {
@@ -124,24 +186,24 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.75rem;
-  padding: 0.5rem 0;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.detailRow:not(:last-child) {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+.detailRow:last-child {
+  border-bottom: none;
 }
 
 .label {
   color: #a0a0a0;
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   min-width: 80px;
 }
 
 .value {
   color: #ffffff;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   text-align: right;
   max-width: 200px;
   word-wrap: break-word;
@@ -149,110 +211,38 @@
 
 .requestActions {
   display: flex;
-  gap: 0.75rem;
-  justify-content: flex-end;
-}
-
-.viewButton,
-.editButton,
-.deleteButton {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  gap: 1rem;
+  justify-content: center;
 }
 
 .viewButton {
-  background: rgba(59, 130, 246, 0.2);
-  color: #3b82f6;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.viewButton {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .viewButton:hover {
-  background: rgba(59, 130, 246, 0.3);
+  background: rgba(255, 255, 255, 0.2);
   transform: translateY(-1px);
 }
 
-.editButton {
-  background: rgba(245, 158, 11, 0.2);
-  color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.3);
-}
 
-.editButton:hover {
-  background: rgba(245, 158, 11, 0.3);
-  transform: translateY(-1px);
-}
-
-.deleteButton {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-.deleteButton:hover {
-  background: rgba(239, 68, 68, 0.3);
-  transform: translateY(-1px);
-}
-
-.loading {
-  text-align: center;
-  color: #a0a0a0;
-  font-size: 1.1rem;
-  padding: 3rem;
-}
-
-.message {
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  text-align: center;
-  font-weight: 500;
-}
-
-.success {
-  background: rgba(34, 197, 94, 0.1);
-  color: #22c55e;
-  border: 1px solid rgba(34, 197, 94, 0.3);
-}
-
-.error {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-.error {
-  text-align: center;
-  color: #ef4444;
-  padding: 2rem;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: 8px;
-}
-
-.retryButton {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-top: 1rem;
-  transition: all 0.3s ease;
-}
-
-.retryButton:hover {
-  background: rgba(239, 68, 68, 0.3);
-}
 
 .emptyState {
   text-align: center;
+  padding: 4rem 2rem;
   color: #a0a0a0;
-  padding: 3rem;
 }
 
 .emptyState h3 {
@@ -261,31 +251,53 @@
   font-size: 1.5rem;
 }
 
+.loading,
+.error {
+  text-align: center;
+  padding: 3rem;
+  color: #a0a0a0;
+}
+
+.error p {
+  color: #ef4444;
+  margin-bottom: 1rem;
+}
+
+.retryButton {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.retryButton:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .container {
     padding: 1rem;
   }
   
+  .title {
+    font-size: 2rem;
+  }
+  
   .requestsGrid {
     grid-template-columns: 1fr;
   }
   
-  .requestCard {
-    padding: 1rem;
-  }
-  
-  .requestHeader {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-  
   .requestActions {
-    justify-content: center;
+    flex-direction: column;
   }
   
-  .title {
-    font-size: 1.5rem;
+  .filters {
+    grid-template-columns: 1fr;
   }
 }

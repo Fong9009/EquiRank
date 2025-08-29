@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useSession } from 'next-auth/react';
-import styles from '@/styles/pages/borrower/loanRequestForm.module.css';
+import { useState, useEffect } from 'react';
+import styles from '@/styles/pages/borrower/editLoanRequestModal.module.css';
 
 interface LoanRequestFormData {
   amount_requested: string;
@@ -13,11 +12,13 @@ interface LoanRequestFormData {
   expires_at: string;
 }
 
-export default function LoanRequestForm() {
-  const { data: session } = useSession();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  
+interface EditLoanRequestModalProps {
+  requestId: number;
+  onClose: () => void;
+  onUpdate: () => void;
+}
+
+export default function EditLoanRequestModal({ requestId, onClose, onUpdate }: EditLoanRequestModalProps) {
   const [formData, setFormData] = useState<LoanRequestFormData>({
     amount_requested: '',
     currency: 'USD',
@@ -26,6 +27,43 @@ export default function LoanRequestForm() {
     other_loan_type: '',
     expires_at: ''
   });
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  useEffect(() => {
+    if (requestId) {
+      fetchLoanRequestDetails();
+    }
+  }, [requestId]);
+
+  const fetchLoanRequestDetails = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`/api/loan-requests/${requestId}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setFormData({
+          amount_requested: data.amount_requested.toString(),
+          currency: data.currency,
+          loan_purpose: data.loan_purpose,
+          loan_type: data.loan_type,
+          other_loan_type: '',
+          expires_at: data.expires_at ? new Date(data.expires_at).toISOString().split('T')[0] : ''
+        });
+      } else {
+        setError('Failed to fetch loan request details');
+      }
+    } catch (error) {
+      console.error('Error fetching loan request details:', error);
+      setError('An error occurred while fetching details');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -51,8 +89,8 @@ export default function LoanRequestForm() {
     }
 
     try {
-      const response = await fetch('/api/loan-requests', {
-        method: 'POST',
+      const response = await fetch(`/api/loan-requests/${requestId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -66,36 +104,62 @@ export default function LoanRequestForm() {
       const result = await response.json();
 
       if (response.ok) {
-        setMessage({ type: 'success', text: 'Loan request submitted successfully!' });
-        // Reset form
-        setFormData({
-          amount_requested: '',
-          currency: 'USD',
-          loan_purpose: '',
-          loan_type: 'working_capital',
-          other_loan_type: '',
-          expires_at: ''
-        });
+        setMessage({ type: 'success', text: 'Loan request updated successfully!' });
+        setTimeout(() => {
+          onUpdate();
+          onClose();
+        }, 1500);
       } else {
-        setMessage({ type: 'error', text: result.error || 'Failed to submit loan request' });
+        setMessage({
+          type: 'error',
+          text: result.error || 'Failed to update loan request. Please try again.'
+        });
       }
     } catch (error) {
-      console.error('Error submitting loan request:', error);
-      setMessage({ type: 'error', text: 'An unexpected error occurred. Please try again.' });
+      setMessage({
+        type: 'error',
+        text: 'Network error. Please check your connection and try again.'
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (!session?.user) {
-    return <div>Please log in to submit a loan request.</div>;
+  if (isLoading) {
+    return (
+      <div className={styles.overlay}>
+        <div className={styles.modal}>
+          <div className={styles.loading}>Loading loan request details...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.overlay}>
+        <div className={styles.modal}>
+          <div className={styles.error}>
+            <h3>Error</h3>
+            <p>{error}</p>
+            <button onClick={onClose} className={styles.closeButton}>
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.formWrapper}>
-        <h2 className={styles.title}>Submit Loan Request</h2>
-        <p className={styles.subtitle}>Tell us about your funding needs</p>
+    <div className={styles.overlay} onClick={onClose}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.header}>
+          <h2>Edit Loan Request</h2>
+          <button onClick={onClose} className={styles.closeButton}>
+            ×
+          </button>
+        </div>
 
         {message && (
           <div className={`${styles.message} ${styles[message.type]}`}>
@@ -241,7 +305,7 @@ export default function LoanRequestForm() {
               disabled={isSubmitting}
               className={styles.submitButton}
             >
-              {isSubmitting ? 'Submitting...' : 'Submit Loan Request'}
+              {isSubmitting ? 'Updating...' : 'Update Loan Request'}
             </button>
           </div>
         </form>
