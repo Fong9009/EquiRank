@@ -21,15 +21,24 @@
     flex: 1;
     max-width: 700px;
 }
-
-.feature-box{
+.lightFeatureBox {
+    background-color: #eae9e9;
     min-height: 100vh;
     width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    background-color: #1f2123;
+}
+
+.darkFeatureBox {
+    background-color: black;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
 }
 
 .imageContainer {
@@ -40,6 +49,7 @@
 }
 
 .carousel{
+    width: 100%;
     padding: 40px;
 }
 
@@ -79,6 +89,14 @@
 
 .titleTextSection {
     padding-left: 30px;
+    background: linear-gradient(
+            135deg,        /* angle of the gradient */
+            #121212,       /* start color (darker) */
+            #1a1a1a 50%,   /* mid-tone (darker) */
+            #121212 100%   /* end color (darker) */
+    );
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    width: 100%;
 }
 
 .dotList {

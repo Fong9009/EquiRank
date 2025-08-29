@@ -2,7 +2,8 @@
 import styles from "@/styles/pages/home/features.module.css";
 import clsx from "clsx";
 import TitleText from "@/components/common/TitleText"
-import React from "react";
+import React, {useEffect, useState} from "react";
+import { useSession } from "next-auth/react";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -11,8 +12,24 @@ import 'swiper/css/pagination';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 
 export default function Features() {
+    const { data: session} = useSession();
+    const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
+    const boxClass = theme === "light" ? styles.lightFeatureBox : styles.darkFeatureBox;
+    useEffect(() => {
+        if (!session) return;
+      fetch("/api/users/theme")
+        .then(res => res.json())
+        .then(data => {
+            if (data.theme) {
+                setTheme(data.theme.theme);
+            } else {
+                setTheme("auto");
+            }
+        });
+    }, [session]);
+
     return (
-        <div className={styles.featureBox}>
+        <div className={boxClass}>
             <div className={styles.titleTextSection}>
                 <TitleText
                     titleText={<p>The Future of Investment is Here</p>}
