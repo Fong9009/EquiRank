@@ -318,6 +318,12 @@ export default function LoanRequestDetails({ requestId, onClose, onFund }: LoanR
                   <span className={styles.value}>{request.borrower_company}</span>
                 </div>
               )}
+              {request.company_description && (
+                <div className={styles.infoRow}>
+                  <span className={styles.label}>Company Description:</span>
+                  <span className={styles.value}>{request.company_description}</span>
+                </div>
+              )}
 
             </div>
           </div>

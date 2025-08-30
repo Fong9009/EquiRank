@@ -88,6 +88,37 @@ export default function AdminLoanRequestsList() {
     }));
   };
 
+  const handleCloseRequest = async (requestId: number) => {
+    const reason = prompt('Please provide a reason for closing this loan request:');
+    if (!reason || !reason.trim()) {
+      alert('Please provide a reason for closing the request');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/loan-requests/${requestId}/close`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ reason: reason.trim() }),
+      });
+
+      if (response.ok) {
+        // Remove from active list
+        setLoanRequests(prev => prev.filter(req => req.id !== requestId));
+        // Show success message
+        alert('Loan request closed successfully!');
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to close request: ${errorData.error}`);
+      }
+    } catch (error) {
+      console.error('Error closing loan request:', error);
+      alert('An error occurred while closing the request');
+    }
+  };
+
   const filteredRequests = loanRequests.filter(request => {
     if (filters.status !== 'all' && request.status !== filters.status) return false;
     if (filters.loanType !== 'all' && request.loan_type !== filters.loanType) return false;
@@ -181,8 +212,18 @@ export default function AdminLoanRequestsList() {
                   </span>
                   <span className={styles.currency}>{request.currency}</span>
                 </div>
-                <div className={`${styles.status} ${getStatusColor(request.status)}`}>
-                  {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                <div className={styles.statusSection}>
+                  <div className={`${styles.status} ${getStatusColor(request.status)}`}>
+                    {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                  </div>
+                  {request.status === 'closed' && (
+                    <div className={styles.closedIndicator}>
+                      <span className={styles.closedLabel}>Closed</span>
+                      {request.closed_reason && (
+                        <span className={styles.closedReason}>• {request.closed_reason}</span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -215,27 +256,46 @@ export default function AdminLoanRequestsList() {
                     }
                   </span>
                 </div>
+                {request.company_description && (
+                  <div className={styles.detailRow}>
+                    <span className={styles.label}>Company:</span>
+                    <span className={styles.value}>
+                      {request.company_description.length > 60 
+                        ? `${request.company_description.substring(0, 60)}...` 
+                        : request.company_description
+                      }
+                    </span>
+                  </div>
+                )}
 
                 <div className={styles.detailRow}>
                   <span className={styles.label}>Posted:</span>
-                  <span className={styles.value}>{formatDate(request.created_at)}</span>
+                  <span className={styles.value}>{request.created_at ? formatDate(request.created_at.toString()) : 'N/A'}</span>
                 </div>
 
                 {request.expires_at && (
                   <div className={styles.detailRow}>
                     <span className={styles.label}>Expires:</span>
-                    <span className={styles.value}>{formatDate(request.expires_at)}</span>
+                    <span className={styles.value}>{formatDate(request.expires_at.toString())}</span>
                   </div>
                 )}
               </div>
 
               <div className={styles.requestActions}>
                 <button 
-                  onClick={() => setSelectedRequest(request.id)}
+                  onClick={() => request.id && setSelectedRequest(request.id)}
                   className={styles.viewButton}
                 >
                   View Details
                 </button>
+                {request.status === 'funded' && (
+                  <button 
+                    onClick={() => request.id && handleCloseRequest(request.id)}
+                    className={styles.closeButton}
+                  >
+                    Close
+                  </button>
+                )}
               </div>
             </div>
           ))}

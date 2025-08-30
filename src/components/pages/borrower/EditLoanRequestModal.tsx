@@ -6,6 +6,7 @@ import styles from '@/styles/pages/borrower/editLoanRequestModal.module.css';
 interface LoanRequestFormData {
   amount_requested: string;
   currency: 'USD' | 'EUR' | 'GBP' | 'CAD' | 'AUD' | 'JPY' | 'CHF' | 'CNY';
+  company_description: string;
   loan_purpose: string;
   loan_type: 'equipment' | 'expansion' | 'working_capital' | 'inventory' | 'real_estate' | 'startup' | 'other';
   other_loan_type: string;
@@ -22,6 +23,7 @@ export default function EditLoanRequestModal({ requestId, onClose, onUpdate }: E
   const [formData, setFormData] = useState<LoanRequestFormData>({
     amount_requested: '',
     currency: 'USD',
+    company_description: '',
     loan_purpose: '',
     loan_type: 'working_capital',
     other_loan_type: '',
@@ -49,6 +51,7 @@ export default function EditLoanRequestModal({ requestId, onClose, onUpdate }: E
         setFormData({
           amount_requested: data.amount_requested.toString(),
           currency: data.currency,
+          company_description: data.company_description || '',
           loan_purpose: data.loan_purpose,
           loan_type: data.loan_type,
           other_loan_type: '',
@@ -265,6 +268,22 @@ export default function EditLoanRequestModal({ requestId, onClose, onUpdate }: E
           )}
 
           <div className={styles.formGroup}>
+            <label htmlFor="company_description" className={styles.label}>
+              Company Description *
+            </label>
+            <textarea
+              id="company_description"
+              name="company_description"
+              value={formData.company_description}
+              onChange={handleInputChange}
+              required
+              rows={4}
+              className={styles.textarea}
+              placeholder="Describe your company, its business model, and current operations..."
+            />
+          </div>
+
+          <div className={styles.formGroup}>
             <label htmlFor="loan_purpose" className={styles.label}>
               Loan Purpose *
             </label>
@@ -279,10 +298,6 @@ export default function EditLoanRequestModal({ requestId, onClose, onUpdate }: E
               placeholder="Describe how you plan to use the loan funds..."
             />
           </div>
-
-
-
-
 
           <div className={styles.formGroup}>
             <label htmlFor="expires_at" className={styles.label}>
