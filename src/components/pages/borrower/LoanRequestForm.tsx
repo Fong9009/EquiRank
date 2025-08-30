@@ -7,6 +7,7 @@ import styles from '@/styles/pages/borrower/loanRequestForm.module.css';
 interface LoanRequestFormData {
   amount_requested: string;
   currency: 'USD' | 'EUR' | 'GBP' | 'CAD' | 'AUD' | 'JPY' | 'CHF' | 'CNY';
+  company_description: string;
   loan_purpose: string;
   loan_type: 'equipment' | 'expansion' | 'working_capital' | 'inventory' | 'real_estate' | 'startup' | 'other';
   other_loan_type: string;
@@ -21,6 +22,7 @@ export default function LoanRequestForm() {
   const [formData, setFormData] = useState<LoanRequestFormData>({
     amount_requested: '',
     currency: 'USD',
+    company_description: '',
     loan_purpose: '',
     loan_type: 'working_capital',
     other_loan_type: '',
@@ -71,6 +73,7 @@ export default function LoanRequestForm() {
         setFormData({
           amount_requested: '',
           currency: 'USD',
+          company_description: '',
           loan_purpose: '',
           loan_type: 'working_capital',
           other_loan_type: '',
@@ -199,6 +202,22 @@ export default function LoanRequestForm() {
               </small>
             </div>
           )}
+
+          <div className={styles.formGroup}>
+            <label htmlFor="company_description" className={styles.label}>
+              Company Description *
+            </label>
+            <textarea
+              id="company_description"
+              name="company_description"
+              value={formData.company_description}
+              onChange={handleInputChange}
+              required
+              rows={4}
+              className={styles.textarea}
+              placeholder="Describe your company, its business model, and current operations..."
+            />
+          </div>
 
           <div className={styles.formGroup}>
             <label htmlFor="loan_purpose" className={styles.label}>

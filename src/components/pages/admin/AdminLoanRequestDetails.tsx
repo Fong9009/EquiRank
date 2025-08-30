@@ -17,7 +17,9 @@ export default function AdminLoanRequestDetails({ requestId, onClose }: AdminLoa
   const [request, setRequest] = useState<LoanRequestDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const [showCloseModal, setShowCloseModal] = useState(false);
+  const [closeReason, setCloseReason] = useState('');
+  const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
     if (requestId) {
@@ -65,6 +67,37 @@ export default function AdminLoanRequestDetails({ requestId, onClose }: AdminLoa
     });
   };
 
+  const handleCloseRequest = async () => {
+    if (!request || !closeReason.trim()) {
+      alert('Please provide a reason for closing the request');
+      return;
+    }
+
+    setIsClosing(true);
+    try {
+      const response = await fetch(`/api/admin/loan-requests/${request.id}/close`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ reason: closeReason.trim() }),
+      });
+
+      if (response.ok) {
+        alert('Loan request closed successfully!');
+        onClose();
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to close request: ${errorData.error}`);
+      }
+    } catch (error) {
+      console.error('Error closing loan request:', error);
+      alert('An error occurred while closing the request');
+    } finally {
+      setIsClosing(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className={styles.overlay}>
@@ -107,8 +140,18 @@ export default function AdminLoanRequestDetails({ requestId, onClose }: AdminLoa
             <div className={styles.amount}>
               {formatCurrency(request.amount_requested, request.currency)}
             </div>
-            <div className={`${styles.status} ${styles[`status${request.status.charAt(0).toUpperCase() + request.status.slice(1)}`]}`}>
-              {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+            <div className={styles.statusSection}>
+              <div className={`${styles.status} ${styles[`status${request.status.charAt(0).toUpperCase() + request.status.slice(1)}`]}`}>
+                {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+              </div>
+              {request.status === 'closed' && request.original_status && (
+                <div className={styles.closedIndicator}>
+                  <span className={styles.closedLabel}>Originally {request.original_status}</span>
+                  {request.closed_reason && (
+                    <span className={styles.closedReason}>• {request.closed_reason}</span>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -124,6 +167,12 @@ export default function AdminLoanRequestDetails({ requestId, onClose }: AdminLoa
                 <div className={styles.infoRow}>
                   <span className={styles.label}>Company:</span>
                   <span className={styles.value}>{request.borrower_company}</span>
+                </div>
+              )}
+              {request.company_description && (
+                <div className={styles.infoRow}>
+                  <span className={styles.label}>Company Description:</span>
+                  <span className={styles.value}>{request.company_description}</span>
                 </div>
               )}
               <div className={styles.infoRow}>
@@ -149,12 +198,12 @@ export default function AdminLoanRequestDetails({ requestId, onClose }: AdminLoa
               </div>
               <div className={styles.infoRow}>
                 <span className={styles.label}>Requested:</span>
-                <span className={styles.value}>{formatDate(request.created_at)}</span>
+                <span className={styles.value}>{request.created_at ? formatDate(request.created_at.toString()) : 'N/A'}</span>
               </div>
               {request.expires_at && (
                 <div className={styles.infoRow}>
                   <span className={styles.label}>Expires:</span>
-                  <span className={styles.value}>{formatDate(request.expires_at)}</span>
+                  <span className={styles.value}>{formatDate(request.expires_at.toString())}</span>
                 </div>
               )}
             </div>
@@ -164,6 +213,14 @@ export default function AdminLoanRequestDetails({ requestId, onClose }: AdminLoa
 
           {/* Action Buttons */}
           <div className={styles.actions}>
+            {request.status === 'funded' ? (
+              <button 
+                onClick={() => setShowCloseModal(true)}
+                className={styles.closeRequestButton}
+              >
+                Close Request
+              </button>
+            ) : null}
             <button 
               onClick={onClose} 
               className={styles.closeButton}
@@ -173,6 +230,46 @@ export default function AdminLoanRequestDetails({ requestId, onClose }: AdminLoa
           </div>
         </div>
       </div>
+
+      {/* Close Request Modal */}
+      {showCloseModal && (
+        <div className={styles.overlay} onClick={() => setShowCloseModal(false)}>
+          <div className={styles.closeModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.closeModalHeader}>
+              <h3>Close Loan Request</h3>
+              <button onClick={() => setShowCloseModal(false)} className={styles.closeButton}>
+                ×
+              </button>
+            </div>
+            <div className={styles.closeModalContent}>
+              <p>Please provide a reason for closing this loan request:</p>
+              <textarea
+                value={closeReason}
+                onChange={(e) => setCloseReason(e.target.value)}
+                placeholder="Enter reason for closing..."
+                className={styles.closeReasonTextarea}
+                rows={4}
+                required
+              />
+              <div className={styles.closeModalActions}>
+                <button
+                  onClick={handleCloseRequest}
+                  disabled={isClosing || !closeReason.trim()}
+                  className={styles.confirmCloseButton}
+                >
+                  {isClosing ? 'Closing...' : 'Close Request'}
+                </button>
+                <button
+                  onClick={() => setShowCloseModal(false)}
+                  className={styles.cancelButton}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

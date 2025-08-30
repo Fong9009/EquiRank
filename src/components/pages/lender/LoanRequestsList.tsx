@@ -253,6 +253,17 @@ export default function LoanRequestsList() {
                     }
                   </span>
                 </div>
+                {request.company_description && (
+                  <div className={styles.detailRow}>
+                    <span className={styles.label}>Company:</span>
+                    <span className={styles.value}>
+                      {request.company_description.length > 60 
+                        ? `${request.company_description.substring(0, 60)}...` 
+                        : request.company_description
+                      }
+                    </span>
+                  </div>
+                )}
 
                 <div className={styles.detailRow}>
                   <span className={styles.label}>Posted:</span>

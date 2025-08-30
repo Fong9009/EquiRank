@@ -14,7 +14,7 @@
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  background: linear-gradient(135deg, #6b7280, #9ca3af);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -61,8 +61,8 @@
 
 .filterSelect:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #6b7280;
+  box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.1);
 }
 
 .filterSelect option {
@@ -76,9 +76,9 @@
   font-size: 1rem;
   margin-bottom: 2rem;
   padding: 1rem;
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(107, 114, 128, 0.1);
   border-radius: 8px;
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(107, 114, 128, 0.2);
 }
 
 .requestsGrid {
@@ -100,7 +100,7 @@
 .requestCard:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-  border-color: rgba(59, 130, 246, 0.3);
+  border-color: rgba(107, 114, 128, 0.3);
 }
 
 .requestHeader {
@@ -119,7 +119,7 @@
 }
 
 .amount {
-  color: #3b82f6;
+  color: #6b7280;
   font-size: 1.75rem;
   font-weight: 700;
   line-height: 1;
@@ -149,34 +149,10 @@
   letter-spacing: 0.5px;
 }
 
-.statusPending {
-  background: rgba(245, 158, 11, 0.2);
-  color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.3);
-}
-
-.statusActive {
-  background: rgba(59, 130, 246, 0.2);
-  color: #3b82f6;
-  border: 1px solid rgba(59, 130, 246, 0.3);
-}
-
-.statusFunded {
-  background: rgba(34, 197, 94, 0.2);
-  color: #22c55e;
-  border: 1px solid rgba(34, 197, 94, 0.3);
-}
-
 .statusClosed {
   background: rgba(107, 114, 128, 0.2);
   color: #6b7280;
   border: 1px solid rgba(107, 114, 128, 0.3);
-}
-
-.statusExpired {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .statusDefault {
@@ -220,9 +196,12 @@
   display: flex;
   gap: 1rem;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
-.viewButton {
+.viewButton,
+.restoreButton,
+.deleteButton {
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 8px;
@@ -230,7 +209,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  min-width: 120px;
+  min-width: 100px;
 }
 
 .viewButton {
@@ -244,23 +223,26 @@
   transform: translateY(-1px);
 }
 
-.closeButton {
-  background: linear-gradient(135deg, #6b7280, #4b5563);
+.restoreButton {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
   color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 100px;
 }
 
-.closeButton:hover {
-  background: linear-gradient(135deg, #4b5563, #374151);
+.restoreButton:hover {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
   transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+.deleteButton {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+}
+
+.deleteButton:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
 }
 
 .closedIndicator {
@@ -285,8 +267,6 @@
   color: #a0a0a0;
   font-size: 0.7rem;
 }
-
-
 
 .emptyState {
   text-align: center;
