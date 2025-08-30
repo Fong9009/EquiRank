@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import styles from '@/styles/pages/admin/adminActiveUser.module.css';
 import CustomConfirmation from '@/components/common/CustomConfirmation';
+import {useSession} from "next-auth/react";
+import clsx from 'clsx';
 
 interface User {
   id: number;
@@ -27,6 +29,11 @@ export default function ArchivedUsers() {
   const [userTypeFilter, setUserTypeFilter] = useState<'all' | 'borrower' | 'lender' | 'admin'>('all');
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'email'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const { data: session } = useSession();
+  const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
+  //Colour Mode Editing
+  const textColour = theme === "light" ? styles.lightTextColour : styles.darkTextColour;
+  const backgroundColour = theme === "light" ? styles.lightBackground : styles.darkBackground;
   
   // Custom confirmation states
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -61,6 +68,19 @@ export default function ArchivedUsers() {
     fetch('/api/auth/session').then(r => r.json()).then(s => setCurrentUserId(s?.user?.id ?? null)).catch(()=>{});
     fetchUsers();
   }, []);
+
+  useEffect(() => {
+    if (!session) return;
+    fetch("/api/users/theme")
+        .then(res => res.json())
+        .then(data => {
+          if (data.theme) {
+            setTheme(data.theme.theme);
+          } else {
+            setTheme("auto");
+          }
+        });
+  }, [session]);
 
   const restore = async (userId: number) => {
     const user = users.find(u => u.id === userId);
@@ -175,7 +195,7 @@ export default function ArchivedUsers() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <div className={styles.headerContent}>
+        <div className={clsx(styles.headerContent,textColour)}>
           <div>
             <h2>Archived Users</h2>
             <p>Users removed from active access. Restore if needed.</p>
@@ -257,19 +277,19 @@ export default function ArchivedUsers() {
       </div>
 
       {users.length === 0 ? (
-        <div className={styles.noUsers}><p>No Archived Users</p></div>
+        <div className={clsx(styles.noUsers,textColour)}><p>No Archived Users</p></div>
       ) : (
         <>
           {/* Borrowers Section */}
           {borrowers.length > 0 && (
-            <div className={styles.sectionHeader}>
+            <div className={clsx(styles.sectionHeader, backgroundColour)}>
               <h2 className={styles.sectionTitleBorrower}>Borrowers ({borrowers.length})</h2>
             </div>
           )}
           {borrowers.length > 0 && (
             <div className={styles.userList}>
               {filteredAndSortedUsers(borrowers).map((u) => (
-                <div key={u.id} className={`${styles.userCard} ${styles.borrowerCard}`}>
+                <div key={u.id} className={`${clsx(styles.userCard, backgroundColour)} ${styles.borrowerCard}`}>
                   <div className={styles.userInfo}>
                     <h3>{u.first_name} {u.last_name}</h3>
                     <p><strong>Email:</strong> {u.email}</p>
@@ -289,14 +309,14 @@ export default function ArchivedUsers() {
 
           {/* Lenders Section */}
           {lenders.length > 0 && (
-            <div className={styles.sectionHeader}>
+            <div className={clsx(styles.sectionHeader, backgroundColour)}>
               <h2 className={styles.sectionTitleLender}>Lenders ({lenders.length})</h2>
             </div>
           )}
           {lenders.length > 0 && (
             <div className={styles.userList}>
               {filteredAndSortedUsers(lenders).map((u) => (
-                <div key={u.id} className={`${styles.userCard} ${styles.lenderCard}`}>
+                <div key={u.id} className={`${clsx(styles.userCard,backgroundColour)} ${styles.lenderCard}`}>
                   <div className={styles.userInfo}>
                     <h3>{u.first_name} {u.last_name}</h3>
                     <p><strong>Email:</strong> {u.email}</p>
@@ -316,14 +336,14 @@ export default function ArchivedUsers() {
 
           {/* Admins Section */}
           {admins.length > 0 && (
-            <div className={styles.sectionHeader}>
+            <div className={clsx(styles.sectionHeader, backgroundColour)}>
               <h2 className={styles.sectionTitleAdmin}>Admins ({admins.length})</h2>
             </div>
           )}
           {admins.length > 0 && (
             <div className={styles.userList}>
               {filteredAndSortedUsers(admins).map((u) => (
-                <div key={u.id} className={`${styles.userCard} ${styles.adminCard}`}>
+                <div key={u.id} className={`${clsx(styles.userCard, backgroundColour)} ${styles.adminCard}`}>
                   <div className={styles.userInfo}>
                     <h3>{u.first_name} {u.last_name}</h3>
                     <p><strong>Email:</strong> {u.email}</p>

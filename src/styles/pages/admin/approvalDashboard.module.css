@@ -9,6 +9,21 @@
   margin: 0 auto;
 }
 
+.lightBackground {
+  background: rgb(28,28,28);
+}
+
+.darkBackground {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.lightTextColour{
+  color: black;
+}
+.darkTextColour{
+  color: white;
+}
+
 .header {
   margin-bottom: 30px;
   padding-bottom: 20px;
@@ -22,14 +37,12 @@
 }
 
 .headerContent h2 {
-  color: white;
   margin: 0 0 10px 0;
   font-size: 2rem;
   font-weight: 600;
 }
 
 .headerContent p {
-  color: rgba(255, 255, 255, 0.8);
   margin: 0;
   font-size: 1.1rem;
 }
@@ -79,7 +92,6 @@
 .noUsers {
   text-align: center;
   padding: 40px;
-  color: rgba(255, 255, 255, 0.8);
   font-size: 1.1rem;
 }
 
@@ -89,7 +101,6 @@
 }
 
 .userCard {
-  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 15px;

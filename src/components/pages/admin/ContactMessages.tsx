@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import styles from '@/styles/pages/admin/contactMessages.module.css';
 import CustomConfirmation from '@/components/common/CustomConfirmation';
+import {useSession} from "next-auth/react";
+import clsx from 'clsx';
 
 interface ContactMessage {
   id: number;
@@ -34,6 +36,11 @@ export default function ContactMessages() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'subject'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const { data: session } = useSession();
+  const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
+  //Colour Mode Editing
+  const textColour = theme === "light" ? styles.lightTextColour : styles.darkTextColour;
+  const backgroundColour = theme === "light" ? styles.lightBackground : styles.darkBackground;
   
   // Custom confirmation states
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -48,6 +55,19 @@ export default function ContactMessages() {
   useEffect(() => {
     fetchContactMessages();
   }, [statusFilter]);
+
+  useEffect(() => {
+    if (!session) return;
+    fetch("/api/users/theme")
+        .then(res => res.json())
+        .then(data => {
+          if (data.theme) {
+            setTheme(data.theme.theme);
+          } else {
+            setTheme("auto");
+          }
+        });
+  }, [session]);
 
   const fetchContactMessages = async () => {
     try {
@@ -426,7 +446,7 @@ export default function ContactMessages() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
+      <div className={clsx(styles.header, backgroundColour)}>
         <div className={styles.headerTop}>
           <h2>Contact Messages</h2>
           <div className={styles.messageStats}>
@@ -525,7 +545,7 @@ export default function ContactMessages() {
             const isExpanded = expandedConversations.has(conversationId);
             
             return (
-              <div key={conversationId} className={styles.conversationCard}>
+              <div key={conversationId} className={clsx(styles.conversationCard, backgroundColour)}>
                 <div className={styles.conversationHeader} onClick={() => toggleConversation(conversationId)}>
                   <div className={styles.conversationInfo}>
                     <h3>{firstMessage.subject}</h3>

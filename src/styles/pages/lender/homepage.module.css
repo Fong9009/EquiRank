@@ -7,19 +7,42 @@
     font-family: 'MyCustomFont', sans-serif;
 }
 
-.homePage {
+.lightLenderHomePage,
+.darkLenderHomePage {
     min-height: 100vh;
+}
+
+.lightLenderHomePage {
+    background-color: #eae9e9;
+}
+.darkLenderHomePage {
     background: #101010;
 }
 
-.title {
+.lightLenderTitle,
+.darkLenderTitle {
     padding-top: 20px;
     padding-left: 50px;
     font-size: 40px;
     font-family: 'MyCustomFont';
 }
-.divider {
+
+.lightLenderTitle {
+    color: black;
+}
+
+.darkLenderTitle {
+    color: white;
+}
+
+.lightDivider {
     width: 98%;
+    color: black;
+}
+
+.darkDivider {
+    width: 98%;
+    color: white;
 }
 
 .dividerContainer {

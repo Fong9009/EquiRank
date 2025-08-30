@@ -8,11 +8,14 @@ import { Users, Mail, Archive, UserCheck } from "lucide-react";
 
 export default function AdminHomePage() {
     const { data: session } = useSession();
+    const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
 
     const [userCount, setUserCount] = useState(0);
     const [contactCount, setContactCount] = useState(0);
     const [archiveCount, setArchiveCount] = useState(0);
     const [approvalCount, setApprovalCount] = useState(0);
+    const windowBackground = theme === "light" ? styles.lightAdminHomePage : styles.darkAdminHomePage;
+    const adminTitleText = theme === "light" ? styles.lightAdminTitle : styles.darkAdminTitle;
 
     useEffect(() => {
         const load = async () => {
@@ -37,10 +40,23 @@ export default function AdminHomePage() {
         load();
     }, []);
 
+    useEffect(() => {
+        if (!session) return;
+        fetch("/api/users/theme")
+            .then(res => res.json())
+            .then(data => {
+                if (data.theme) {
+                    setTheme(data.theme.theme);
+                } else {
+                    setTheme("auto");
+                }
+            });
+    }, [session]);
+
     return(
-        <div className={styles.adminHomePage}>
+        <div className={windowBackground}>
             <Ribbon username={session?.user?.name || "User"} imageUrl={'/images/mountain.jpg'} quote={'"Patience and vigilance pay both in servers and stocks"'}/>
-            <h1 className={styles.adminTitle}>Dashboard</h1>
+            <h1 className={adminTitleText}>Dashboard</h1>
             <h1 className={styles.adminSubTitle}>Here is today's report and statistics</h1>
             <div className={styles.cardContainer}>
                 <MetricCard title={"Total Users"} value={userCount} icon={<Users size={110}/>}/>

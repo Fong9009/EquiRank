@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import styles from '@/styles/pages/admin/fileCleanup.module.css';
+import {useSession} from "next-auth/react";
 
 interface CleanupStats {
     totalFiles: number;
@@ -24,10 +25,16 @@ interface CleanupResult {
 }
 
 export default function FileCleanup() {
+    const { data: session } = useSession();
     const [stats, setStats] = useState<CleanupStats | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isCleaning, setIsCleaning] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+    const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
+
+    //Colour Mode Editing
+    const textColour = theme === "light" ? styles.lightTextColour : styles.darkTextColour;
+    const backgroundColour = theme === "light" ? styles.lightBackground : styles.darkBackground;
 
     // Fetch cleanup statistics
     const fetchStats = async () => {
@@ -97,6 +104,19 @@ export default function FileCleanup() {
     useEffect(() => {
         fetchStats();
     }, []);
+
+    useEffect(() => {
+        if (!session) return;
+        fetch("/api/users/theme")
+            .then(res => res.json())
+            .then(data => {
+                if (data.theme) {
+                    setTheme(data.theme.theme);
+                } else {
+                    setTheme("auto");
+                }
+            });
+    }, [session]);
 
     const formatBytes = (bytes: number): string => {
         if (bytes === 0) return '0 Bytes';

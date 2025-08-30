@@ -1,9 +1,12 @@
 'use client';
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import PasswordInput from '@/components/common/PasswordInput';
 import styles from '@/styles/pages/admin/addAdmin.module.css';
+import clsx from 'clsx';
+import {useSession} from "next-auth/react";
 
 export default function AddAdmin() {
+  const { data: session } = useSession();
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -14,6 +17,25 @@ export default function AddAdmin() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
+  //Colour Mode Editing
+  const textColour = theme === "light" ? styles.lightTextColour : styles.darkTextColour;
+  const backgroundColour = theme === "light" ? styles.lightBackground : styles.darkBackground;
+
+
+
+  useEffect(() => {
+    if (!session) return;
+    fetch("/api/users/theme")
+        .then(res => res.json())
+        .then(data => {
+          if (data.theme) {
+            setTheme(data.theme.theme);
+          } else {
+            setTheme("auto");
+          }
+        });
+  }, [session]);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -75,7 +97,7 @@ export default function AddAdmin() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.card}>
+      <div className={clsx(styles.card, backgroundColour)}>
         <div className={styles.header}>
           <h2>Add Admin</h2>
           <p>Create a new admin account. Only Super Admins can perform this action.</p>

@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import styles from '@/styles/pages/admin/approvalDashboard.module.css';
 import CustomConfirmation from '@/components/common/CustomConfirmation';
+import clsx from 'clsx';
+import {useSession} from "next-auth/react";
 
 interface User {
   id: number;
@@ -18,6 +20,7 @@ interface User {
 }
 
 export default function ApprovalDashboard() {
+  const { data: session } = useSession();
   const [pendingUsers, setPendingUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -31,10 +34,27 @@ export default function ApprovalDashboard() {
     message: string;
     title: string;
   } | null>(null);
+  const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
+  //Colour Mode Editing
+  const textColour = theme === "light" ? styles.lightTextColour : styles.darkTextColour;
+  const backgroundColour = theme === "light" ? styles.lightBackground : styles.darkBackground;
 
   useEffect(() => {
     fetchPendingUsers();
   }, []);
+
+  useEffect(() => {
+    if (!session) return;
+    fetch("/api/users/theme")
+        .then(res => res.json())
+        .then(data => {
+          if (data.theme) {
+            setTheme(data.theme.theme);
+          } else {
+            setTheme("auto");
+          }
+        });
+  }, [session]);
 
   const fetchPendingUsers = async () => {
     try {
@@ -167,7 +187,7 @@ export default function ApprovalDashboard() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <div className={styles.headerContent}>
+        <div className={clsx(styles.headerContent, textColour)}>
           <div>
             <h2>User Approval Dashboard</h2>
             <p>Review and approve new user registrations</p>
@@ -182,13 +202,13 @@ export default function ApprovalDashboard() {
       )}
 
       {pendingUsers.length === 0 ? (
-        <div className={styles.noUsers}>
+        <div className={clsx(styles.noUsers, textColour)}>
           <p>No users pending approval</p>
         </div>
       ) : (
         <div className={styles.userList}>
           {pendingUsers.map((user) => (
-            <div key={user.id} className={styles.userCard}>
+            <div key={user.id} className={clsx(styles.userCard, backgroundColour)}>
               <div className={styles.userInfo}>
                 <h3>{user.first_name} {user.last_name}</h3>
                 <p><strong>Email:</strong> {user.email}</p>

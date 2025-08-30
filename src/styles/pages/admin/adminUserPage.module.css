@@ -7,6 +7,18 @@
     font-family: 'MyCustomFont', sans-serif;
 }
 
+.lightBackground,
+.darkBackground {
+    min-height: 120vh;
+}
+
+.lightBackground {
+    background-color: #eae9e9;
+}
+
+.darkBackground {
+    background: #101010;
+}
 .adminUserPage {
     min-height: 120vh;
     background: #101010;
@@ -17,6 +29,14 @@
     padding-left: 50px;
     font-size: 40px;
     font-family: 'MyCustomFont';
+}
+
+.lightText {
+    color: black;
+}
+
+.darkText {
+    color: white;
 }
 
 .divider {
@@ -55,7 +75,7 @@
     gap: 20px;
     margin-bottom: 30px;
     padding: 20px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgb(23, 23, 23);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 15px;
