@@ -1,6 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
 import styles from '@/styles/pages/admin/fileCleanup.module.css';
+import {useSession} from "next-auth/react";
+import clsx from "clsx";
 
 interface CleanupStats {
     totalFiles: number;
@@ -24,10 +26,17 @@ interface CleanupResult {
 }
 
 export default function FileCleanup() {
+    const { data: session } = useSession();
     const [stats, setStats] = useState<CleanupStats | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isCleaning, setIsCleaning] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+    const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
+
+    //Colour Mode Editing
+    const textColour = theme === "light" ? styles.lightTextColour : styles.darkTextColour;
+    const backgroundColour = theme === "light" ? styles.lightBackground : styles.darkBackground;
+    const containerColour = theme === "light" ? styles.lightContainer : styles.darkContainer;
 
     // Fetch cleanup statistics
     const fetchStats = async () => {
@@ -98,6 +107,19 @@ export default function FileCleanup() {
         fetchStats();
     }, []);
 
+    useEffect(() => {
+        if (!session) return;
+        fetch("/api/users/theme")
+            .then(res => res.json())
+            .then(data => {
+                if (data.theme) {
+                    setTheme(data.theme.theme);
+                } else {
+                    setTheme("auto");
+                }
+            });
+    }, [session]);
+
     const formatBytes = (bytes: number): string => {
         if (bytes === 0) return '0 Bytes';
         const k = 1024;
@@ -115,7 +137,8 @@ export default function FileCleanup() {
     }
 
     return (
-        <div className={styles.container}>
+        <div className={backgroundColour}>
+        <div className={clsx(styles.container)}>
             <div className={styles.header}>
                 <h2>File Cleanup Management</h2>
                 <p>Manage orphaned profile picture files and free up storage space</p>
@@ -128,7 +151,7 @@ export default function FileCleanup() {
             )}
 
             {stats && (
-                <div className={styles.statsContainer}>
+                <div className={clsx(styles.statsContainer, containerColour)}>
                     <div className={styles.statsGrid}>
                         <div className={styles.statCard}>
                             <div className={styles.statValue}>{stats.totalFiles}</div>
@@ -204,7 +227,7 @@ export default function FileCleanup() {
                 </div>
             )}
 
-            <div className={styles.helpSection}>
+            <div className={clsx(styles.helpSection, containerColour)}>
                 <h3>How It Works</h3>
                 <div className={styles.helpGrid}>
                     <div className={styles.helpItem}>
@@ -232,6 +255,7 @@ export default function FileCleanup() {
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     );
 }

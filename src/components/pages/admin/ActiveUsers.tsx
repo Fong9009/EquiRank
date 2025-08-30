@@ -5,6 +5,7 @@ import styles from '@/styles/pages/admin/adminActiveUser.module.css';
 import { useSession } from "next-auth/react";
 import ProfilePictureUpload from '@/components/common/ProfilePictureUpload';
 import CustomConfirmation from '@/components/common/CustomConfirmation';
+import clsx from 'clsx';
 
 interface User {
     id: number;
@@ -45,7 +46,7 @@ export default function ActiveUsers() {
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
     const [email, setEmail] = useState<string>('');
     const [emailError, setEmailError] = useState<string | null>(null);
-    const { data: session } = useSession()
+    const { data: session } = useSession();
     const isSuperAdmin = Boolean((session?.user as any)?.isSuperAdmin);
     const [showEditModal, setShowEditModal] = useState<number | null>(null);
     const [showViewModal, setShowViewModal] = useState<number | null>(null);
@@ -57,7 +58,13 @@ export default function ActiveUsers() {
         last_name: '',
         address: '',
     });
-    
+    const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
+
+    //Colour Mode Editing
+    const textColour = theme === "light" ? styles.lightTextColour : styles.darkTextColour;
+    const backgroundColour = theme === "light" ? styles.lightBackground : styles.darkBackground;
+    const loadColor = theme === "light" ? styles.lightLoadColour : styles.darkLoadColour;
+
     // State for dropdown sections
     const [expandedSections, setExpandedSections] = useState({
         borrowers: true,
@@ -179,6 +186,18 @@ export default function ActiveUsers() {
         return () => clearTimeout(handler);
     }, [email, showEditModal]);
 
+    useEffect(() => {
+        if (!session) return;
+        fetch("/api/users/theme")
+            .then(res => res.json())
+            .then(data => {
+                if (data.theme) {
+                    setTheme(data.theme.theme);
+                } else {
+                    setTheme("auto");
+                }
+            });
+    }, [session]);
 
     // Search and filter functions
     const filterAndSortUsers = (users: User[]) => {
@@ -413,7 +432,7 @@ export default function ActiveUsers() {
     if (loading) {
         return (
             <div className={styles.container}>
-                <div className={styles.loading}>Loading Active Users...</div>
+                <div className={loadColor}>Loading Active Users...</div>
             </div>
         );
     }
@@ -461,8 +480,8 @@ export default function ActiveUsers() {
             <div className={styles.header}>
                 <div className={styles.headerContent}>
                     <div>
-                        <h2>Active Users</h2>
-                        <p>Manage Active Users who use your system</p>
+                        <h2 className={textColour}>Active Users</h2>
+                        <p className={textColour}>Manage Active Users who use your system</p>
                     </div>
                 </div>
             </div>
@@ -520,7 +539,7 @@ export default function ActiveUsers() {
 
             <div className={styles.contentWrapper}>
 
-            <div className={styles.sectionHeader} onClick={() => toggleSection('borrowers')}>
+            <div className={clsx(styles.sectionHeader, backgroundColour)} onClick={() => toggleSection('borrowers')}>
                 <h2 className={styles.sectionTitleBorrower}>Borrowers ({borrowers.length})</h2>
                 <span className={`${styles.dropdownArrow} ${expandedSections.borrowers ? styles.expanded : ''}`}>
                     ▼
@@ -528,7 +547,7 @@ export default function ActiveUsers() {
             </div>
             <div className={`${styles.userListContainer} ${expandedSections.borrowers ? styles.expanded : styles.collapsed}`}>
                 {borrowers.length === 0 ? (
-                    <div className={styles.noUsers}>
+                    <div className={clsx(styles.noUsers, textColour)}>
                         <p>No Active Borrowers</p>
                     </div>
                 ) : (
@@ -536,7 +555,7 @@ export default function ActiveUsers() {
                         {filteredBorrowers.map((user) => {
                             const isSelf = String(user.id) === String(session?.user?.id);
                             return (
-                            <div key={user.id} className={`${styles.userCard} ${styles.borrowerCard}`}>
+                            <div key={user.id} className={`${clsx(styles.userCard,backgroundColour)} ${styles.borrowerCard}`}>
                                 <div className={styles.userInfo}>
                                     <div className={styles.userHeader}>
                                         {user.profile_picture && (
@@ -598,7 +617,7 @@ export default function ActiveUsers() {
                 )}
             </div>
 
-            <div className={styles.sectionHeader} onClick={() => toggleSection('lenders')}>
+            <div className={clsx(styles.sectionHeader, backgroundColour)} onClick={() => toggleSection('lenders')}>
                 <h2 className={styles.sectionTitleLender}>Lenders ({lenders.length})</h2>
                 <span className={`${styles.dropdownArrow} ${expandedSections.lenders ? styles.expanded : ''}`}>
                     ▼
@@ -606,7 +625,7 @@ export default function ActiveUsers() {
             </div>
             <div className={`${styles.userListContainer} ${expandedSections.lenders ? styles.expanded : styles.collapsed}`}>
                 {lenders.length === 0 ? (
-                    <div className={styles.noUsers}>
+                    <div className={clsx(styles.noUsers, textColour)}>
                         <p>No Active Lenders</p>
                     </div>
                 ) : (
@@ -614,7 +633,7 @@ export default function ActiveUsers() {
                         {filteredLenders.map((user) => {
                             const isSelf = String(user.id) === String(session?.user?.id);
                             return (
-                            <div key={user.id} className={`${styles.userCard} ${styles.lenderCard}`}>
+                            <div key={user.id} className={`${clsx(styles.userCard, backgroundColour)} ${styles.lenderCard}`}>
                                 <div className={styles.userInfo}>
                                     <div className={styles.userHeader}>
                                         {user.profile_picture && (
@@ -676,7 +695,7 @@ export default function ActiveUsers() {
                 )}
             </div>
 
-            <div className={styles.sectionHeader} onClick={() => toggleSection('admins')}>
+            <div className={clsx(styles.sectionHeader, backgroundColour)} onClick={() => toggleSection('admins')}>
                 <h2 className={styles.sectionTitleAdmin}>Admins ({adminUsers.length})</h2>
                 <span className={`${styles.dropdownArrow} ${expandedSections.admins ? styles.expanded : ''}`}>
                     ▼
@@ -684,7 +703,7 @@ export default function ActiveUsers() {
             </div>
             <div className={`${styles.userListContainer} ${expandedSections.admins ? styles.expanded : styles.collapsed}`}>
                 {adminUsers.length === 0 ? (
-                    <div className={styles.noUsers}>
+                    <div className={clsx(styles.noUsers, textColour)}>
                         <p>No Active Admins</p>
                     </div>
                 ) : (
@@ -694,7 +713,7 @@ export default function ActiveUsers() {
                             const targetIsSuper = Boolean(user.is_super_admin);
                             const canArchive = isSuperAdmin && !isSelf && !targetIsSuper; // only super admin can archive admins (not super admin) and not self
                             return (
-                            <div key={user.id} className={`${styles.userCard} ${styles.adminCard}`}>
+                            <div key={user.id} className={`${clsx(styles.userCard, backgroundColour)} ${styles.adminCard}`}>
                                 <div className={styles.userInfo}>
                                     <div className={styles.userHeader}>
                                         {user.profile_picture && (
@@ -763,7 +782,7 @@ export default function ActiveUsers() {
                 )}
             </div>
 
-            <div className={styles.sectionHeader} onClick={() => toggleSection('superAdmins')}>
+            <div className={clsx(styles.sectionHeader, backgroundColour)} onClick={() => toggleSection('superAdmins')}>
                 <h2 className={styles.sectionTitleSuper}>Super Admin ({superAdmins.length})</h2>
                 <span className={`${styles.dropdownArrow} ${expandedSections.superAdmins ? styles.expanded : ''}`}>
                     ▼
@@ -771,7 +790,7 @@ export default function ActiveUsers() {
             </div>
             <div className={`${styles.userListContainer} ${expandedSections.superAdmins ? styles.expanded : styles.collapsed}`}>
                 {superAdmins.length === 0 ? (
-                    <div className={styles.noUsers}>
+                    <div className={clsx(styles.noUsers, textColour)}>
                         <p>No Super Admins Found</p>
                     </div>
                 ) : (
@@ -779,7 +798,7 @@ export default function ActiveUsers() {
                         {filteredSuperAdmins.map((user) => {
                             const isSelf = String(user.id) === String(session?.user?.id);
                             return (
-                            <div key={user.id} className={`${styles.userCard} ${styles.superAdminCard}`}>
+                            <div key={user.id} className={`${clsx(styles.userCard, backgroundColour)} ${styles.superAdminCard}`}>
                                 <div className={styles.userInfo}>
                                     <div className={styles.userHeader}>
                                         {user.profile_picture && (

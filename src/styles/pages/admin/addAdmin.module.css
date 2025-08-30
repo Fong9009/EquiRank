@@ -10,11 +10,26 @@
 }
 
 .card {
-  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 15px;
   padding: 25px;
+}
+
+.lightTextColour {
+  color: black;
+}
+
+.darkTextColour {
+  color: white;
+}
+
+.lightBackground {
+  background: rgb(23, 23, 23);
+}
+
+.darkBackground {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .header h2 {

@@ -10,13 +10,28 @@
   color: #ffffff;
 }
 
+.lightBackground {
+  background: rgb(28,28,28);
+}
+
+.darkBackground {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.lightTextColour{
+  color: black;
+}
+.darkTextColour{
+  color: white;
+}
+
+
 .header {
   display: flex;
   flex-direction: column;
   gap: 20px;
   margin-bottom: 30px;
   padding: 20px;
-  background: inherit;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 15px;
@@ -226,7 +241,6 @@
 
 /* Conversation Card Styles */
 .conversationCard {
-  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 15px;

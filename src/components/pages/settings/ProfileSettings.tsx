@@ -44,6 +44,11 @@ export default function ProfileSettings() {
         theme: 'light'
     });
 
+    const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
+    const windowBackground = theme === "light" ? styles.lightPage : styles.darkPage;
+    const titleText = theme === "light" ? styles.lightText : styles.darkText;
+
+
     // Fetch user profile data
     const fetchUserProfile = async () => {
         try {
@@ -93,6 +98,19 @@ export default function ProfileSettings() {
             fetchUserProfile();
             fetchUserDisplaySettings();
         }
+    }, [session]);
+
+    useEffect(() => {
+        if (!session) return;
+        fetch("/api/users/theme")
+            .then(res => res.json())
+            .then(data => {
+                if (data.theme) {
+                    setTheme(data.theme.theme);
+                } else {
+                    setTheme("auto");
+                }
+            });
     }, [session]);
 
     //Fetch the Theme
@@ -201,194 +219,196 @@ export default function ProfileSettings() {
     }
 
     return (
-        <div className={styles.profileSettingsContainer}>
-            <h1 className={styles.title}>Profile Settings</h1>
-            
-            {message && (
-                <div className={`${styles.message} ${styles[message.type]}`}>
-                    {message.text}
-                </div>
-            )}
+        <div className={windowBackground}>
+            <div className={styles.profileSettingsContainer}>
+                <h1 className={styles.title}>Profile Settings</h1>
 
-            <div className={styles.tabContainer}>
-                <button
-                    className={`${styles.tabButton} ${activeTab === 'profile' ? styles.active : ''}`}
-                    onClick={() => setActiveTab('profile')}
-                >
-                    Profile Information
-                </button>
-                <button
-                    className={`${styles.tabButton} ${activeTab === 'display' ? styles.active : ''}`}
-                    onClick={() => setActiveTab('display')}
-                >
-                    Display Options
-                </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className={styles.form}>
-                {activeTab === 'display' && (
-                    <div className={styles.tabContent}>
-                        <div className={styles.section}>
-                            <h3>Display Information</h3>
-                            <div className={styles.formRow}>
-                                <input
-                                    type="radio"
-                                    id="theme-light"
-                                    name="theme"
-                                    value="light"
-                                    checked={displayData.theme === 'light'}
-                                    onChange={(e) => handleDisplayChange('theme', e.target.value)}
-                                    className={styles.radioInput}
-                                />
-                                <label htmlFor="theme-light" className={styles.radioLabel}>
-                                    <Sun size={18} style={{ marginRight: '6px', color: '#f6c23e' }} />
-                                    Light Mode
-                                </label>
-                                <input
-                                    type="radio"
-                                    id="theme-dark"
-                                    name="theme"
-                                    value="dark"
-                                    checked={displayData.theme === 'dark'}
-                                    onChange={(e) => handleDisplayChange('theme', e.target.value)}
-                                    className={styles.radioInput}
-                                />
-                                <label htmlFor="theme-dark" className={styles.radioLabel}>
-                                    <Moon size={18} style={{ marginRight: '6px', color: '#6c63ff' }} />
-                                    Dark Mode
-                                </label>
-                            </div>
-                        </div>
+                {message && (
+                    <div className={`${styles.message} ${styles[message.type]}`}>
+                        {message.text}
                     </div>
                 )}
 
-                {activeTab === 'profile' && (
-                    <div className={styles.tabContent}>
-                        <div className={styles.section}>
-                            <h3>Basic Information</h3>
-                            <div className={styles.formRow}>
-                                <div className={styles.formGroup}>
-                                    <label htmlFor="first_name">First Name</label>
-                                    <input
-                                        type="text"
-                                        id="first_name"
-                                        value={profileData.first_name}
-                                        onChange={(e) => handleProfileChange('first_name', e.target.value)}
-                                        className={styles.input}
-                                        required
-                                    />
-                                </div>
-                                <div className={styles.formGroup}>
-                                    <label htmlFor="last_name">Last Name</label>
-                                    <input
-                                        type="text"
-                                        id="last_name"
-                                        value={profileData.last_name}
-                                        onChange={(e) => handleProfileChange('last_name', e.target.value)}
-                                        className={styles.input}
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div className={styles.formGroup}>
-                                <label htmlFor="company">Company/Organization</label>
-                                <input
-                                    type="text"
-                                    id="company"
-                                    value={profileData.company}
-                                    onChange={(e) => handleProfileChange('company', e.target.value)}
-                                    className={styles.input}
-                                />
-                            </div>
-
-                            <div className={styles.formGroup}>
-                                <label htmlFor="phone">Phone Number</label>
-                                <input
-                                    type="tel"
-                                    id="phone"
-                                    value={profileData.phone}
-                                    onChange={(e) => handleProfileChange('phone', e.target.value)}
-                                    className={styles.input}
-                                />
-                            </div>
-
-                            <div className={styles.formGroup}>
-                                <label htmlFor="address">Address</label>
-                                <textarea
-                                    id="address"
-                                    value={profileData.address}
-                                    onChange={(e) => handleProfileChange('address', e.target.value)}
-                                    className={styles.textarea}
-                                    rows={3}
-                                />
-                            </div>
-                        </div>
-
-                        <div className={styles.section}>
-                            <h3>Profile Picture</h3>
-                            <ProfilePictureUpload
-                                currentImageUrl={profileData.profile_picture}
-                                onImageUpload={(imageUrl) => handleProfileChange('profile_picture', imageUrl)}
-                                size="large"
-                                className={styles.profilePictureUpload}
-                                userName={`${profileData.first_name} ${profileData.last_name}`}
-                            />
-                        </div>
-
-                        <div className={styles.section}>
-                            <h3>Bio & Social Links</h3>
-                            <div className={styles.formGroup}>
-                                <label htmlFor="bio">Bio</label>
-                                <textarea
-                                    id="bio"
-                                    value={profileData.bio}
-                                    onChange={(e) => handleProfileChange('bio', e.target.value)}
-                                    className={styles.textarea}
-                                    rows={4}
-                                    placeholder="Tell us about yourself..."
-                                />
-                            </div>
-
-                            <div className={styles.formGroup}>
-                                <label htmlFor="website">Website</label>
-                                <input
-                                    type="url"
-                                    id="website"
-                                    value={profileData.website}
-                                    onChange={(e) => handleProfileChange('website', e.target.value)}
-                                    className={styles.input}
-                                    placeholder="https://yourwebsite.com"
-                                />
-                            </div>
-
-                            <div className={styles.formRow}>
-                                <div className={styles.formGroup}>
-                                    <label htmlFor="linkedin">LinkedIn</label>
-                                    <input
-                                        type="url"
-                                        id="linkedin"
-                                        value={profileData.linkedin}
-                                        onChange={(e) => handleProfileChange('linkedin', e.target.value)}
-                                        className={styles.input}
-                                        placeholder="https://linkedin.com/in/username"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                <div className={styles.formActions}>
+                <div className={styles.tabContainer}>
                     <button
-                        type="submit"
-                        disabled={isLoading}
-                        className={styles.submitButton}
+                        className={`${styles.tabButton} ${activeTab === 'profile' ? styles.active : ''}`}
+                        onClick={() => setActiveTab('profile')}
                     >
-                        {isLoading ? 'Saving...' : 'Save Changes'}
+                        Profile Information
+                    </button>
+                    <button
+                        className={`${styles.tabButton} ${activeTab === 'display' ? styles.active : ''}`}
+                        onClick={() => setActiveTab('display')}
+                    >
+                        Display Options
                     </button>
                 </div>
-            </form>
+
+                <form onSubmit={handleSubmit} className={styles.form}>
+                    {activeTab === 'display' && (
+                        <div className={styles.tabContent}>
+                            <div className={styles.section}>
+                                <h3>Display Information</h3>
+                                <div className={styles.formRow}>
+                                    <input
+                                        type="radio"
+                                        id="theme-light"
+                                        name="theme"
+                                        value="light"
+                                        checked={displayData.theme === 'light'}
+                                        onChange={(e) => handleDisplayChange('theme', e.target.value)}
+                                        className={styles.radioInput}
+                                    />
+                                    <label htmlFor="theme-light" className={styles.radioLabel}>
+                                        <Sun size={18} style={{ marginRight: '6px', color: '#f6c23e' }} />
+                                        Light Mode
+                                    </label>
+                                    <input
+                                        type="radio"
+                                        id="theme-dark"
+                                        name="theme"
+                                        value="dark"
+                                        checked={displayData.theme === 'dark'}
+                                        onChange={(e) => handleDisplayChange('theme', e.target.value)}
+                                        className={styles.radioInput}
+                                    />
+                                    <label htmlFor="theme-dark" className={styles.radioLabel}>
+                                        <Moon size={18} style={{ marginRight: '6px', color: '#6c63ff' }} />
+                                        Dark Mode
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'profile' && (
+                        <div className={styles.tabContent}>
+                            <div className={styles.section}>
+                                <h3>Basic Information</h3>
+                                <div className={styles.formRow}>
+                                    <div className={styles.formGroup}>
+                                        <label htmlFor="first_name">First Name</label>
+                                        <input
+                                            type="text"
+                                            id="first_name"
+                                            value={profileData.first_name}
+                                            onChange={(e) => handleProfileChange('first_name', e.target.value)}
+                                            className={styles.input}
+                                            required
+                                        />
+                                    </div>
+                                    <div className={styles.formGroup}>
+                                        <label htmlFor="last_name">Last Name</label>
+                                        <input
+                                            type="text"
+                                            id="last_name"
+                                            value={profileData.last_name}
+                                            onChange={(e) => handleProfileChange('last_name', e.target.value)}
+                                            className={styles.input}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className={styles.formGroup}>
+                                    <label htmlFor="company">Company/Organization</label>
+                                    <input
+                                        type="text"
+                                        id="company"
+                                        value={profileData.company}
+                                        onChange={(e) => handleProfileChange('company', e.target.value)}
+                                        className={styles.input}
+                                    />
+                                </div>
+
+                                <div className={styles.formGroup}>
+                                    <label htmlFor="phone">Phone Number</label>
+                                    <input
+                                        type="tel"
+                                        id="phone"
+                                        value={profileData.phone}
+                                        onChange={(e) => handleProfileChange('phone', e.target.value)}
+                                        className={styles.input}
+                                    />
+                                </div>
+
+                                <div className={styles.formGroup}>
+                                    <label htmlFor="address">Address</label>
+                                    <textarea
+                                        id="address"
+                                        value={profileData.address}
+                                        onChange={(e) => handleProfileChange('address', e.target.value)}
+                                        className={styles.textarea}
+                                        rows={3}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className={styles.section}>
+                                <h3>Profile Picture</h3>
+                                <ProfilePictureUpload
+                                    currentImageUrl={profileData.profile_picture}
+                                    onImageUpload={(imageUrl) => handleProfileChange('profile_picture', imageUrl)}
+                                    size="large"
+                                    className={styles.profilePictureUpload}
+                                    userName={`${profileData.first_name} ${profileData.last_name}`}
+                                />
+                            </div>
+
+                            <div className={styles.section}>
+                                <h3>Bio & Social Links</h3>
+                                <div className={styles.formGroup}>
+                                    <label htmlFor="bio">Bio</label>
+                                    <textarea
+                                        id="bio"
+                                        value={profileData.bio}
+                                        onChange={(e) => handleProfileChange('bio', e.target.value)}
+                                        className={styles.textarea}
+                                        rows={4}
+                                        placeholder="Tell us about yourself..."
+                                    />
+                                </div>
+
+                                <div className={styles.formGroup}>
+                                    <label htmlFor="website">Website</label>
+                                    <input
+                                        type="url"
+                                        id="website"
+                                        value={profileData.website}
+                                        onChange={(e) => handleProfileChange('website', e.target.value)}
+                                        className={styles.input}
+                                        placeholder="https://yourwebsite.com"
+                                    />
+                                </div>
+
+                                <div className={styles.formRow}>
+                                    <div className={styles.formGroup}>
+                                        <label htmlFor="linkedin">LinkedIn</label>
+                                        <input
+                                            type="url"
+                                            id="linkedin"
+                                            value={profileData.linkedin}
+                                            onChange={(e) => handleProfileChange('linkedin', e.target.value)}
+                                            className={styles.input}
+                                            placeholder="https://linkedin.com/in/username"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className={styles.formActions}>
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className={styles.submitButton}
+                        >
+                            {isLoading ? 'Saving...' : 'Save Changes'}
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 }

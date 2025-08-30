@@ -6,11 +6,17 @@ import { useEffect, useState } from 'react';
 import ContactMessages from '@/components/pages/admin/ContactMessages';
 import ArchivedMessages from '@/components/pages/admin/ArchivedMessages';
 import styles from '@/styles/pages/admin/adminPage.module.css';
+import clsx from 'clsx';
 
 export default function AdminFrontPage() {
     const { data: session, status } = useSession();
     const [activeTab, setActiveTab] = useState<'messages' | 'archived'>('messages');
     const router = useRouter();
+    const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
+    //Colour Mode Editing
+    const textColour = theme === "light" ? styles.lightTextColour : styles.darkTextColour;
+    const backgroundColour = theme === "light" ? styles.lightBackground : styles.darkBackground;
+    const pageColour = theme === "light" ? styles.lightPage : styles.darkPage
 
     useEffect(() => {
         if (status === 'loading') return;
@@ -20,6 +26,19 @@ export default function AdminFrontPage() {
             return;
         }
     }, [session, status, router]);
+
+    useEffect(() => {
+        if (!session) return;
+        fetch("/api/users/theme")
+            .then(res => res.json())
+            .then(data => {
+                if (data.theme) {
+                    setTheme(data.theme.theme);
+                } else {
+                    setTheme("auto");
+                }
+            });
+    }, [session]);
 
     if (status === 'loading') {
         return (
@@ -43,9 +62,9 @@ export default function AdminFrontPage() {
     }
 
     return (
-        <div className={styles.adminPage}>
-            <h1 className={styles.adminTitle}>Manage Contacts</h1>
-            <div className={styles.dividerContainer}><hr className={styles.divider}></hr></div>
+        <div className={clsx(styles.adminPage, pageColour)}>
+            <h1 className={clsx(styles.adminTitle, textColour)}>Manage Contacts</h1>
+            <div className={clsx(styles.dividerContainer, textColour)}><hr className={styles.divider}></hr></div>
             <div className={styles.tabContainer}>
                 <button
                     className={`${styles.tabButton} ${activeTab === 'messages' ? styles.active : ''}`}

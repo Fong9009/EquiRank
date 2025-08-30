@@ -7,19 +7,42 @@
     font-family: 'MyCustomFont', sans-serif;
 }
 
-.homePage {
+.lightBorrowerHomePage,
+.darkBorrowerHomePage {
     min-height: 100vh;
+}
+
+.lightBorrowerHomePage {
+    background-color: #eae9e9;
+}
+.darkBorrowerHomePage {
     background: #101010;
 }
 
-.title {
+.lightBorrowerTitle,
+.darkBorrowerTitle {
     padding-top: 20px;
     padding-left: 50px;
     font-size: 40px;
     font-family: 'MyCustomFont';
 }
-.divider {
+
+.lightBorrowerTitle {
+    color: black;
+}
+
+.darkBorrowerTitle {
+    color: white;
+}
+
+.lightDivider {
     width: 98%;
+    color: black;
+}
+
+.darkDivider {
+    width: 98%;
+    color: white;
 }
 
 .dividerContainer {
