@@ -4,6 +4,29 @@
     margin: 0 auto;
 }
 
+.lightBackground {
+    background-color: #eae9e9;
+}
+
+.darkBackground {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.lightContainer {
+    background: rgb(28,28,28);
+}
+
+.darkContainer {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.lightTextColour{
+    color: black;
+}
+.darkTextColour{
+    color: white;
+}
+
 .header {
     text-align: center;
     margin-bottom: 3rem;
@@ -43,7 +66,6 @@
 }
 
 .statsContainer {
-    background: rgba(255, 255, 255, 0.05);
     border-radius: 12px;
     padding: 2rem;
     margin-bottom: 3rem;
@@ -194,7 +216,6 @@
 }
 
 .helpSection {
-    background: rgba(255, 255, 255, 0.02);
     border-radius: 12px;
     padding: 2rem;
     border: 1px solid rgba(255, 255, 255, 0.05);

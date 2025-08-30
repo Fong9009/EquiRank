@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import styles from '@/styles/pages/admin/fileCleanup.module.css';
 import {useSession} from "next-auth/react";
+import clsx from "clsx";
 
 interface CleanupStats {
     totalFiles: number;
@@ -35,6 +36,7 @@ export default function FileCleanup() {
     //Colour Mode Editing
     const textColour = theme === "light" ? styles.lightTextColour : styles.darkTextColour;
     const backgroundColour = theme === "light" ? styles.lightBackground : styles.darkBackground;
+    const containerColour = theme === "light" ? styles.lightContainer : styles.darkContainer;
 
     // Fetch cleanup statistics
     const fetchStats = async () => {
@@ -135,7 +137,8 @@ export default function FileCleanup() {
     }
 
     return (
-        <div className={styles.container}>
+        <div className={backgroundColour}>
+        <div className={clsx(styles.container)}>
             <div className={styles.header}>
                 <h2>File Cleanup Management</h2>
                 <p>Manage orphaned profile picture files and free up storage space</p>
@@ -148,7 +151,7 @@ export default function FileCleanup() {
             )}
 
             {stats && (
-                <div className={styles.statsContainer}>
+                <div className={clsx(styles.statsContainer, containerColour)}>
                     <div className={styles.statsGrid}>
                         <div className={styles.statCard}>
                             <div className={styles.statValue}>{stats.totalFiles}</div>
@@ -224,7 +227,7 @@ export default function FileCleanup() {
                 </div>
             )}
 
-            <div className={styles.helpSection}>
+            <div className={clsx(styles.helpSection, containerColour)}>
                 <h3>How It Works</h3>
                 <div className={styles.helpGrid}>
                     <div className={styles.helpItem}>
@@ -252,6 +255,7 @@ export default function FileCleanup() {
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     );
 }
