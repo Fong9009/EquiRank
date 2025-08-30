@@ -103,6 +103,7 @@ export async function PUT(
     const {
       amount_requested,
       currency,
+      company_description,
       loan_purpose,
       loan_type,
       expires_at
@@ -136,6 +137,7 @@ export async function PUT(
     const updateData = {
       amount_requested: parseFloat(amount_requested),
       currency,
+      company_description,
       loan_purpose,
       loan_type,
       expires_at: expires_at ? new Date(expires_at) : undefined

@@ -52,7 +52,8 @@ export default function Sidebar({ role, activeTab, setActiveTab, isOpen, toggleS
                     items: [
                         { name: 'Manage Users', icon: Users },
                         { name: 'Manage Contact', icon: Phone },
-                        { name: 'loan-requests', icon: FileText }
+                        { name: 'loan-requests', icon: FileText },
+                        { name: 'archived-loan-requests', icon: FileText }
                     ]
                 },
                 {
