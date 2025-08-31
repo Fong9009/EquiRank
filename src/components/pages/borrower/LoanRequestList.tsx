@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import LoanRequestDetailModal from './LoanRequestDetailModal';
 import EditLoanRequestModal from './EditLoanRequestModal';
 import styles from '@/styles/pages/borrower/loanRequestList.module.css';
+import clsx from 'clsx';
 
 interface LoanRequest {
   id: number;
@@ -27,10 +28,30 @@ export default function LoanRequestList() {
   const [selectedRequest, setSelectedRequest] = useState<number | null>(null);
   const [editingRequest, setEditingRequest] = useState<number | null>(null);
 
+  const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
+
+  //Colour Mode Editing
+  const textColour = theme === "light" ? styles.lightTextColour : styles.darkTextColour;
+  const backgroundColour = theme === "light" ? styles.lightBackground : styles.darkBackground;
+  const loadColor = theme === "light" ? styles.lightLoadColour : styles.darkLoadColour;
+
   useEffect(() => {
     if (session?.user) {
       fetchLoanRequests();
     }
+  }, [session]);
+
+  useEffect(() => {
+    if (!session) return;
+    fetch("/api/users/theme")
+        .then(res => res.json())
+        .then(data => {
+          if (data.theme) {
+            setTheme(data.theme.theme);
+          } else {
+            setTheme("auto");
+          }
+        });
   }, [session]);
 
   const fetchLoanRequests = async () => {
@@ -148,134 +169,138 @@ export default function LoanRequestList() {
 
   if (loanRequests.length === 0) {
     return (
-      <div className={styles.emptyState}>
-        <h3>No Loan Requests Yet</h3>
-        <p>You haven't submitted any loan requests yet. Start by creating your first request!</p>
-      </div>
+        <div className={backgroundColour}>
+          <div className={styles.emptyState}>
+            <h3 className={textColour}>No Loan Requests Yet</h3>
+            <p className={textColour}>You haven't submitted any loan requests yet. Start by creating your first request!</p>
+          </div>
+        </div>
     );
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h2 className={styles.title}>My Loan Requests</h2>
-        <p className={styles.subtitle}>Track the status of your funding requests</p>
-      </div>
-
-      {successMessage && (
-        <div className={`${styles.message} ${styles.success}`}>
-          {successMessage}
-        </div>
-      )}
-
-      {error && (
-        <div className={`${styles.message} ${styles.error}`}>
-          {error}
-        </div>
-      )}
-
-      <div className={styles.requestsGrid}>
-        {loanRequests.map((request) => (
-          <div key={request.id} className={styles.requestCard}>
-            <div className={styles.requestHeader}>
-              <div className={styles.amountSection}>
-                <span className={styles.amount}>
-                  {formatCurrency(request.amount_requested, request.currency)}
-                </span>
-                <span className={styles.currency}>{request.currency}</span>
-              </div>
-              <div className={`${styles.status} ${getStatusColor(request.status)}`}>
-                {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-              </div>
-            </div>
-
-            <div className={styles.requestDetails}>
-              <div className={styles.detailRow}>
-                <span className={styles.label}>Type:</span>
-                <span className={styles.value}>
-                  {request.loan_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                </span>
-              </div>
-              
-              <div className={styles.detailRow}>
-                <span className={styles.label}>Purpose:</span>
-                <span className={styles.value}>
-                  {request.loan_purpose.length > 100 
-                    ? `${request.loan_purpose.substring(0, 100)}...` 
-                    : request.loan_purpose
-                  }
-                </span>
-              </div>
-
-              {request.company_description && (
-                <div className={styles.detailRow}>
-                  <span className={styles.label}>Company:</span>
-                  <span className={styles.value}>
-                    {request.company_description.length > 80 
-                      ? `${request.company_description.substring(0, 80)}...` 
-                      : request.company_description
-                    }
-                  </span>
-                </div>
-              )}
-
-              <div className={styles.detailRow}>
-                <span className={styles.label}>Submitted:</span>
-                <span className={styles.value}>{formatDate(request.created_at)}</span>
-              </div>
-
-              {request.expires_at && (
-                <div className={styles.detailRow}>
-                  <span className={styles.label}>Expires:</span>
-                  <span className={styles.value}>{formatDate(request.expires_at)}</span>
-                </div>
-              )}
-            </div>
-
-            <div className={styles.requestActions}>
-              <button 
-                className={styles.viewButton}
-                onClick={() => handleViewDetails(request.id)}
-              >
-                View Details
-              </button>
-              {request.status === 'pending' && (
-                <>
-                  <button 
-                    className={styles.editButton}
-                    onClick={() => handleEditRequest(request.id)}
-                  >
-                    Edit
-                  </button>
-                  <button 
-                    className={styles.deleteButton}
-                    onClick={() => handleDeleteRequest(request.id)}
-                  >
-                    Delete
-                  </button>
-                </>
-              )}
-            </div>
+      <div className={backgroundColour}>
+        <div className={styles.container}>
+          <div className={styles.header}>
+            <h2 className={clsx(styles.title,textColour)}>My Loan Requests</h2>
+            <p className={styles.subtitle}>Track the status of your funding requests</p>
           </div>
-        ))}
+
+          {successMessage && (
+            <div className={`${styles.message} ${styles.success}`}>
+              {successMessage}
+            </div>
+          )}
+
+          {error && (
+            <div className={`${styles.message} ${styles.error}`}>
+              {error}
+            </div>
+          )}
+
+          <div className={styles.requestsGrid}>
+            {loanRequests.map((request) => (
+              <div key={request.id} className={styles.requestCard}>
+                <div className={styles.requestHeader}>
+                  <div className={styles.amountSection}>
+                    <span className={styles.amount}>
+                      {formatCurrency(request.amount_requested, request.currency)}
+                    </span>
+                    <span className={styles.currency}>{request.currency}</span>
+                  </div>
+                  <div className={`${styles.status} ${getStatusColor(request.status)}`}>
+                    {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                  </div>
+                </div>
+
+                <div className={styles.requestDetails}>
+                  <div className={styles.detailRow}>
+                    <span className={styles.label}>Type:</span>
+                    <span className={styles.value}>
+                      {request.loan_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                    </span>
+                  </div>
+
+                  <div className={styles.detailRow}>
+                    <span className={styles.label}>Purpose:</span>
+                    <span className={styles.value}>
+                      {request.loan_purpose.length > 100
+                        ? `${request.loan_purpose.substring(0, 100)}...`
+                        : request.loan_purpose
+                      }
+                    </span>
+                  </div>
+
+                  {request.company_description && (
+                    <div className={styles.detailRow}>
+                      <span className={styles.label}>Company:</span>
+                      <span className={styles.value}>
+                        {request.company_description.length > 80
+                          ? `${request.company_description.substring(0, 80)}...`
+                          : request.company_description
+                        }
+                      </span>
+                    </div>
+                  )}
+
+                  <div className={styles.detailRow}>
+                    <span className={styles.label}>Submitted:</span>
+                    <span className={styles.value}>{formatDate(request.created_at)}</span>
+                  </div>
+
+                  {request.expires_at && (
+                    <div className={styles.detailRow}>
+                      <span className={styles.label}>Expires:</span>
+                      <span className={styles.value}>{formatDate(request.expires_at)}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className={styles.requestActions}>
+                  <button
+                    className={styles.viewButton}
+                    onClick={() => handleViewDetails(request.id)}
+                  >
+                    View Details
+                  </button>
+                  {request.status === 'pending' && (
+                    <>
+                      <button
+                        className={styles.editButton}
+                        onClick={() => handleEditRequest(request.id)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className={styles.deleteButton}
+                        onClick={() => handleDeleteRequest(request.id)}
+                      >
+                        Delete
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* View Details Modal */}
+          {selectedRequest && (
+            <LoanRequestDetailModal
+              requestId={selectedRequest}
+              onClose={() => setSelectedRequest(null)}
+            />
+          )}
+
+          {/* Edit Request Modal */}
+          {editingRequest && (
+            <EditLoanRequestModal
+              requestId={editingRequest}
+              onClose={() => setEditingRequest(null)}
+              onUpdate={handleRequestUpdated}
+            />
+          )}
+        </div>
       </div>
-
-      {/* View Details Modal */}
-      {selectedRequest && (
-        <LoanRequestDetailModal
-          requestId={selectedRequest}
-          onClose={() => setSelectedRequest(null)}
-        />
-      )}
-
-      {/* Edit Request Modal */}
-      {editingRequest && (
-        <EditLoanRequestModal
-          requestId={editingRequest}
-          onClose={() => setEditingRequest(null)}
-          onUpdate={handleRequestUpdated}
-        />
-      )}
-    </div>
   );
 }

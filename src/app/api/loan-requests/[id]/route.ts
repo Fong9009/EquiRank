@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { getLoanRequestById } from '@/database/loanRequest';
+import { getLoanRequestById,deleteLoanRequest, updateLoanRequest } from '@/database/loanRequest';
 
 export async function GET(
   request: NextRequest,
@@ -143,7 +143,6 @@ export async function PUT(
       expires_at: expires_at ? new Date(expires_at) : undefined
     };
 
-    const { updateLoanRequest } = await import('@/database/loanRequest');
     const success = await updateLoanRequest(id, updateData);
     
     if (success) {
@@ -196,7 +195,6 @@ export async function DELETE(
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
-    const { deleteLoanRequest } = await import('@/database/loanRequest');
     const success = await deleteLoanRequest(id);
     
     if (success) {

@@ -201,6 +201,11 @@
   padding-right: 40px;
 }
 
+.select option {
+  background: #1f2123;
+  color: white;
+}
+
 /* Custom date input styling */
 .input[type="date"] {
   position: relative;

@@ -1,4 +1,6 @@
 .container {
+  height: 100%;
+  min-height: 100vh;
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
@@ -9,8 +11,26 @@
   margin-bottom: 2rem;
 }
 
+.lightBackground {
+  background-color: #eae9e9;
+  transition: background 0.5s ease, color 0.5s ease;
+}
+
+.darkBackground {
+  background: #101010;
+}
+
+
+.lightTextColour {
+  color: black;
+}
+
+.darkTextColour {
+  color: white;
+}
+
+
 .title {
-  color: #ffffff;
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
@@ -28,7 +48,7 @@
 }
 
 .requestCard {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgb(48, 49, 51);
   border-radius: 16px;
   padding: 1.5rem;
   backdrop-filter: blur(10px);
@@ -250,13 +270,13 @@
 }
 
 .emptyState {
+  height: 100vh;
   text-align: center;
   color: #a0a0a0;
   padding: 3rem;
 }
 
 .emptyState h3 {
-  color: #ffffff;
   margin-bottom: 0.5rem;
   font-size: 1.5rem;
 }

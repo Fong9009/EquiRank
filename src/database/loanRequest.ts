@@ -222,9 +222,9 @@ export async function updateLoanRequest(id: number, updates: Partial<LoanRequest
   params.push(id);
   
   const query = `UPDATE loan_requests SET ${setFields.join(', ')} WHERE id = ?`;
-  const result = await executeQuery<{ affectedRows: number }>(query, params);
+  const result = await executeSingleQuery(query, params);
   
-  return result[0]?.affectedRows > 0;
+  return result.affectedRows > 0;
 }
 
 /**
@@ -264,9 +264,8 @@ export async function restoreLoanRequest(id: number): Promise<boolean> {
  */
 export async function deleteLoanRequest(id: number): Promise<boolean> {
   const query = 'DELETE FROM loan_requests WHERE id = ?';
-  const result = await executeQuery<{ affectedRows: number }>(query, [id]);
-  
-  return result[0]?.affectedRows > 0;
+  const result = await executeSingleQuery(query, [id]);
+  return result.affectedRows > 0;
 }
 
 /**
