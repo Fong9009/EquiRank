@@ -5,12 +5,29 @@
 }
 
 .formWrapper {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgb(48, 49, 51);
   border-radius: 16px;
   padding: 2rem;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
+
+.lightTextColour{
+  color: black;
+}
+.darkTextColour{
+  color: white;
+}
+
+.lightBackground {
+  background-color: #eae9e9;
+  transition: background 0.5s ease, color 0.5s ease;
+}
+
+.darkBackground {
+  background: rgba(255, 255, 255, 0.08);
+}
+
 
 .title {
   color: #ffffff;
@@ -93,6 +110,11 @@
   background-position: right 12px center;
   background-size: 16px;
   padding-right: 40px; /* Make room for the custom arrow */
+}
+
+.select option {
+  background: #1f2123;
+  color: white;
 }
 
 /* Ensure date input has consistent styling */
