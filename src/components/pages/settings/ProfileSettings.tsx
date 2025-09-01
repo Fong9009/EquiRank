@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import styles from '@/styles/pages/profile/profileSettings.module.css';
 import { Sun, Moon } from 'lucide-react';
 import ProfilePictureUpload from '@/components/common/ProfilePictureUpload';
+import PasswordReset from '@/components/pages/settings/PasswordReset';
 import { profileEvents } from '@/lib/profileEvents';
 
 interface ProfileData {
@@ -39,7 +40,7 @@ export default function ProfileSettings() {
     const [isLoading, setIsLoading] = useState(false);
     const [isFetching, setIsFetching] = useState(true);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-    const [activeTab, setActiveTab] = useState<'profile' | 'display'>('profile');
+    const [activeTab, setActiveTab] = useState<'profile' | 'display' | 'security'>('profile');
     const [displayData, setDisplayData] = useState<DisplayData>({
         theme: 'light'
     });
@@ -237,6 +238,12 @@ export default function ProfileSettings() {
                         Profile Information
                     </button>
                     <button
+                        className={`${styles.tabButton} ${activeTab === 'security' ? styles.active : ''}`}
+                        onClick={() => setActiveTab('security')}
+                    >
+                        Security
+                    </button>
+                    <button
                         className={`${styles.tabButton} ${activeTab === 'display' ? styles.active : ''}`}
                         onClick={() => setActiveTab('display')}
                     >
@@ -244,8 +251,14 @@ export default function ProfileSettings() {
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className={styles.form}>
-                    {activeTab === 'display' && (
+                {/*Security Tab*/}
+                {activeTab === 'security' && (
+                    <PasswordReset/>
+                )}
+
+                {/*Display Tab*/}
+                {activeTab === 'display' && (
+                    <form onSubmit={handleSubmit} className={styles.form}>
                         <div className={styles.tabContent}>
                             <div className={styles.section}>
                                 <h3>Display Information</h3>
@@ -279,9 +292,21 @@ export default function ProfileSettings() {
                                 </div>
                             </div>
                         </div>
-                    )}
+                        <div className={styles.formActions}>
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className={styles.submitButton}
+                            >
+                                {isLoading ? 'Saving...' : 'Save Changes'}
+                            </button>
+                        </div>
+                    </form>
+                )}
 
-                    {activeTab === 'profile' && (
+                {/*Profile Tab*/}
+                {activeTab === 'profile' && (
+                    <form onSubmit={handleSubmit} className={styles.form}>
                         <div className={styles.tabContent}>
                             <div className={styles.section}>
                                 <h3>Basic Information</h3>
@@ -396,18 +421,17 @@ export default function ProfileSettings() {
                                 </div>
                             </div>
                         </div>
-                    )}
-
-                    <div className={styles.formActions}>
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className={styles.submitButton}
-                        >
-                            {isLoading ? 'Saving...' : 'Save Changes'}
-                        </button>
-                    </div>
-                </form>
+                        <div className={styles.formActions}>
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className={styles.submitButton}
+                            >
+                                {isLoading ? 'Saving...' : 'Save Changes'}
+                            </button>
+                        </div>
+                    </form>
+                )}
             </div>
         </div>
     );
