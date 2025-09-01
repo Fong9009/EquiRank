@@ -32,10 +32,10 @@ export async function POST(
       return NextResponse.json({ error: 'Loan request not found' }, { status: 404 });
     }
 
-    // Check if the request can be closed (only funded requests)
-    if (loanRequest.status !== 'funded') {
+    // Check if the request can be closed (pending, active, or funded requests)
+    if (!['pending', 'active', 'funded'].includes(loanRequest.status)) {
       return NextResponse.json({ 
-        error: 'Only funded loan requests can be closed' 
+        error: 'Only pending, active, or funded loan requests can be closed' 
       }, { status: 400 });
     }
 

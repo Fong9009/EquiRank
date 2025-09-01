@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql:3306
--- Generation Time: Sep 01, 2025 at 03:50 AM
+-- Generation Time: Sep 01, 2025 at 04:00 AM
 -- Server version: 8.0.43
 -- PHP Version: 8.2.27
 
@@ -97,16 +97,20 @@ CREATE TABLE `loan_requests` (
   `expires_at` timestamp NULL DEFAULT NULL COMMENT 'When the request expires',
   `archived` tinyint(1) DEFAULT '0' COMMENT 'Whether the loan request is archived by admin',
   `archived_by` int DEFAULT NULL COMMENT 'Admin who archived this request',
-  `archived_at` timestamp NULL DEFAULT NULL COMMENT 'When the request was archived'
+  `archived_at` timestamp NULL DEFAULT NULL COMMENT 'When the request was archived',
+  `original_status` enum('pending','active','funded','closed','expired') COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'The status before it was closed',
+  `closed_by` int DEFAULT NULL COMMENT 'Admin who closed this request',
+  `closed_at` timestamp NULL DEFAULT NULL COMMENT 'When the request was closed',
+  `closed_reason` text COLLATE utf8mb4_unicode_ci COMMENT 'Reason for closing the request'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `loan_requests`
 --
 
-INSERT INTO `loan_requests` (`id`, `borrower_id`, `amount_requested`, `currency`, `company_description`, `social_media_links`, `loan_purpose`, `loan_type`, `status`, `created_at`, `updated_at`, `expires_at`, `archived`, `archived_by`, `archived_at`) VALUES
-(8, 2, 10000.00, 'USD', 'iuogyvyuvyuvyuvyuvuyv', '{\"twitter\": \"\", \"website\": \"\", \"facebook\": \"\", \"linkedin\": \"\", \"instagram\": \"\"}', 'ygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyu', 'working_capital', 'funded', '2025-08-29 12:31:55', '2025-08-29 15:03:39', '2025-09-07 10:00:00', 0, NULL, NULL),
-(9, 2, 5000.00, 'USD', NULL, NULL, 'eweadsxdmvresrrtxrt', 'working_capital', 'pending', '2025-08-29 16:13:57', '2025-08-29 16:13:57', '2025-09-10 10:00:00', 0, NULL, NULL);
+INSERT INTO `loan_requests` (`id`, `borrower_id`, `amount_requested`, `currency`, `company_description`, `social_media_links`, `loan_purpose`, `loan_type`, `status`, `created_at`, `updated_at`, `expires_at`, `archived`, `archived_by`, `archived_at`, `original_status`, `closed_by`, `closed_at`, `closed_reason`) VALUES
+(8, 2, 10000.00, 'USD', 'iuogyvyuvyuvyuvyuvuyv', '{\"twitter\": \"\", \"website\": \"\", \"facebook\": \"\", \"linkedin\": \"\", \"instagram\": \"\"}', 'ygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyu', 'working_capital', 'closed', '2025-08-29 12:31:55', '2025-09-01 03:59:11', '2025-09-07 10:00:00', 0, NULL, NULL, 'funded', 1, '2025-09-01 03:59:11', 'funded'),
+(9, 2, 5000.00, 'USD', NULL, NULL, 'eweadsxdmvresrrtxrt', 'working_capital', 'pending', '2025-08-29 16:13:57', '2025-08-29 16:13:57', '2025-09-10 10:00:00', 0, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -230,7 +234,8 @@ ALTER TABLE `loan_requests`
   ADD KEY `idx_loan_requests_loan_type` (`loan_type`),
   ADD KEY `idx_loan_requests_created_at` (`created_at`),
   ADD KEY `idx_loan_requests_expires_at` (`expires_at`),
-  ADD KEY `fk_loan_requests_archived_by` (`archived_by`);
+  ADD KEY `fk_loan_requests_archived_by` (`archived_by`),
+  ADD KEY `fk_loan_requests_closed_by` (`closed_by`);
 
 --
 -- Indexes for table `migrations`
@@ -320,7 +325,8 @@ ALTER TABLE `contact_messages`
 --
 ALTER TABLE `loan_requests`
   ADD CONSTRAINT `fk_loan_requests_archived_by` FOREIGN KEY (`archived_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
-  ADD CONSTRAINT `fk_loan_requests_borrower` FOREIGN KEY (`borrower_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_loan_requests_borrower` FOREIGN KEY (`borrower_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_loan_requests_closed_by` FOREIGN KEY (`closed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `password_reset_tokens`
