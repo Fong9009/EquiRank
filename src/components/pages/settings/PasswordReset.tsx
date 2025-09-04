@@ -1,11 +1,15 @@
 import { useState } from "react";
 import styles from '@/styles/pages/profile/passwordReset.module.css';
+import CustomConfirmation from "@/components/common/CustomConfirmation";
 
 export default function ChangePassword() {
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
     const [focused, setFocused] = useState(false);
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+    const [loading, setLoading] = useState(false);
 
     const rules = {
         length: newPassword.length >= 12,
@@ -15,6 +19,25 @@ export default function ChangePassword() {
         special: /[\W_]/.test(newPassword),
         match: newPassword === confirmPassword && newPassword.length > 0,
     };
+
+    const [confirmationData, setConfirmationData] = useState<{
+        action: 'approve';
+        message: string;
+        title: string;
+        onConfirm: () => void;
+    } | null>(null);
+
+
+    const showPasswordConfirmation = () => {
+        setConfirmationData({
+            action: 'approve',
+            title: 'Save Password Change',
+            message: 'Are you sure you want to change your password?',
+            onConfirm: submitPasswordChange,
+        });
+        setShowConfirmation(true);
+    };
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -26,8 +49,19 @@ export default function ChangePassword() {
         }
 
         setError(""); // clear previous errors
+        setConfirmationData({
+            action: 'approve',
+            title: 'Save Password Change',
+            message: 'Are you sure you want to change your password?',
+            onConfirm: submitPasswordChange // callback to actually submit
+        });
+        setShowConfirmation(true);
+    };
 
+    const submitPasswordChange = async () => {
+        setShowConfirmation(false);
         try {
+            setLoading(true);
             const response = await fetch("/api/users/change-password", {
                 method: "POST",
                 headers: {
@@ -37,6 +71,9 @@ export default function ChangePassword() {
                     newPassword: newPassword,
                 }),
             });
+            if(response.ok) {
+                setMessage({ type: 'success', text: 'Password Changed' });
+            }
 
             if (!response.ok) {
                 const data = await response.json();
@@ -50,19 +87,28 @@ export default function ChangePassword() {
             // Optionally reset fields
             setNewPassword("");
             setConfirmPassword("");
-            alert("Password updated successfully!");
         } catch (err) {
             console.error("Error updating password:", err);
             setError("Something went wrong. Please try again.");
+        } finally {
+            setLoading(false);
         }
-    };
+    }
 
 
     return (
         <form onSubmit={handleSubmit} className={styles.form}>
+            {message && (
+                <div className={`${styles.message} ${styles[message.type]}`}>
+                    {message.text}
+                </div>
+            )}
             <div className={styles.tabContent}>
                 <div className={styles.section}>
-                    <h3>Change Password</h3>
+                    <h3>
+                        Change Password
+                        {loading && <span className={styles.spinner}>⏳</span>}
+                    </h3>
 
                     <div className={styles.row}>
                         {/* Left: Inputs */}
@@ -92,9 +138,16 @@ export default function ChangePassword() {
                                     required
                                 />
                             </div>
+                            {error && <p className={styles.error}>{error}</p>}
+
+                            <button type="submit" className={styles.submitButtonDesk} disabled={!Object.values(rules).every(Boolean)}>
+                                Update Password
+                            </button>
                         </div>
 
                         <div className={styles.validationColumn}>
+                            <p className={styles.validationTitle}>Validation Requirements</p>
+                            <p>Click "New Password" or "Confirm Password" To see them</p>
                             {focused ? (
                                 Object.entries(rules).map(([key, passed]) => (
                                     <p key={key} className={passed ? styles.valid : styles.invalid}>
@@ -113,19 +166,30 @@ export default function ChangePassword() {
                                     </p>
                                 ))
                             ) : (
-                                <div style={{ minHeight: "10px" }}></div> // Reserve space
+                                <div className={styles.spacer}></div> // Reserve space
                             )}
                         </div>
+                        {error && <p className={styles.error}>{error}</p>}
+                        <button type="submit" className={styles.submitButtonPhone} disabled={!Object.values(rules).every(Boolean)}>
+                            Update Password
+                        </button>
 
                     </div>
-
-                    {error && <p className={styles.error}>{error}</p>}
-
-                    <button type="submit" className={styles.submitButton} disabled={!Object.values(rules).every(Boolean)}>
-                        Update Password
-                    </button>
                 </div>
             </div>
+            {/* Custom Confirmation Dialog */}
+            {showConfirmation && confirmationData && (
+                <CustomConfirmation
+                    isOpen={showConfirmation}
+                    onClose={() => setShowConfirmation(false)}
+                    onConfirm={confirmationData.onConfirm}
+                    title={confirmationData.title}
+                    message={confirmationData.message}
+                    action={confirmationData.action = 'approve'}
+                    confirmText={confirmationData.action = 'approve'}
+                    cancelText="Cancel"
+                />
+            )}
         </form>
     );
 }
