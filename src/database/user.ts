@@ -40,7 +40,7 @@ export async function createUser(
 ): Promise<number> {
     const query = `
     INSERT INTO users (email, password_hash, first_name, last_name, user_type, entity_type, company, phone, address, is_approved)
-    VALUES (?, ?, ?, ?, 'company', ?, ?, ?, false)
+    VALUES (?, ?, ?, ?, ?, 'company', ?, ?, ?, false)
   `;
     const result = await executeSingleQuery(query, [email, passwordHash, firstName, lastName, userType, company, phone, address]);
     return result.insertId;

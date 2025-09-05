@@ -17,7 +17,6 @@ interface LoanRequest {
   company_description?: string;
   borrower_name: string;
   borrower_company?: string;
-  borrower_entity_type: string;
 }
 
 export default function LoanRequestsList() {
@@ -237,6 +236,18 @@ export default function LoanRequestsList() {
                   </div>
                 )}
 
+                {request.company_description && (
+                  <div className={styles.detailRow}>
+                    <span className={styles.label}>Company Info:</span>
+                    <span className={styles.value}>
+                      {request.company_description.length > 60 
+                        ? `${request.company_description.substring(0, 60)}...` 
+                        : request.company_description
+                      }
+                    </span>
+                  </div>
+                )}
+
                 <div className={styles.detailRow}>
                   <span className={styles.label}>Type:</span>
                   <span className={styles.value}>
@@ -253,17 +264,6 @@ export default function LoanRequestsList() {
                     }
                   </span>
                 </div>
-                {request.company_description && (
-                  <div className={styles.detailRow}>
-                    <span className={styles.label}>Company:</span>
-                    <span className={styles.value}>
-                      {request.company_description.length > 60 
-                        ? `${request.company_description.substring(0, 60)}...` 
-                        : request.company_description
-                      }
-                    </span>
-                  </div>
-                )}
 
                 <div className={styles.detailRow}>
                   <span className={styles.label}>Posted:</span>

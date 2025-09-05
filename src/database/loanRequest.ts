@@ -113,13 +113,13 @@ export async function getLoanRequestById(id: number): Promise<(LoanRequest & { b
  */
 export async function getLoanRequestsByBorrower(borrowerId: number): Promise<LoanRequest[]> {
   const query = `
-    SELECT lr.*, u.website, u.linkedin
+    SELECT lr.*, u.website, u.linkedin, u.company as borrower_company
     FROM loan_requests lr
     JOIN users u ON lr.borrower_id = u.id
     WHERE lr.borrower_id = ?
     ORDER BY lr.created_at DESC
   `;
-  const result = await executeQuery<LoanRequest & { website?: string; linkedin?: string }>(query, [borrowerId]);
+  const result = await executeQuery<LoanRequest & { website?: string; linkedin?: string; borrower_company?: string }>(query, [borrowerId]);
   
   return result.map(request => {
     // Create social media links from user profile
@@ -132,6 +132,8 @@ export async function getLoanRequestsByBorrower(borrowerId: number): Promise<Loa
     };
     
     request.social_media_links = socialMediaLinks;
+    // Add borrower_company to the request object
+    (request as any).borrower_company = (request as any).borrower_company || null;
     return request;
   });
 }

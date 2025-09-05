@@ -8,7 +8,6 @@ declare module "next-auth" {
       email?: string | null
       image?: string | null
       userType: 'borrower' | 'lender' | 'admin'
-      entityType: 'company' | 'individual'
       company?: string
       isApproved: boolean
       isActive: boolean
@@ -21,7 +20,6 @@ declare module "next-auth" {
     email: string
     name: string
     userType: 'borrower' | 'lender' | 'admin'
-    entityType: 'company' | 'individual'
     company?: string
     isApproved: boolean
     isActive: boolean
@@ -32,7 +30,6 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
   interface JWT {
     userType: 'borrower' | 'lender' | 'admin'
-    entityType: 'company' | 'individual'
     company?: string
     isApproved: boolean
     isActive: boolean

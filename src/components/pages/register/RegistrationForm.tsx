@@ -317,7 +317,6 @@ export default function RegistrationForm() {
           firstName: '',
           lastName: '',
           userType: 'borrower',
-          entityType: 'company',
           company: '',
           phone: '',
           address: ''
@@ -420,10 +419,10 @@ export default function RegistrationForm() {
                   value={formData.firstName}
                   onChange={handleInputChange}
                   className={`${styles.input} ${errors.firstName ? styles.errorInput : ''}`}
-                  placeholder="e.g., John (letters only)"
+                  placeholder="e.g., John or John Michael"
                   maxLength={50}
-                  pattern="[A-Za-z]+"
-                  title="Only letters (A-Z, a-z) are allowed"
+                  pattern="[A-Za-z\s]+"
+                  title="Letters and spaces (A-Z, a-z, space) are allowed"
                 />
                 {errors.firstName && <span className={styles.error}>{errors.firstName}</span>}
               </div>
@@ -437,10 +436,10 @@ export default function RegistrationForm() {
                   value={formData.lastName}
                   onChange={handleInputChange}
                   className={`${styles.input} ${errors.lastName ? styles.errorInput : ''}`}
-                  placeholder="e.g., Smith (letters only)"
+                  placeholder="e.g., Smith or Van der Berg"
                   maxLength={50}
-                  pattern="[A-Za-z]+"
-                  title="Only letters (A-Z, a-z) are allowed"
+                  pattern="[A-Za-z\s]+"
+                  title="Letters and spaces (A-Z, a-z, space) are allowed"
                 />
                 {errors.lastName && <span className={styles.error}>{errors.lastName}</span>}
               </div>

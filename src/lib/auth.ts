@@ -57,7 +57,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             email: typedUser.email,
             name: `${typedUser.first_name} ${typedUser.last_name}`,
             userType: typedUser.user_type,
-            entityType: typedUser.entity_type,
             company: typedUser.company,
             isApproved: typedUser.is_approved,
             isActive: typedUser.is_active,
@@ -74,7 +73,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, user }: any) {
       if (user) {
         token.userType = user.userType;
-        token.entityType = user.entityType;
         token.company = user.company;
         token.isApproved = user.isApproved;
         token.isActive = user.isActive;
@@ -88,7 +86,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token) {
         session.user.id = token.sub!;
         session.user.userType = token.userType;
-        session.user.entityType = token.entityType;
         session.user.company = token.company;
         session.user.isApproved = token.isApproved;
         session.user.isActive = token.isActive;

@@ -223,16 +223,21 @@ export default function AdminArchivedLoanRequestsList() {
                     {formatCurrency(request.amount_requested, request.currency)}
                   </span>
                   <span className={styles.currency}>{request.currency}</span>
+                  {request.closed_reason && (
+                    <div className={styles.closedIndicator}>
+                      <span className={styles.closedLabel}>Closed</span>
+                      <span className={styles.closedReason} title={request.closed_reason}>
+                        • {request.closed_reason.length > 40
+                          ? `${request.closed_reason.substring(0, 40)}...`
+                          : request.closed_reason
+                        }
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <div className={styles.statusSection}>
                   <div className={`${styles.status} ${getStatusColor(request.original_status || request.status)}`}>
                     {(request.original_status || request.status).charAt(0).toUpperCase() + (request.original_status || request.status).slice(1)}
-                  </div>
-                  <div className={styles.closedIndicator}>
-                    <span className={styles.closedLabel}>Closed</span>
-                    {request.closed_reason && (
-                      <span className={styles.closedReason}>• {request.closed_reason}</span>
-                    )}
                   </div>
                 </div>
               </div>
@@ -247,6 +252,18 @@ export default function AdminArchivedLoanRequestsList() {
                   <div className={styles.detailRow}>
                     <span className={styles.label}>Company:</span>
                     <span className={styles.value}>{request.borrower_company}</span>
+                  </div>
+                )}
+
+                {request.company_description && (
+                  <div className={styles.detailRow}>
+                    <span className={styles.label}>Company Info:</span>
+                    <span className={styles.value}>
+                      {request.company_description.length > 60 
+                        ? `${request.company_description.substring(0, 60)}...` 
+                        : request.company_description
+                      }
+                    </span>
                   </div>
                 )}
 
@@ -281,8 +298,13 @@ export default function AdminArchivedLoanRequestsList() {
 
                 {request.closed_reason && (
                   <div className={styles.detailRow}>
-                    <span className={styles.label}>Reason:</span>
-                    <span className={styles.value}>{request.closed_reason}</span>
+                    <span className={styles.label}>Close Reason:</span>
+                    <span className={styles.value} title={request.closed_reason}>
+                      {request.closed_reason.length > 60
+                        ? `${request.closed_reason.substring(0, 60)}...`
+                        : request.closed_reason
+                      }
+                    </span>
                   </div>
                 )}
               </div>

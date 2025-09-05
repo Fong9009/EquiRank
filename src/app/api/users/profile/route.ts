@@ -84,7 +84,6 @@ export async function GET(request: NextRequest) {
             first_name: userProfile.first_name,
             last_name: userProfile.last_name,
             user_type: userProfile.user_type,
-            entity_type: userProfile.entity_type,
             company: userProfile.company,
             phone: userProfile.phone,
             address: userProfile.address,
