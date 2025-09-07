@@ -23,6 +23,7 @@ interface LoanRequestDetails {
   expires_at?: string;
   borrower_name: string;
   borrower_company?: string;
+  company_description: string;
 }
 
 interface LoanRequestDetailsProps {

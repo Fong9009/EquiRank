@@ -188,7 +188,6 @@ export async function POST(request: NextRequest) {
       firstName,
       lastName,
       userType,
-      'company', // All users are companies
       company,
       phone,
       address
