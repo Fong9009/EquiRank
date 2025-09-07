@@ -221,6 +221,12 @@ export async function updateUser(
     return result.affectedRows > 0;
 }
 
+export async function updateEmail(email:string, id: number): Promise<boolean> {
+    const query = `UPDATE users SET email = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
+    const result = await executeSingleQuery(query, [email, id]);
+    return result.affectedRows > 0;
+}
+
 export async function promoteUserToAdmin(id: number): Promise<boolean> {
     const query = `
     UPDATE users
