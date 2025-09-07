@@ -5,6 +5,7 @@ import styles from '@/styles/pages/profile/profileSettings.module.css';
 import { Sun, Moon } from 'lucide-react';
 import ProfilePictureUpload from '@/components/common/ProfilePictureUpload';
 import PasswordReset from '@/components/pages/settings/PasswordReset';
+import EmailChanger from '@/components/pages/settings/EmailChanger';
 import { profileEvents } from '@/lib/profileEvents';
 
 interface ProfileData {
@@ -253,7 +254,10 @@ export default function ProfileSettings() {
 
                 {/*Security Tab*/}
                 {activeTab === 'security' && (
-                    <PasswordReset/>
+                    <>
+                        <PasswordReset/>
+                        <EmailChanger/>
+                    </>
                 )}
 
                 {/*Display Tab*/}
