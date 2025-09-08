@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { signIn } from 'next-auth/react';
+import { signIn, getSession } from 'next-auth/react';
 import PasswordInput from '@/components/common/PasswordInput';
 import styles from '@/styles/pages/login/loginForm.module.css';
 
@@ -34,6 +34,7 @@ export default function LoginForm() {
         setError('Invalid email or password. Please check your credentials and try again.');
       } else if (result?.ok) {
         // Redirect based on user type or specified redirect
+        await getSession();
         router.push(redirect);
       } else {
         // This means authentication failed (result is null or undefined)

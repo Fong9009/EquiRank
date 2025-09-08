@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import styles from '@/styles/pages/admin/adminArchivedLoanRequestsList.module.css';
+import clsx from "clsx";
 import AdminArchivedLoanRequestDetails from './AdminArchivedLoanRequestDetails';
 
 interface ArchivedLoanRequest {
@@ -34,6 +35,7 @@ interface ArchivedLoanRequest {
 
 export default function AdminArchivedLoanRequestsList() {
   const { data: session } = useSession();
+  const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
   const [archivedRequests, setArchivedRequests] = useState<ArchivedLoanRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,11 +43,27 @@ export default function AdminArchivedLoanRequestsList() {
   const [filters, setFilters] = useState({
     closedReason: 'all'
   });
+  const windowBackground = theme === "light" ? styles.lightPage : styles.darkPage;
+  const cardBackground = theme === "light" ? styles.lightBackground : styles.darkBackground;
+  const textColour = theme === "light" ? styles.lightTextColour : styles.darkTextColour;
 
   useEffect(() => {
     if (session?.user) {
       fetchArchivedRequests();
     }
+  }, [session]);
+
+  useEffect(() => {
+    if (!session) return;
+    fetch("/api/users/theme")
+        .then(res => res.json())
+        .then(data => {
+          if (data.theme) {
+            setTheme(data.theme.theme);
+          } else {
+            setTheme("auto");
+          }
+        });
   }, [session]);
 
   const fetchArchivedRequests = async () => {
@@ -177,150 +195,152 @@ export default function AdminArchivedLoanRequestsList() {
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h2 className={styles.title}>Archived Loan Requests</h2>
-        <p className={styles.subtitle}>Closed loan requests that can be restored or permanently deleted</p>
-      </div>
-
-      {/* Filters */}
-      <div className={styles.filters}>
-        <div className={styles.filterGroup}>
-          <label htmlFor="closed-reason-filter">Closed Reason:</label>
-          <select
-            id="closed-reason-filter"
-            value={filters.closedReason}
-            onChange={(e) => handleFilterChange('closedReason', e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">All Reasons</option>
-            <option value="incomplete">Incomplete Information</option>
-            <option value="rejected">Rejected</option>
-            <option value="expired">Expired</option>
-            <option value="other">Other</option>
-          </select>
+      <div className={windowBackground}>
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h2 className={styles.title}>Archived Loan Requests</h2>
+          <p className={styles.subtitle}>Closed loan requests that can be restored or permanently deleted</p>
         </div>
-      </div>
 
-      {/* Results Count */}
-      <div className={styles.resultsCount}>
-        Showing {filteredRequests.length} of {archivedRequests.length} archived loan requests
-      </div>
-
-      {/* Archived Loan Requests Grid */}
-      {filteredRequests.length === 0 ? (
-        <div className={styles.emptyState}>
-          <h3>No Archived Loan Requests</h3>
-          <p>There are currently no closed loan requests in the archive.</p>
+        {/* Filters */}
+        <div className={clsx(styles.filters, cardBackground)}>
+          <div className={styles.filterGroup}>
+            <label htmlFor="closed-reason-filter">Closed Reason:</label>
+            <select
+              id="closed-reason-filter"
+              value={filters.closedReason}
+              onChange={(e) => handleFilterChange('closedReason', e.target.value)}
+              className={styles.filterSelect}
+            >
+              <option value="all">All Reasons</option>
+              <option value="incomplete">Incomplete Information</option>
+              <option value="rejected">Rejected</option>
+              <option value="expired">Expired</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
         </div>
-      ) : (
-        <div className={styles.requestsGrid}>
-          {filteredRequests.map((request) => (
-            <div key={request.id} className={styles.requestCard}>
-              <div className={styles.requestHeader}>
-                <div className={styles.amountSection}>
-                  <span className={styles.amount}>
-                    {formatCurrency(request.amount_requested, request.currency)}
-                  </span>
-                  <span className={styles.currency}>{request.currency}</span>
+
+        {/* Results Count */}
+        <div className={styles.resultsCount}>
+          Showing {filteredRequests.length} of {archivedRequests.length} archived loan requests
+        </div>
+
+        {/* Archived Loan Requests Grid */}
+        {filteredRequests.length === 0 ? (
+          <div className={styles.emptyState}>
+            <h3 className={textColour}>No Archived Loan Requests</h3>
+            <p className={textColour}>There are currently no closed loan requests in the archive.</p>
+          </div>
+        ) : (
+          <div className={styles.requestsGrid}>
+            {filteredRequests.map((request) => (
+              <div key={request.id} className={clsx(styles.requestCard, cardBackground)}>
+                <div className={styles.requestHeader}>
+                  <div className={styles.amountSection}>
+                    <span className={styles.amount}>
+                      {formatCurrency(request.amount_requested, request.currency)}
+                    </span>
+                    <span className={styles.currency}>{request.currency}</span>
+                  </div>
+                  <div className={styles.statusSection}>
+                    <div className={`${styles.status} ${getStatusColor(request.original_status || request.status)}`}>
+                      {(request.original_status || request.status).charAt(0).toUpperCase() + (request.original_status || request.status).slice(1)}
+                    </div>
+                    <div className={styles.closedIndicator}>
+                      <span className={styles.closedLabel}>Closed</span>
+                      {request.closed_reason && (
+                        <span className={styles.closedReason}>• {request.closed_reason}</span>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <div className={styles.statusSection}>
-                  <div className={`${styles.status} ${getStatusColor(request.original_status || request.status)}`}>
-                    {(request.original_status || request.status).charAt(0).toUpperCase() + (request.original_status || request.status).slice(1)}
+
+                <div className={styles.requestDetails}>
+                  <div className={styles.detailRow}>
+                    <span className={styles.label}>Borrower:</span>
+                    <span className={styles.value}>{request.borrower_name}</span>
                   </div>
-                  <div className={styles.closedIndicator}>
-                    <span className={styles.closedLabel}>Closed</span>
-                    {request.closed_reason && (
-                      <span className={styles.closedReason}>• {request.closed_reason}</span>
-                    )}
+
+                  {request.borrower_company && (
+                    <div className={styles.detailRow}>
+                      <span className={styles.label}>Company:</span>
+                      <span className={styles.value}>{request.borrower_company}</span>
+                    </div>
+                  )}
+
+                  <div className={styles.detailRow}>
+                    <span className={styles.label}>Type:</span>
+                    <span className={styles.value}>
+                      {request.loan_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                    </span>
                   </div>
+
+                  <div className={styles.detailRow}>
+                    <span className={styles.label}>Purpose:</span>
+                    <span className={styles.value}>
+                      {request.loan_purpose.length > 80
+                        ? `${request.loan_purpose.substring(0, 80)}...`
+                        : request.loan_purpose
+                      }
+                    </span>
+                  </div>
+
+                  <div className={styles.detailRow}>
+                    <span className={styles.label}>Closed:</span>
+                    <span className={styles.value}>{formatDate(request.closed_at || '')}</span>
+                  </div>
+
+                  {request.closed_by_name && (
+                    <div className={styles.detailRow}>
+                      <span className={styles.label}>Closed By:</span>
+                      <span className={styles.value}>{request.closed_by_name}</span>
+                    </div>
+                  )}
+
+                  {request.closed_reason && (
+                    <div className={styles.detailRow}>
+                      <span className={styles.label}>Reason:</span>
+                      <span className={styles.value}>{request.closed_reason}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className={styles.requestActions}>
+                  <button
+                    onClick={() => setSelectedRequest(request.id)}
+                    className={styles.viewButton}
+                  >
+                    View Details
+                  </button>
+                  <button
+                    onClick={() => handleRestore(request.id)}
+                    className={styles.restoreButton}
+                  >
+                    Restore
+                  </button>
+                  <button
+                    onClick={() => handleDelete(request.id)}
+                    className={styles.deleteButton}
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
+            ))}
+          </div>
+        )}
 
-              <div className={styles.requestDetails}>
-                <div className={styles.detailRow}>
-                  <span className={styles.label}>Borrower:</span>
-                  <span className={styles.value}>{request.borrower_name}</span>
-                </div>
-                
-                {request.borrower_company && (
-                  <div className={styles.detailRow}>
-                    <span className={styles.label}>Company:</span>
-                    <span className={styles.value}>{request.borrower_company}</span>
-                  </div>
-                )}
-
-                <div className={styles.detailRow}>
-                  <span className={styles.label}>Type:</span>
-                  <span className={styles.value}>
-                    {request.loan_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                  </span>
-                </div>
-                
-                <div className={styles.detailRow}>
-                  <span className={styles.label}>Purpose:</span>
-                  <span className={styles.value}>
-                    {request.loan_purpose.length > 80 
-                      ? `${request.loan_purpose.substring(0, 80)}...` 
-                      : request.loan_purpose
-                    }
-                  </span>
-                </div>
-
-                <div className={styles.detailRow}>
-                  <span className={styles.label}>Closed:</span>
-                  <span className={styles.value}>{formatDate(request.closed_at || '')}</span>
-                </div>
-
-                {request.closed_by_name && (
-                  <div className={styles.detailRow}>
-                    <span className={styles.label}>Closed By:</span>
-                    <span className={styles.value}>{request.closed_by_name}</span>
-                  </div>
-                )}
-
-                {request.closed_reason && (
-                  <div className={styles.detailRow}>
-                    <span className={styles.label}>Reason:</span>
-                    <span className={styles.value}>{request.closed_reason}</span>
-                  </div>
-                )}
-              </div>
-
-              <div className={styles.requestActions}>
-                <button 
-                  onClick={() => setSelectedRequest(request.id)}
-                  className={styles.viewButton}
-                >
-                  View Details
-                </button>
-                <button 
-                  onClick={() => handleRestore(request.id)}
-                  className={styles.restoreButton}
-                >
-                  Restore
-                </button>
-                <button 
-                  onClick={() => handleDelete(request.id)}
-                  className={styles.deleteButton}
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Archived Loan Request Details Modal */}
-      {selectedRequest && (
-        <AdminArchivedLoanRequestDetails
-          requestId={selectedRequest}
-          onClose={() => setSelectedRequest(null)}
-          onRestore={handleRestore}
-          onDelete={handleDelete}
-        />
-      )}
-    </div>
-  );
+        {/* Archived Loan Request Details Modal */}
+        {selectedRequest && (
+          <AdminArchivedLoanRequestDetails
+            requestId={selectedRequest}
+            onClose={() => setSelectedRequest(null)}
+            onRestore={handleRestore}
+            onDelete={handleDelete}
+          />
+        )}
+      </div>
+      </div>
+    );
 }

@@ -7,6 +7,7 @@ import ProfilePictureUpload from '@/components/common/ProfilePictureUpload';
 import PasswordReset from '@/components/pages/settings/PasswordReset';
 import EmailChanger from '@/components/pages/settings/EmailChanger';
 import { profileEvents } from '@/lib/profileEvents';
+import CustomConfirmation from "@/components/common/CustomConfirmation";
 
 interface ProfileData {
     first_name: string;
@@ -46,6 +47,7 @@ export default function ProfileSettings() {
         theme: 'light'
     });
 
+    const [showConfirmation, setShowConfirmation] = useState(false);
     const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
     const windowBackground = theme === "light" ? styles.lightPage : styles.darkPage;
     const titleText = theme === "light" ? styles.lightText : styles.darkText;
@@ -130,6 +132,24 @@ export default function ProfileSettings() {
         }
     };
 
+    const [confirmationData, setConfirmationData] = useState<{
+        action: 'approve';
+        message: string;
+        title: string;
+        onConfirm: () => void;
+    } | null>(null);
+
+
+    const showThemeConfirmation = () => {
+        setConfirmationData({
+            action: 'approve',
+            title: 'Save Theme Change',
+            message: 'Are you sure you want to change your Theme?',
+            onConfirm: submitThemeChange,
+        });
+        setShowConfirmation(true);
+    };
+
     const handleDisplayChange = (field: keyof DisplayData, value: any) => {
         setDisplayData(prev => ({
             ...prev,
@@ -146,17 +166,13 @@ export default function ProfileSettings() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
-        // Add confirmation dialog before saving
-        if (!confirm('Are you sure you want to save these changes to your profile?')) {
-            return;
-        }
-        
         setIsLoading(true);
         setMessage(null);
-
         try {
             if (activeTab === 'profile') {
+                if (!confirm('Are you sure you want to save these changes to your profile?')) {
+                    return;
+                }
                 const response = await fetch('/api/users/profile', {
                     method: 'PUT',
                     headers: {
@@ -179,22 +195,13 @@ export default function ProfileSettings() {
                     });
                 }
             } else if (activeTab === 'display') {
-                const response = await fetch('/api/users/theme', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(displayData),
+                setConfirmationData({
+                    action: 'approve',
+                    title: 'Save Theme Change',
+                    message: 'Are you sure you want to change your theme?',
+                    onConfirm: submitThemeChange // callback to actually submit
                 });
-                if (response.ok) {
-                    setMessage({
-                        type: 'success',
-                        text: 'Display settings updated!'
-                    });
-                } else {
-                    const error = await response.json();
-                    setMessage({ type: 'error', text: error.error || 'Failed to update display settings' });
-                }
+                setShowConfirmation(true);
             }
 
         } catch (error) {
@@ -206,6 +213,33 @@ export default function ProfileSettings() {
             setIsLoading(false);
         }
     };
+
+    const submitThemeChange = async () => {
+        try {
+            const response = await fetch('/api/users/theme', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(displayData),
+            });
+            if (response.ok) {
+                setMessage({
+                    type: 'success',
+                    text: 'Display settings updated!'
+                });
+            } else {
+                const error = await response.json();
+                setMessage({ type: 'error', text: error.error || 'Failed to update display settings' });
+            }
+        } catch (error) {
+            setMessage({
+                type: 'error',
+                text: 'Network error. Please try again.'
+            });
+        }
+    }
+
 
     if (!session?.user) {
         return <div>Loading...</div>;
@@ -305,6 +339,19 @@ export default function ProfileSettings() {
                                 {isLoading ? 'Saving...' : 'Save Changes'}
                             </button>
                         </div>
+                        {/* Custom Confirmation Dialog */}
+                        {showConfirmation && confirmationData && (
+                            <CustomConfirmation
+                                isOpen={showConfirmation}
+                                onClose={() => setShowConfirmation(false)}
+                                onConfirm={confirmationData.onConfirm}
+                                title={confirmationData.title}
+                                message={confirmationData.message}
+                                action={confirmationData.action = 'approve'}
+                                confirmText={confirmationData.action = 'approve'}
+                                cancelText="Cancel"
+                            />
+                        )}
                     </form>
                 )}
 
