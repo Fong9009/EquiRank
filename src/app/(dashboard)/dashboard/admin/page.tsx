@@ -44,7 +44,7 @@ function AdminDashboardContent() {
     useEffect(() => {
         // Check if there's a tab parameter in the URL
         const tabParam = searchParams.get('tab');
-        if (tabParam && ['home', 'Manage Users', 'Manage Contact', 'Add Admin', 'File Cleanup', 'settings', 'loan-requests', 'archived-loan-requests'].includes(tabParam)) {
+        if (tabParam && ['home', 'manage-users', 'manage-contact', 'Add Admin', 'file-cleanup', 'settings', 'loan-requests', 'archived-loan-requests'].includes(tabParam)) {
             setActiveTab(tabParam);
         }
     }, [searchParams]);
@@ -73,9 +73,9 @@ function AdminDashboardContent() {
         switch (activeTab) {
             case "home":
                 return <AdminHomePage/>;
-            case "Manage Users":
+            case "manage-users":
                 return <AdminUserPage/>;
-            case "Manage Contact":
+            case "manage-contact":
                 return <AdminFrontPage/>;
             case "loan-requests":
                 return <AdminLoanRequestsList/>;
@@ -83,7 +83,7 @@ function AdminDashboardContent() {
                 return <AdminArchivedLoanRequestsList/>;
             case "Add Admin":
                 return isSuperAdmin ? <AddAdmin/> : <div>Forbidden</div>;
-            case "File Cleanup":
+            case "file-cleanup":
                 return <FileCleanup/>;
             case "settings":
                 return <ProfileSettings/>;

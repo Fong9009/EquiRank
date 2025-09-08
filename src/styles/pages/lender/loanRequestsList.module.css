@@ -253,7 +253,12 @@
   justify-content: center;
 }
 
+.analyseButton {
+  margin-top: 10px;
+}
+
 .viewButton,
+.analyseButton,
 .fundButton {
   padding: 0.75rem 1.5rem;
   border: none;
@@ -279,6 +284,17 @@
 .fundButton {
   background: linear-gradient(135deg, #22c55e, #16a34a);
   color: white;
+}
+
+.analyseButton {
+  background: linear-gradient(135deg, #c5bd22, #c3b706);
+  color: white;
+}
+
+.analyseButton:hover {
+  background: linear-gradient(135deg, #d4c92a, #bfae05); /* slightly brighter/darker gradient */
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(197, 189, 34, 0.3); /* similar shadow effect */
 }
 
 .fundButton:hover {

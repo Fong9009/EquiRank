@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import LoanRequestDetails from './LoanRequestDetails';
 import clsx from "clsx";
 import styles from '@/styles/pages/lender/loanRequestsList.module.css';
+import Link from "next/link";
 
 interface LoanRequest {
   id: number;
@@ -305,13 +306,20 @@ export default function LoanRequestsList() {
                       View Details
                     </button>
                     {request.status === 'pending' && (
-                      <button
-                        onClick={() => setSelectedRequest(request.id)}
-                        className={styles.fundButton}
-                      >
-                        Fund
-                      </button>
+                          <button
+                              onClick={() => setSelectedRequest(request.id)}
+                              className={styles.fundButton}
+                          >
+                            Fund
+                          </button>
                     )}
+                  </div>
+                  <div className={styles.requestActions}>
+                    <Link href={`/dashboard/lender/loan-analysis/${request.id}`} passHref>
+                      <button className={styles.analyseButton}>
+                        Analyse
+                      </button>
+                    </Link>
                   </div>
                 </div>
               ))}
