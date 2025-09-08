@@ -4,6 +4,31 @@
   margin: 0 auto;
 }
 
+.lightBackground {
+  background: rgb(28,28,28);
+}
+
+.darkBackground {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+
+.lightTextColour{
+  color: black;
+}
+.darkTextColour{
+  color: white;
+}
+
+.lightPage {
+  background-color: #eae9e9;
+  transition: background 0.5s ease, color 0.5s ease;
+}
+
+.darkPage {
+  background: #101010;
+}
+
 .header {
   text-align: center;
   margin-bottom: 3rem;
@@ -32,7 +57,6 @@
   gap: 1.5rem;
   margin-bottom: 2rem;
   padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -88,7 +112,7 @@
 }
 
 .requestCard {
-  background: rgba(255, 255, 255, 0.05);
+
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   padding: 1.5rem;

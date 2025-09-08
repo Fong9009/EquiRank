@@ -7,6 +7,8 @@ import ProfilePicture from '@/components/common/ProfilePicture';
 import UserTypeBadge from '@/components/common/UserTypeBadge';
 import { useSession } from 'next-auth/react';
 import { useProfilePicture } from '@/hooks/useProfilePicture';
+import { useSearchParams } from "next/navigation";
+import Link from 'next/link';
 
 interface SidebarProps {
     role: 'borrower' | 'lender' | 'admin';
@@ -21,6 +23,8 @@ export default function Sidebar({ role, activeTab, setActiveTab, isOpen, toggleS
     const [mounted, setMounted] = useState(false);
     const { data: session } = useSession();
     const { profilePicture } = useProfilePicture();
+    const searchParams = useSearchParams();
+    const activeSelectedTab = searchParams.get("tab") || "home"; // default to home
 
     useEffect(() => {
         setMounted(true);
@@ -42,24 +46,23 @@ export default function Sidebar({ role, activeTab, setActiveTab, isOpen, toggleS
                 {
                     title: 'General',
                     items: [
-                        { name: 'home', icon: Home },
-                        { name: 'settings', icon: Settings }
+                        { name: 'Home', icon: Home, path: '/dashboard/admin?tab=home', tabKey: 'home' },
+                        { name: 'Settings', icon: Settings, path: '/dashboard/admin?tab=settings', tabKey: 'settings' }
                     ]
-                    
                 },
                 {
                     title: 'Management',
                     items: [
-                        { name: 'Manage Users', icon: Users },
-                        { name: 'Manage Contact', icon: Phone },
-                        { name: 'loan-requests', icon: FileText },
-                        { name: 'archived-loan-requests', icon: FileText }
+                        { name: 'Manage Users', icon: Users, path: '/dashboard/admin?tab=manage-users', tabKey: 'manage-users' },
+                        { name: 'Manage Contact', icon: Phone, path: '/dashboard/admin?tab=manage-contact', tabKey: 'manage-contact' },
+                        { name: 'Loan Requests', icon: FileText, path: '/dashboard/admin?tab=loan-requests', tabKey: 'loan-requests' },
+                        { name: 'Archived Loan Requests', icon: FileText, path: '/dashboard/admin?tab=archived-loan-requests', tabKey: 'archived-loan-requests' }
                     ]
                 },
                 {
                     title: 'System',
                     items: [
-                        { name: 'File Cleanup', icon: Trash2 }
+                        { name: 'File Cleanup', icon: Trash2, path: '/dashboard/admin?tab=file-cleanup', tabKey: 'file-cleanup' }
                     ]
                 }
             ]
@@ -68,9 +71,9 @@ export default function Sidebar({ role, activeTab, setActiveTab, isOpen, toggleS
                     {
                         title: 'Lender',
                         items: [
-                            { name: 'home', icon: Home },
-                            { name: 'loan-requests', icon: FileText },
-                            { name: 'settings', icon: Settings }
+                            { name: 'Home', icon: Home, path: '/dashboard/lender?tab=home', tabKey: 'home' },
+                            { name: 'Loan Requests', icon: FileText, path: '/dashboard/lender?tab=loan-requests', tabKey: 'loan-requests' },
+                            { name: 'Settings', icon: Settings, path: '/dashboard/lender?tab=settings', tabKey: 'settings' }
                         ]
                     }
                 ]
@@ -78,13 +81,15 @@ export default function Sidebar({ role, activeTab, setActiveTab, isOpen, toggleS
                     {
                         title: 'Borrower',
                         items: [
-                            { name: 'home', icon: Home },
-                            { name: 'loan-requests', icon: FileText },
-                            { name: 'new-request', icon: Plus },
-                            { name: 'settings', icon: Settings }
+                            { name: 'Home', icon: Home, path: '/dashboard/borrower?tab=home', tabKey: 'home' },
+                            { name: 'Loan Requests', icon: FileText, path: '/dashboard/borrower?tab=loan-requests', tabKey: 'loan-requests' },
+                            { name: 'New Request', icon: Plus, path: '/dashboard/borrower?tab=new-request', tabKey: 'new-request' },
+                            { name: 'Settings', icon: Settings, path: '/dashboard/borrower?tab=settings', tabKey: 'settings' }
                         ]
                     }
                 ];
+
+
 
     const handleTabClick = (name: string) => {
         console.log('Sidebar tab clicked:', name);
@@ -130,20 +135,14 @@ export default function Sidebar({ role, activeTab, setActiveTab, isOpen, toggleS
 
                 {navSections.map(section => (
                     <div key={section.title} className={styles.navSection}>
-                        {/* Section title */}
                         <h3 className={styles.navSectionTitle}>{section.title}</h3>
-
-                        {/* Section items */}
                         <ul className={styles.navList}>
-                            {section.items.map(({ name, icon: Icon }) => (
-                                <li key={name} className={activeTab === name ? styles.navLinkActive : ''}>
-                                    <button
-                                        onClick={() => handleTabClick(name)}
-                                        className={styles.navLink}
-                                    >
+                            {section.items.map(({ name, icon: Icon, path, tabKey }) => (
+                                <li key={tabKey} className={activeSelectedTab === tabKey ? styles.navLinkActive : ''}>
+                                    <Link href={path} className={styles.navLink}>
                                         <Icon size={20} />
-                                        {isOpen && name.charAt(0).toUpperCase() + name.slice(1)}
-                                    </button>
+                                        {isOpen && name}
+                                    </Link>
                                 </li>
                             ))}
                         </ul>
