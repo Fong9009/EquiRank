@@ -3,6 +3,7 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/navigation";
 import {useEffect, useState} from "react";
+import LoanAnalysis from "@/components/pages/lender/LoanAnalysis";
 
 interface Props {
     params: { id: string } | Promise<{ id: string }>;
@@ -48,15 +49,16 @@ export default function LoanRequestDetail({ params }: Props) {
     }
 
     const role = session.user.userType;
-    // Example: fetch details for this request
-    // const request = await fetch(`${process.env.API_URL}/loan-requests/${id}`).then(r => r.json());
 
     return (
-        <DashboardLayout role={role} activeTab="archived-loan-requests" setActiveTab={() => {}}>
-            <div>
-                <h1>Loan Request Detail for ID: {id}</h1>
-                {/* More page content */}
-            </div>
+        <DashboardLayout role={role} activeTab="loan-analysis" setActiveTab={() => {}}>
+            {!id ? (
+                <div className="error">
+                    Loan ID is missing or invalid. Please go back to the loan requests list.
+                </div>
+            ) : (
+                <LoanAnalysis loanId={id} />
+            )}
         </DashboardLayout>
     );
 }
