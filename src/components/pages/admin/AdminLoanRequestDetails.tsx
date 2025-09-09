@@ -144,14 +144,6 @@ export default function AdminLoanRequestDetails({ requestId, onClose }: AdminLoa
               <div className={`${styles.status} ${styles[`status${request.status.charAt(0).toUpperCase() + request.status.slice(1)}`]}`}>
                 {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
               </div>
-              {request.status === 'closed' && request.original_status && (
-                <div className={styles.closedIndicator}>
-                  <span className={styles.closedLabel}>Originally {request.original_status}</span>
-                  {request.closed_reason && (
-                    <span className={styles.closedReason}>• {request.closed_reason}</span>
-                  )}
-                </div>
-              )}
             </div>
           </div>
 
@@ -171,7 +163,7 @@ export default function AdminLoanRequestDetails({ requestId, onClose }: AdminLoa
               )}
               {request.company_description && (
                 <div className={styles.infoRow}>
-                  <span className={styles.label}>Company Description:</span>
+                  <span className={styles.label}>Company Info:</span>
                   <span className={styles.value}>{request.company_description}</span>
                 </div>
               )}
@@ -209,7 +201,32 @@ export default function AdminLoanRequestDetails({ requestId, onClose }: AdminLoa
             </div>
           </div>
 
-
+          {/* Close Information (if request was closed) */}
+          {request.status === 'closed' && request.closed_reason && (
+            <div className={styles.section}>
+              <h3>Request Closure Information</h3>
+              <div className={styles.loanInfo}>
+                {request.original_status && (
+                  <div className={styles.infoRow}>
+                    <span className={styles.label}>Previous Status:</span>
+                    <span className={styles.value}>
+                      {request.original_status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                    </span>
+                  </div>
+                )}
+                {request.closed_at && (
+                  <div className={styles.infoRow}>
+                    <span className={styles.label}>Closed On:</span>
+                    <span className={styles.value}>{formatDate(request.closed_at.toString())}</span>
+                  </div>
+                )}
+                <div className={styles.infoRow}>
+                  <span className={styles.label}>Close Reason:</span>
+                  <span className={styles.value}>{request.closed_reason}</span>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className={styles.actions}>

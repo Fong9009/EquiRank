@@ -131,7 +131,6 @@ export async function POST(request: NextRequest) {
         first_name: firstName,
         last_name: lastName,
         user_type: userType,
-        entity_type: 'company', // All users are companies
         company,
         phone,
         address,
@@ -151,7 +150,6 @@ export async function POST(request: NextRequest) {
           message: 'Account reactivated successfully',
           userId: existing.id,
           userType: userType,
-          entityType: 'company', // All users are companies
           isApproved: false,
           email
         },
@@ -198,7 +196,6 @@ export async function POST(request: NextRequest) {
         message: 'User created successfully',
         userId,
         userType,
-        entityType: 'company', // All users are companies
         isApproved: false, // New users need admin approval
         email: email // Return email for confirmation
       },

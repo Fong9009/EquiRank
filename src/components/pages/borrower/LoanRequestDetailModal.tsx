@@ -19,11 +19,14 @@ interface LoanRequestDetail {
   loan_purpose: string;
   loan_type: string;
   status: string;
+  original_status?: string;
+  closed_by?: number;
+  closed_at?: string;
+  closed_reason?: string;
   created_at: string;
   expires_at?: string;
   borrower_name: string;
   borrower_company?: string;
-  borrower_entity_type: string;
 }
 
 interface LoanRequestDetailModalProps {
@@ -155,10 +158,45 @@ export default function LoanRequestDetailModal({ requestId, onClose }: LoanReque
           </div>
 
           {/* Company Information (if available) */}
-          {request.company_description && (
+          {(request.borrower_company || request.company_description) && (
             <div className={styles.section}>
               <h3>Company Information</h3>
-              <p className={styles.companyDescription}>{request.company_description}</p>
+              {request.borrower_company && (
+                <div className={styles.infoRow}>
+                  <span className={styles.label}>Company:</span>
+                  <span className={styles.value}>{request.borrower_company}</span>
+                </div>
+              )}
+              {request.company_description && (
+                <p className={styles.companyDescription}>{request.company_description}</p>
+              )}
+            </div>
+          )}
+
+          {/* Close Information (if request was closed) */}
+          {request.status === 'closed' && request.closed_reason && (
+            <div className={styles.section}>
+              <h3>Request Closure Information</h3>
+              <div className={styles.loanInfo}>
+                {request.original_status && (
+                  <div className={styles.infoRow}>
+                    <span className={styles.label}>Previous Status:</span>
+                    <span className={styles.value}>
+                      {request.original_status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                    </span>
+                  </div>
+                )}
+                {request.closed_at && (
+                  <div className={styles.infoRow}>
+                    <span className={styles.label}>Closed On:</span>
+                    <span className={styles.value}>{formatDate(request.closed_at)}</span>
+                  </div>
+                )}
+                <div className={styles.infoRow}>
+                  <span className={styles.label}>Close Reason:</span>
+                  <span className={styles.value}>{request.closed_reason}</span>
+                </div>
+              </div>
             </div>
           )}
 

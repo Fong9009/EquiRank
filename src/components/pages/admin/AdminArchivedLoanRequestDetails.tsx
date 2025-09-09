@@ -148,12 +148,6 @@ export default function AdminArchivedLoanRequestDetails({ requestId, onClose, on
               <div className={`${styles.status} ${styles[`status${(request.original_status || request.status).charAt(0).toUpperCase() + (request.original_status || request.status).slice(1)}`]}`}>
                 {(request.original_status || request.status).charAt(0).toUpperCase() + (request.original_status || request.status).slice(1)}
               </div>
-              <div className={styles.closedIndicator}>
-                <span className={styles.closedLabel}>Closed</span>
-                {request.closed_reason && (
-                  <span className={styles.closedReason}>• {request.closed_reason}</span>
-                )}
-              </div>
             </div>
           </div>
 
@@ -169,6 +163,12 @@ export default function AdminArchivedLoanRequestDetails({ requestId, onClose, on
                 <div className={styles.infoRow}>
                   <span className={styles.label}>Company:</span>
                   <span className={styles.value}>{request.borrower_company}</span>
+                </div>
+              )}
+              {request.company_description && (
+                <div className={styles.infoRow}>
+                  <span className={styles.label}>Company Info:</span>
+                  <span className={styles.value}>{request.company_description}</span>
                 </div>
               )}
               <div className={styles.infoRow}>
@@ -192,12 +192,6 @@ export default function AdminArchivedLoanRequestDetails({ requestId, onClose, on
                 <span className={styles.label}>Purpose:</span>
                 <span className={styles.value}>{request.loan_purpose}</span>
               </div>
-              {request.company_description && (
-                <div className={styles.infoRow}>
-                  <span className={styles.label}>Company Description:</span>
-                  <span className={styles.value}>{request.company_description}</span>
-                </div>
-              )}
               <div className={styles.infoRow}>
                 <span className={styles.label}>Requested:</span>
                 <span className={styles.value}>{formatDate(request.created_at)}</span>

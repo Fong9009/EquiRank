@@ -19,6 +19,28 @@ interface ProfileData {
     bio: string;
     website: string;
     linkedin: string;
+    
+    // Borrower-specific fields
+    industry?: string;
+    location?: string;
+    capabilities?: string;
+    years_in_business?: number;
+    employee_count?: number;
+    revenue_range?: string;
+    company_description?: string;
+    qa_rating?: number;
+    company_logo?: string;
+    
+    // Lender-specific fields
+    institution_type?: string;
+    risk_appetite?: string;
+    target_industries?: string[];
+    target_markets?: string[];
+    min_loan_amount?: number;
+    max_loan_amount?: number;
+    
+    // Admin-specific fields
+    admin_level?: string;
 }
 
 interface DisplayData {
@@ -36,7 +58,29 @@ export default function ProfileSettings() {
         profile_picture: '',
         bio: '',
         website: '',
-        linkedin: ''
+        linkedin: '',
+        
+        // Borrower-specific fields
+        industry: '',
+        location: '',
+        capabilities: '',
+        years_in_business: undefined,
+        employee_count: undefined,
+        revenue_range: '',
+        company_description: '',
+        qa_rating: undefined,
+        company_logo: '',
+        
+        // Lender-specific fields
+        institution_type: '',
+        risk_appetite: '',
+        target_industries: [],
+        target_markets: [],
+        min_loan_amount: undefined,
+        max_loan_amount: undefined,
+        
+        // Admin-specific fields
+        admin_level: ''
     });
 
     const [isLoading, setIsLoading] = useState(false);
@@ -49,8 +93,31 @@ export default function ProfileSettings() {
 
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
+    const [profileCompletionPercentage, setProfileCompletionPercentage] = useState(0);
     const windowBackground = theme === "light" ? styles.lightPage : styles.darkPage;
     const titleText = theme === "light" ? styles.lightText : styles.darkText;
+
+    // Calculate profile completion via API
+    const calculateProfileCompletionAPI = async (userType: string, profileData: ProfileData) => {
+        try {
+            const response = await fetch('/api/users/profile-completion', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userType, profileData }),
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                return data.completionPercentage;
+            }
+            return 0;
+        } catch (error) {
+            console.error('Error calculating profile completion:', error);
+            return 0;
+        }
+    };
 
 
     // Fetch user profile data
@@ -61,8 +128,7 @@ export default function ProfileSettings() {
             if (response.ok) {
                 const userData = await response.json();
                 // Update profile data with fetched user data
-                setProfileData(prev => ({
-                    ...prev,
+                const updatedProfileData = {
                     first_name: userData.first_name || session?.user?.name?.split(' ')[0] || '',
                     last_name: userData.last_name || session?.user?.name?.split(' ').slice(1).join(' ') || '',
                     company: userData.company || session?.user?.company || '',
@@ -71,18 +137,75 @@ export default function ProfileSettings() {
                     profile_picture: userData.profile_picture || '',
                     bio: userData.bio || '',
                     website: userData.website || '',
-                    linkedin: userData.linkedin || ''
-                }));
+                    linkedin: userData.linkedin || '',
+                    
+                    // Borrower-specific fields
+                    industry: userData.industry || '',
+                    location: userData.location || '',
+                    capabilities: userData.capabilities || '',
+                    years_in_business: userData.years_in_business || undefined,
+                    employee_count: userData.employee_count || undefined,
+                    revenue_range: userData.revenue_range || '',
+                    company_description: userData.company_description || '',
+                    qa_rating: userData.qa_rating || undefined,
+                    company_logo: userData.company_logo || '',
+                    
+                    // Lender-specific fields
+                    institution_type: userData.institution_type || '',
+                    risk_appetite: userData.risk_appetite || '',
+                    target_industries: userData.target_industries || [],
+                    target_markets: userData.target_markets || [],
+                    min_loan_amount: userData.min_loan_amount || undefined,
+                    max_loan_amount: userData.max_loan_amount || undefined,
+                    
+                    // Admin-specific fields
+                    admin_level: userData.admin_level || ''
+                };
+                setProfileData(updatedProfileData);
+                
+                // Use the stored profile completion percentage from database
+                setProfileCompletionPercentage(userData.profile_completion_percentage || 0);
             }
         } catch (error) {
             console.error('Error fetching user profile:', error);
             // Fallback to session data if API call fails
-            setProfileData(prev => ({
-                ...prev,
+            const fallbackProfileData = {
                 first_name: session?.user?.name?.split(' ')[0] || '',
                 last_name: session?.user?.name?.split(' ').slice(1).join(' ') || '',
-                company: session?.user?.company || ''
-            }));
+                company: session?.user?.company || '',
+                phone: '',
+                address: '',
+                profile_picture: '',
+                bio: '',
+                website: '',
+                linkedin: '',
+                
+                // Borrower-specific fields
+                industry: '',
+                location: '',
+                capabilities: '',
+                years_in_business: undefined,
+                employee_count: undefined,
+                revenue_range: '',
+                company_description: '',
+                qa_rating: undefined,
+                company_logo: '',
+                
+                // Lender-specific fields
+                institution_type: '',
+                risk_appetite: '',
+                target_industries: [],
+                target_markets: [],
+                min_loan_amount: undefined,
+                max_loan_amount: undefined,
+                
+                // Admin-specific fields
+                admin_level: ''
+            };
+            setProfileData(fallbackProfileData);
+            
+            // Set completion percentage to 0 for fallback data
+            setProfileCompletionPercentage(0);
         } finally {
             setIsFetching(false);
         }
@@ -157,11 +280,14 @@ export default function ProfileSettings() {
         }));
     };
 
-    const handleProfileChange = (field: keyof ProfileData, value: string) => {
-        setProfileData(prev => ({
-            ...prev,
-            [field]: value
-        }));
+    const handleProfileChange = async (field: keyof ProfileData, value: string | number | string[] | undefined) => {
+        setProfileData(prev => {
+            const updated = {
+                ...prev,
+                [field]: value
+            };
+            return updated;
+        });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -187,6 +313,13 @@ export default function ProfileSettings() {
                         text: 'Profile updated successfully!'
                     });
                     profileEvents.emit();
+                    
+                    // Refresh profile completion percentage from database after successful save
+                    const refreshResponse = await fetch("/api/users/profile");
+                    if (refreshResponse.ok) {
+                        const refreshData = await refreshResponse.json();
+                        setProfileCompletionPercentage(refreshData.profile_completion_percentage || 0);
+                    }
                 } else {
                     const error = await response.json();
                     setMessage({
@@ -471,7 +604,249 @@ export default function ProfileSettings() {
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Borrower-specific fields */}
+                            {session?.user && (session.user as any).userType === 'borrower' && (
+                                <div className={styles.section}>
+                                    <h3>Business Information</h3>
+                                    <div className={styles.formRow}>
+                                        <div className={styles.formGroup}>
+                                            <label htmlFor="industry">Industry</label>
+                                            <input
+                                                type="text"
+                                                id="industry"
+                                                value={profileData.industry || ''}
+                                                onChange={(e) => handleProfileChange('industry', e.target.value)}
+                                                className={styles.input}
+                                                placeholder="e.g., Technology, Healthcare, Manufacturing"
+                                            />
+                                        </div>
+                                        <div className={styles.formGroup}>
+                                            <label htmlFor="location">Location</label>
+                                            <input
+                                                type="text"
+                                                id="location"
+                                                value={profileData.location || ''}
+                                                onChange={(e) => handleProfileChange('location', e.target.value)}
+                                                className={styles.input}
+                                                placeholder="e.g., New York, NY"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className={styles.formGroup}>
+                                        <label htmlFor="capabilities">Company Capabilities</label>
+                                        <textarea
+                                            id="capabilities"
+                                            value={profileData.capabilities || ''}
+                                            onChange={(e) => handleProfileChange('capabilities', e.target.value)}
+                                            className={styles.textarea}
+                                            rows={3}
+                                            placeholder="Describe your company's capabilities and expertise..."
+                                        />
+                                    </div>
+
+                                    <div className={styles.formGroup}>
+                                        <label htmlFor="company_description">Company Description</label>
+                                        <textarea
+                                            id="company_description"
+                                            value={profileData.company_description || ''}
+                                            onChange={(e) => handleProfileChange('company_description', e.target.value)}
+                                            className={styles.textarea}
+                                            rows={4}
+                                            placeholder="Provide a detailed description of your company, its mission, and what it does..."
+                                        />
+                                    </div>
+
+                                    <div className={styles.formRow}>
+                                        <div className={styles.formGroup}>
+                                            <label htmlFor="years_in_business">Years in Business</label>
+                                            <input
+                                                type="number"
+                                                id="years_in_business"
+                                                value={profileData.years_in_business || ''}
+                                                onChange={(e) => handleProfileChange('years_in_business', parseInt(e.target.value) || undefined)}
+                                                className={styles.input}
+                                                min="0"
+                                                placeholder="0"
+                                            />
+                                        </div>
+                                        <div className={styles.formGroup}>
+                                            <label htmlFor="employee_count">Number of Employees</label>
+                                            <input
+                                                type="number"
+                                                id="employee_count"
+                                                value={profileData.employee_count || ''}
+                                                onChange={(e) => handleProfileChange('employee_count', parseInt(e.target.value) || undefined)}
+                                                className={styles.input}
+                                                min="0"
+                                                placeholder="0"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className={styles.formGroup}>
+                                        <label htmlFor="revenue_range">Annual Revenue Range</label>
+                                        <select
+                                            id="revenue_range"
+                                            value={profileData.revenue_range || ''}
+                                            onChange={(e) => handleProfileChange('revenue_range', e.target.value)}
+                                            className={styles.input}
+                                        >
+                                            <option value="">Select revenue range</option>
+                                            <option value="0-50k">$0 - $50,000</option>
+                                            <option value="50k-100k">$50,000 - $100,000</option>
+                                            <option value="100k-500k">$100,000 - $500,000</option>
+                                            <option value="500k-1m">$500,000 - $1,000,000</option>
+                                            <option value="1m-5m">$1,000,000 - $5,000,000</option>
+                                            <option value="5m-10m">$5,000,000 - $10,000,000</option>
+                                            <option value="10m-50m">$10,000,000 - $50,000,000</option>
+                                            <option value="50m+">$50,000,000+</option>
+                                        </select>
+                                    </div>
+
+                                    <div className={styles.formRow}>
+                                        <div className={styles.formGroup}>
+                                            <label htmlFor="qa_rating">QA Rating</label>
+                                            <input
+                                                type="number"
+                                                id="qa_rating"
+                                                value={profileData.qa_rating || ''}
+                                                onChange={(e) => handleProfileChange('qa_rating', parseFloat(e.target.value) || undefined)}
+                                                className={styles.input}
+                                                min="0"
+                                                max="5"
+                                                step="0.01"
+                                                placeholder="0.00 - 5.00"
+                                            />
+                                            <small className={styles.helpText}>Quality assurance rating (0.00 - 5.00)</small>
+                                        </div>
+                                        <div className={styles.formGroup}>
+                                            <label htmlFor="company_logo">Company Logo URL</label>
+                                            <input
+                                                type="url"
+                                                id="company_logo"
+                                                value={profileData.company_logo || ''}
+                                                onChange={(e) => handleProfileChange('company_logo', e.target.value)}
+                                                className={styles.input}
+                                                placeholder="https://example.com/logo.png"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Lender-specific fields */}
+                            {session?.user && (session.user as any).userType === 'lender' && (
+                                <div className={styles.section}>
+                                    <h3>Lending Information</h3>
+                                    <div className={styles.formRow}>
+                                        <div className={styles.formGroup}>
+                                            <label htmlFor="institution_type">Institution Type</label>
+                                            <select
+                                                id="institution_type"
+                                                value={profileData.institution_type || ''}
+                                                onChange={(e) => handleProfileChange('institution_type', e.target.value)}
+                                                className={styles.input}
+                                            >
+                                                <option value="">Select institution type</option>
+                                                <option value="bank">Bank</option>
+                                                <option value="credit_union">Credit Union</option>
+                                                <option value="investment_firm">Investment Firm</option>
+                                                <option value="private_lender">Private Lender</option>
+                                                <option value="peer_to_peer">Peer-to-Peer</option>
+                                                <option value="other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div className={styles.formGroup}>
+                                            <label htmlFor="risk_appetite">Risk Appetite</label>
+                                            <select
+                                                id="risk_appetite"
+                                                value={profileData.risk_appetite || ''}
+                                                onChange={(e) => handleProfileChange('risk_appetite', e.target.value)}
+                                                className={styles.input}
+                                            >
+                                                <option value="">Select risk appetite</option>
+                                                <option value="conservative">Conservative</option>
+                                                <option value="moderate">Moderate</option>
+                                                <option value="aggressive">Aggressive</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div className={styles.formRow}>
+                                        <div className={styles.formGroup}>
+                                            <label htmlFor="min_loan_amount">Minimum Loan Amount</label>
+                                            <input
+                                                type="number"
+                                                id="min_loan_amount"
+                                                value={profileData.min_loan_amount || ''}
+                                                onChange={(e) => handleProfileChange('min_loan_amount', parseFloat(e.target.value) || undefined)}
+                                                className={styles.input}
+                                                min="0"
+                                                step="1000"
+                                                placeholder="0"
+                                            />
+                                        </div>
+                                        <div className={styles.formGroup}>
+                                            <label htmlFor="max_loan_amount">Maximum Loan Amount</label>
+                                            <input
+                                                type="number"
+                                                id="max_loan_amount"
+                                                value={profileData.max_loan_amount || ''}
+                                                onChange={(e) => handleProfileChange('max_loan_amount', parseFloat(e.target.value) || undefined)}
+                                                className={styles.input}
+                                                min="0"
+                                                step="1000"
+                                                placeholder="0"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Admin-specific fields */}
+                            {session?.user && (session.user as any).userType === 'admin' && (
+                                <div className={styles.section}>
+                                    <h3>Admin Information</h3>
+                                    <div className={styles.formGroup}>
+                                        <label htmlFor="admin_level">Admin Level</label>
+                                        <select
+                                            id="admin_level"
+                                            value={profileData.admin_level || ''}
+                                            onChange={(e) => handleProfileChange('admin_level', e.target.value)}
+                                            className={styles.input}
+                                        >
+                                            <option value="">Select admin level</option>
+                                            <option value="super_admin">Super Admin</option>
+                                            <option value="admin">Admin</option>
+                                            <option value="moderator">Moderator</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            )}
                         </div>
+
+                        {/* Profile Completion Progress Indicator */}
+                        <div className={styles.progressSection}>
+                            <div className={styles.progressHeader}>
+                                <h3>Profile Completion</h3>
+                                <span className={styles.progressPercentage}>{profileCompletionPercentage}%</span>
+                            </div>
+                            <div className={styles.progressBar}>
+                                <div 
+                                    className={styles.progressFill}
+                                    style={{ width: `${profileCompletionPercentage}%` }}
+                                />
+                            </div>
+                            <p className={styles.progressMessage}>
+                                {profileCompletionPercentage === 100 
+                                    ? 'Your profile is complete! 🎉' 
+                                    : `Complete ${100 - profileCompletionPercentage}% more to finish your profile`
+                                }
+                            </p>
+                        </div>
+
                         <div className={styles.formActions}>
                             <button
                                 type="submit"

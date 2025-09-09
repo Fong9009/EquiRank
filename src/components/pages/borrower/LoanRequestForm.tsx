@@ -3,12 +3,12 @@
 import {useEffect, useState} from 'react';
 import { useSession } from 'next-auth/react';
 import styles from '@/styles/pages/borrower/loanRequestForm.module.css';
+import LoanRequestAccessGuard from '@/components/common/LoanRequestAccessGuard';
 import clsx from 'clsx';
 
 interface LoanRequestFormData {
   amount_requested: string;
   currency: 'USD' | 'EUR' | 'GBP' | 'CAD' | 'AUD' | 'JPY' | 'CHF' | 'CNY';
-  company_description: string;
   loan_purpose: string;
   loan_type: 'equipment' | 'expansion' | 'working_capital' | 'inventory' | 'real_estate' | 'startup' | 'other';
   other_loan_type: string;
@@ -20,6 +20,7 @@ export default function LoanRequestForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
+  const [profileCompletionPercentage, setProfileCompletionPercentage] = useState(0);
 
   //Colour Mode Editing
   const textColour = theme === "light" ? styles.lightTextColour : styles.darkTextColour;
@@ -30,7 +31,6 @@ export default function LoanRequestForm() {
   const [formData, setFormData] = useState<LoanRequestFormData>({
     amount_requested: '',
     currency: 'AUD',
-    company_description: '',
     loan_purpose: '',
     loan_type: 'working_capital',
     other_loan_type: '',
@@ -61,6 +61,15 @@ export default function LoanRequestForm() {
     }
 
     try {
+      // First, get the company description from the user's profile
+      const profileResponse = await fetch('/api/users/profile');
+      let companyDescription = '';
+      
+      if (profileResponse.ok) {
+        const profileData = await profileResponse.json();
+        companyDescription = profileData.company_description || '';
+      }
+
       const response = await fetch('/api/loan-requests', {
         method: 'POST',
         headers: {
@@ -69,6 +78,7 @@ export default function LoanRequestForm() {
         body: JSON.stringify({
           ...formData,
           amount_requested: parseFloat(formData.amount_requested),
+          company_description: companyDescription,
           expires_at: formData.expires_at ? new Date(formData.expires_at).toISOString() : null
         }),
       });
@@ -80,8 +90,7 @@ export default function LoanRequestForm() {
         // Reset form
         setFormData({
           amount_requested: '',
-          currency: 'USD',
-          company_description: '',
+          currency: 'AUD',
           loan_purpose: '',
           loan_type: 'working_capital',
           other_loan_type: '',
@@ -111,13 +120,29 @@ export default function LoanRequestForm() {
         });
   }, [session]);
 
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch('/api/users/profile');
+        if (res.ok) {
+          const data = await res.json();
+          setProfileCompletionPercentage(data.profile_completion_percentage || 0);
+        }
+      } catch (e) {
+        // ignore
+      }
+    };
+    if (session?.user) fetchProfile();
+  }, [session]);
+
   if (!session?.user) {
     return <div>Please log in to submit a loan request.</div>;
   }
 
   return (
       <div className={backgroundColour}>
-        <div className={styles.container}>
+        <LoanRequestAccessGuard userType="borrower" profileCompletionPercentage={profileCompletionPercentage}>
+          <div className={styles.container}>
           <div className={styles.formWrapper}>
             <h2 className={styles.title}>Submit Loan Request</h2>
             <p className={styles.subtitle}>Tell us about your funding needs</p>
@@ -226,22 +251,6 @@ export default function LoanRequestForm() {
               )}
 
               <div className={styles.formGroup}>
-                <label htmlFor="company_description" className={styles.label}>
-                  Company Description *
-                </label>
-                <textarea
-                  id="company_description"
-                  name="company_description"
-                  value={formData.company_description}
-                  onChange={handleInputChange}
-                  required
-                  rows={4}
-                  className={styles.textarea}
-                  placeholder="Describe your company, its business model, and current operations..."
-                />
-              </div>
-
-              <div className={styles.formGroup}>
                 <label htmlFor="loan_purpose" className={styles.label}>
                   Loan Purpose *
                 </label>
@@ -256,10 +265,6 @@ export default function LoanRequestForm() {
                   placeholder="Describe how you plan to use the loan funds..."
                 />
               </div>
-
-
-
-
 
               <div className={styles.formGroup}>
                 <label htmlFor="expires_at" className={styles.label}>
@@ -288,6 +293,7 @@ export default function LoanRequestForm() {
             </form>
           </div>
         </div>
+        </LoanRequestAccessGuard>
       </div>
   );
 }

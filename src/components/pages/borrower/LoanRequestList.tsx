@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import LoanRequestDetailModal from './LoanRequestDetailModal';
 import EditLoanRequestModal from './EditLoanRequestModal';
+import LoanRequestAccessGuard from '@/components/common/LoanRequestAccessGuard';
 import styles from '@/styles/pages/borrower/loanRequestList.module.css';
 import clsx from 'clsx';
 
@@ -14,9 +15,14 @@ interface LoanRequest {
   loan_purpose: string;
   loan_type: string;
   status: string;
+  original_status?: string;
+  closed_by?: number;
+  closed_at?: string;
+  closed_reason?: string;
   created_at: string;
   expires_at: string | null;
   company_description?: string;
+  borrower_company?: string;
 }
 
 export default function LoanRequestList() {
@@ -27,7 +33,7 @@ export default function LoanRequestList() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [selectedRequest, setSelectedRequest] = useState<number | null>(null);
   const [editingRequest, setEditingRequest] = useState<number | null>(null);
-
+  const [profileCompletionPercentage, setProfileCompletionPercentage] = useState(0);
   const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
 
   //Colour Mode Editing
@@ -37,7 +43,14 @@ export default function LoanRequestList() {
 
   useEffect(() => {
     if (session?.user) {
-      fetchLoanRequests();
+      // Only fetch for borrowers
+      if ((session.user as any).userType === 'borrower') {
+        fetchLoanRequests();
+      } else {
+        setIsLoading(false);
+        setError('Only borrowers can view their loan requests');
+      }
+      fetchProfileCompletion();
     }
   }, [session]);
 
@@ -63,7 +76,12 @@ export default function LoanRequestList() {
         const data = await response.json();
         setLoanRequests(data);
       } else {
-        setError('Failed to fetch loan requests');
+        let serverMsg = '';
+        try {
+          const body = await response.json();
+          serverMsg = body?.error || '';
+        } catch {}
+        setError(serverMsg || `Failed to fetch loan requests (${response.status})`);
       }
     } catch (error) {
       console.error('Error fetching loan requests:', error);
@@ -72,6 +90,20 @@ export default function LoanRequestList() {
       setIsLoading(false);
     }
   };
+
+  const fetchProfileCompletion = async () => {
+    try {
+      const response = await fetch('/api/users/profile');
+      if (response.ok) {
+        const data = await response.json();
+        setProfileCompletionPercentage(data.profile_completion_percentage || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching profile completion:', error);
+    }
+  };
+
+  // Wizard flow removed in favor of redirect to settings in guard
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -170,21 +202,32 @@ export default function LoanRequestList() {
   if (loanRequests.length === 0) {
     return (
         <div className={backgroundColour}>
-          <div className={styles.emptyState}>
-            <h3 className={textColour}>No Loan Requests Yet</h3>
-            <p className={textColour}>You haven't submitted any loan requests yet. Start by creating your first request!</p>
-          </div>
+          <LoanRequestAccessGuard
+            userType="borrower"
+            profileCompletionPercentage={profileCompletionPercentage}
+          >
+            <div className={styles.emptyState}>
+              <h3 className={textColour}>No Loan Requests Yet</h3>
+              <p className={textColour}>You haven't submitted any loan requests yet. Start by creating your first request!</p>
+            </div>
+          </LoanRequestAccessGuard>
         </div>
     );
   }
 
+  // No wizard modal; guard will redirect to settings
+
   return (
       <div className={backgroundColour}>
-        <div className={styles.container}>
-          <div className={styles.header}>
-            <h2 className={clsx(styles.title,textColour)}>My Loan Requests</h2>
-            <p className={styles.subtitle}>Track the status of your funding requests</p>
-          </div>
+        <LoanRequestAccessGuard
+          userType="borrower"
+          profileCompletionPercentage={profileCompletionPercentage}
+        >
+          <div className={styles.container}>
+            <div className={styles.header}>
+              <h2 className={clsx(styles.title,textColour)}>My Loan Requests</h2>
+              <p className={styles.subtitle}>Track the status of your funding requests</p>
+            </div>
 
           {successMessage && (
             <div className={`${styles.message} ${styles.success}`}>
@@ -208,9 +251,9 @@ export default function LoanRequestList() {
                     </span>
                     <span className={styles.currency}>{request.currency}</span>
                   </div>
-                  <div className={`${styles.status} ${getStatusColor(request.status)}`}>
-                    {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                  </div>
+                                                  <div className={`${styles.status} ${getStatusColor(request.status)}`}>
+                  {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                </div>
                 </div>
 
                 <div className={styles.requestDetails}>
@@ -231,9 +274,16 @@ export default function LoanRequestList() {
                     </span>
                   </div>
 
-                  {request.company_description && (
+                  {request.borrower_company && (
                     <div className={styles.detailRow}>
                       <span className={styles.label}>Company:</span>
+                      <span className={styles.value}>{request.borrower_company}</span>
+                    </div>
+                  )}
+
+                  {request.company_description && (
+                    <div className={styles.detailRow}>
+                      <span className={styles.label}>Company Info:</span>
                       <span className={styles.value}>
                         {request.company_description.length > 80
                           ? `${request.company_description.substring(0, 80)}...`
@@ -252,6 +302,19 @@ export default function LoanRequestList() {
                     <div className={styles.detailRow}>
                       <span className={styles.label}>Expires:</span>
                       <span className={styles.value}>{formatDate(request.expires_at)}</span>
+                    </div>
+                  )}
+                  
+                  {/* Close reason display */}
+                  {request.status === 'closed' && request.closed_reason && (
+                    <div className={styles.detailRow}>
+                      <span className={styles.label}>Close Reason:</span>
+                      <span className={`${styles.value} ${styles.closeReasonValue}`} title={request.closed_reason}>
+                        {request.closed_reason.length > 60
+                          ? `${request.closed_reason.substring(0, 60)}...`
+                          : request.closed_reason
+                        }
+                      </span>
                     </div>
                   )}
                 </div>
@@ -300,7 +363,8 @@ export default function LoanRequestList() {
               onUpdate={handleRequestUpdated}
             />
           )}
-        </div>
+          </div>
+        </LoanRequestAccessGuard>
       </div>
   );
 }

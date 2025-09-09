@@ -23,7 +23,7 @@ interface LoanRequestDetails {
   expires_at?: string;
   borrower_name: string;
   borrower_company?: string;
-  company_description: string;
+  company_description?: string;
 }
 
 interface LoanRequestDetailsProps {
@@ -321,7 +321,7 @@ export default function LoanRequestDetails({ requestId, onClose, onFund }: LoanR
               )}
               {request.company_description && (
                 <div className={styles.infoRow}>
-                  <span className={styles.label}>Company Description:</span>
+                  <span className={styles.label}>Company Info:</span>
                   <span className={styles.value}>{request.company_description}</span>
                 </div>
               )}

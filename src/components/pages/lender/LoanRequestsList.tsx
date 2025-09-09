@@ -19,7 +19,6 @@ interface LoanRequest {
   company_description?: string;
   borrower_name: string;
   borrower_company?: string;
-  borrower_entity_type: string;
 }
 
 export default function LoanRequestsList() {
@@ -249,11 +248,23 @@ export default function LoanRequestsList() {
                       <span className={styles.label}>Borrower:</span>
                       <span className={styles.value}>{request.borrower_name}</span>
                     </div>
-
+                    
                     {request.borrower_company && (
                       <div className={styles.detailRow}>
                         <span className={styles.label}>Company:</span>
                         <span className={styles.value}>{request.borrower_company}</span>
+                      </div>
+                    )}
+
+                    {request.company_description && (
+                      <div className={styles.detailRow}>
+                        <span className={styles.label}>Company Info:</span>
+                        <span className={styles.value}>
+                          {request.company_description.length > 60 
+                            ? `${request.company_description.substring(0, 60)}...` 
+                            : request.company_description
+                          }
+                        </span>
                       </div>
                     )}
 
@@ -263,27 +274,16 @@ export default function LoanRequestsList() {
                         {request.loan_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                       </span>
                     </div>
-
+                    
                     <div className={styles.detailRow}>
                       <span className={styles.label}>Purpose:</span>
                       <span className={styles.value}>
-                        {request.loan_purpose.length > 80
-                          ? `${request.loan_purpose.substring(0, 80)}...`
+                        {request.loan_purpose.length > 80 
+                          ? `${request.loan_purpose.substring(0, 80)}...` 
                           : request.loan_purpose
                         }
                       </span>
                     </div>
-                    {request.company_description && (
-                      <div className={styles.detailRow}>
-                        <span className={styles.label}>Company:</span>
-                        <span className={styles.value}>
-                          {request.company_description.length > 60
-                            ? `${request.company_description.substring(0, 60)}...`
-                            : request.company_description
-                          }
-                        </span>
-                      </div>
-                    )}
 
                     <div className={styles.detailRow}>
                       <span className={styles.label}>Posted:</span>
@@ -299,19 +299,19 @@ export default function LoanRequestsList() {
                   </div>
 
                   <div className={styles.requestActions}>
-                    <button
+                    <button 
                       onClick={() => setSelectedRequest(request.id)}
                       className={styles.viewButton}
                     >
                       View Details
                     </button>
                     {request.status === 'pending' && (
-                          <button
-                              onClick={() => setSelectedRequest(request.id)}
-                              className={styles.fundButton}
-                          >
-                            Fund
-                          </button>
+                      <button 
+                        onClick={() => setSelectedRequest(request.id)}
+                        className={styles.fundButton}
+                      >
+                        Fund
+                      </button>
                     )}
                   </div>
                   <div className={styles.requestActions}>
@@ -336,5 +336,5 @@ export default function LoanRequestsList() {
           )}
         </div>
       </div>
-  );
+    );
 }
