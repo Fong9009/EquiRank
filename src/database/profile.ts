@@ -37,9 +37,6 @@ export interface LenderProfile {
     website?: string;
     linkedin?: string;
     preferences?: any;
-    profile_completion_percentage: number;
-    profile_completed_at?: string;
-    profile_completion_required: boolean;
     created_at: Date;
     updated_at: Date;
 }
@@ -52,9 +49,6 @@ export interface AdminProfile {
     website?: string;
     linkedin?: string;
     preferences?: any;
-    profile_completion_percentage: number;
-    profile_completed_at?: string;
-    profile_completion_required: boolean;
     created_at: Date;
     updated_at: Date;
 }
@@ -268,6 +262,11 @@ export async function updateAdminProfile(userId: number, profileData: Partial<Ad
 
 // Calculate profile completion percentage
 export function calculateProfileCompletion(userType: string, profileData: any): number {
+    // Lenders and admins don't need profile completion - they can access everything immediately
+    if (userType === 'lender' || userType === 'admin') {
+        return 100;
+    }
+    
     let completedFields = 0;
     let totalFields = 0;
     
@@ -292,14 +291,6 @@ export function calculateProfileCompletion(userType: string, profileData: any): 
     if (userType === 'borrower') {
         const borrowerFields = ['industry', 'location', 'capabilities', 'years_in_business', 'employee_count', 'revenue_range', 'company_description', 'qa_rating', 'company_logo'];
         borrowerFields.forEach(field => {
-            totalFields++;
-            if (profileData[field] && profileData[field].toString().trim() !== '') {
-                completedFields++;
-            }
-        });
-    } else if (userType === 'lender') {
-        const lenderFields = ['institution_type', 'risk_appetite', 'target_industries', 'target_markets', 'min_loan_amount', 'max_loan_amount'];
-        lenderFields.forEach(field => {
             totalFields++;
             if (profileData[field] && profileData[field].toString().trim() !== '') {
                 completedFields++;

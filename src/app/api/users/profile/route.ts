@@ -93,15 +93,11 @@ export async function PUT(request: NextRequest) {
                 profile_completed_at: newCompletionPercentage >= 100 ? new Date().toISOString() : undefined
             });
         } else if (currentUser.user_type === 'lender') {
-            await updateLenderProfile(userId, {
-                profile_completion_percentage: newCompletionPercentage,
-                profile_completed_at: newCompletionPercentage >= 100 ? new Date().toISOString() : undefined
-            });
+            // Lenders don't need profile completion tracking
+            // No profile completion update needed
         } else if (currentUser.user_type === 'admin') {
-            await updateAdminProfile(userId, {
-                profile_completion_percentage: newCompletionPercentage,
-                profile_completed_at: newCompletionPercentage >= 100 ? new Date().toISOString() : undefined
-            });
+            // Admins don't need profile completion tracking
+            // No profile completion update needed
         }
         
         if (success) {
@@ -166,17 +162,17 @@ export async function GET(request: NextRequest) {
             const lenderProfile = await getLenderProfile(userId);
             if (lenderProfile) {
                 roleProfile = lenderProfile;
-                completionPercentage = lenderProfile.profile_completion_percentage;
-                profileCompletedAt = lenderProfile.profile_completed_at;
-                profileCompletionRequired = lenderProfile.profile_completion_required;
+                completionPercentage = 100;
+                profileCompletedAt = null;
+                profileCompletionRequired = false;
             }
         } else if (userProfile.user_type === 'admin') {
             const adminProfile = await getAdminProfile(userId);
             if (adminProfile) {
                 roleProfile = adminProfile;
-                completionPercentage = adminProfile.profile_completion_percentage;
-                profileCompletedAt = adminProfile.profile_completed_at;
-                profileCompletionRequired = adminProfile.profile_completion_required;
+                completionPercentage = 100;
+                profileCompletedAt = null;
+                profileCompletionRequired = false;
             }
         }
 

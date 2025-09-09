@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql:3306
--- Generation Time: Sep 09, 2025 at 11:39 AM
+-- Generation Time: Sep 09, 2025 at 12:38 PM
 -- Server version: 8.0.43
 -- PHP Version: 8.2.27
 
@@ -33,9 +33,6 @@ CREATE TABLE `admin_profiles` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `admin_level` enum('super_admin','admin','moderator') COLLATE utf8mb4_unicode_ci DEFAULT 'admin' COMMENT 'Admin permission level',
-  `profile_completion_percentage` int DEFAULT '100' COMMENT 'Profile completion percentage (0-100)',
-  `profile_completed_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'When profile was completed',
-  `profile_completion_required` tinyint(1) DEFAULT '0' COMMENT 'Whether profile completion is required',
   `website` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Personal or company website',
   `linkedin` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'LinkedIn profile URL',
   `preferences` json DEFAULT NULL COMMENT 'User preferences and settings'
@@ -45,8 +42,8 @@ CREATE TABLE `admin_profiles` (
 -- Dumping data for table `admin_profiles`
 --
 
-INSERT INTO `admin_profiles` (`id`, `user_id`, `created_at`, `updated_at`, `admin_level`, `profile_completion_percentage`, `profile_completed_at`, `profile_completion_required`, `website`, `linkedin`, `preferences`) VALUES
-(1, 1, '2025-09-08 04:10:30', '2025-09-08 04:10:30', 'admin', 100, '2025-09-08 04:11:27', 0, NULL, NULL, NULL);
+INSERT INTO `admin_profiles` (`id`, `user_id`, `created_at`, `updated_at`, `admin_level`, `website`, `linkedin`, `preferences`) VALUES
+(1, 1, '2025-09-08 04:10:30', '2025-09-08 04:10:30', 'admin', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -81,8 +78,9 @@ CREATE TABLE `borrower_profiles` (
 --
 
 INSERT INTO `borrower_profiles` (`id`, `user_id`, `created_at`, `updated_at`, `industry`, `location`, `capabilities`, `years_in_business`, `employee_count`, `revenue_range`, `profile_completion_percentage`, `profile_completed_at`, `profile_completion_required`, `website`, `linkedin`, `preferences`, `qa_rating`, `company_logo`, `qa_rating_updated_at`) VALUES
-(1, 2, '2025-09-08 04:10:30', '2025-09-08 04:11:27', NULL, NULL, NULL, NULL, NULL, NULL, 20, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL),
-(2, 4, '2025-09-08 04:10:30', '2025-09-08 04:11:27', NULL, NULL, NULL, NULL, NULL, NULL, 20, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL);
+(1, 2, '2025-09-08 04:10:30', '2025-09-09 12:29:10', 'Technology', 'San Francisco, CA', 'AI/ML development, Cloud architecture, Mobile app development, Data analytics', 7, 50, '5m-10m', 100, '2025-09-09 12:29:10', 0, 'https://www.completetech.com', 'https://linkedin.com/in/completeborrower', '{\"marketing\": false, \"notifications\": true}', 4.85, 'https://www.completetech.com/logo.png', NULL),
+(2, 4, '2025-09-08 04:10:30', '2025-09-08 04:11:27', NULL, NULL, NULL, NULL, NULL, NULL, 20, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(4, 6, '2025-09-09 12:21:17', '2025-09-09 12:21:17', 'Technology', 'San Francisco, CA', 'AI/ML development, Cloud architecture, Mobile app development, Data analytics, Product management, Team leadership', 7, 50, '5m-10m', 100, '2025-09-09 12:21:17', 0, 'https://www.completetech.com', 'https://linkedin.com/in/completeborrower', '{\"marketing\": false, \"email_updates\": true, \"notifications\": true}', 4.85, 'https://www.completetech.com/logo.png', NULL);
 
 -- --------------------------------------------------------
 
@@ -157,9 +155,6 @@ CREATE TABLE `lender_profiles` (
   `target_markets` json DEFAULT NULL COMMENT 'JSON array of target geographic markets',
   `min_loan_amount` decimal(15,2) DEFAULT NULL COMMENT 'Minimum loan amount preference',
   `max_loan_amount` decimal(15,2) DEFAULT NULL COMMENT 'Maximum loan amount preference',
-  `profile_completion_percentage` int DEFAULT '0' COMMENT 'Profile completion percentage (0-100)',
-  `profile_completed_at` timestamp NULL DEFAULT NULL COMMENT 'When profile was completed',
-  `profile_completion_required` tinyint(1) DEFAULT '1' COMMENT 'Whether profile completion is required for loan requests',
   `website` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Personal or company website',
   `linkedin` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'LinkedIn profile URL',
   `preferences` json DEFAULT NULL COMMENT 'User preferences and settings'
@@ -169,9 +164,9 @@ CREATE TABLE `lender_profiles` (
 -- Dumping data for table `lender_profiles`
 --
 
-INSERT INTO `lender_profiles` (`id`, `user_id`, `created_at`, `updated_at`, `institution_type`, `risk_appetite`, `target_industries`, `target_markets`, `min_loan_amount`, `max_loan_amount`, `profile_completion_percentage`, `profile_completed_at`, `profile_completion_required`, `website`, `linkedin`, `preferences`) VALUES
-(1, 3, '2025-09-08 04:10:30', '2025-09-08 04:11:27', NULL, NULL, NULL, NULL, NULL, NULL, 20, NULL, 1, NULL, NULL, NULL),
-(2, 5, '2025-09-08 04:10:30', '2025-09-08 04:11:27', NULL, NULL, NULL, NULL, NULL, NULL, 20, NULL, 1, NULL, NULL, NULL);
+INSERT INTO `lender_profiles` (`id`, `user_id`, `created_at`, `updated_at`, `institution_type`, `risk_appetite`, `target_industries`, `target_markets`, `min_loan_amount`, `max_loan_amount`, `website`, `linkedin`, `preferences`) VALUES
+(1, 3, '2025-09-08 04:10:30', '2025-09-08 04:11:27', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(2, 5, '2025-09-08 04:10:30', '2025-09-08 04:11:27', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -198,16 +193,18 @@ CREATE TABLE `loan_requests` (
   `original_status` enum('pending','active','funded','closed','expired') COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'The status before it was closed',
   `closed_by` int DEFAULT NULL COMMENT 'Admin who closed this request',
   `closed_at` timestamp NULL DEFAULT NULL COMMENT 'When the request was closed',
-  `closed_reason` text COLLATE utf8mb4_unicode_ci COMMENT 'Reason for closing the request'
+  `closed_reason` text COLLATE utf8mb4_unicode_ci COMMENT 'Reason for closing the request',
+  `funded_by` int DEFAULT NULL COMMENT 'Lender who funded this request',
+  `funded_at` timestamp NULL DEFAULT NULL COMMENT 'When the request was funded'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `loan_requests`
 --
 
-INSERT INTO `loan_requests` (`id`, `borrower_id`, `amount_requested`, `currency`, `company_description`, `social_media_links`, `loan_purpose`, `loan_type`, `status`, `created_at`, `updated_at`, `expires_at`, `archived`, `archived_by`, `archived_at`, `original_status`, `closed_by`, `closed_at`, `closed_reason`) VALUES
-(8, 2, 10000.00, 'USD', 'iuogyvyuvyuvyuvyuvuyv', '{\"twitter\": \"\", \"website\": \"\", \"facebook\": \"\", \"linkedin\": \"\", \"instagram\": \"\"}', 'ygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvy', 'working_capital', 'pending', '2025-08-29 12:31:55', '2025-09-01 13:35:42', '2025-09-07 10:00:00', 0, NULL, NULL, 'funded', NULL, NULL, NULL),
-(10, 2, 5000.00, 'AUD', '314f134g134g134g', NULL, '134g134g134g134g', 'working_capital', 'closed', '2025-09-01 04:57:35', '2025-09-01 05:39:50', '2025-09-07 10:00:00', 0, NULL, NULL, 'funded', 1, '2025-09-01 05:39:50', 'erinougeqroginqeoirgjnioqenriogqoier');
+INSERT INTO `loan_requests` (`id`, `borrower_id`, `amount_requested`, `currency`, `company_description`, `social_media_links`, `loan_purpose`, `loan_type`, `status`, `created_at`, `updated_at`, `expires_at`, `archived`, `archived_by`, `archived_at`, `original_status`, `closed_by`, `closed_at`, `closed_reason`, `funded_by`, `funded_at`) VALUES
+(8, 2, 10000.00, 'USD', 'iuogyvyuvyuvyuvyuvuyv', '{\"twitter\": \"\", \"website\": \"\", \"facebook\": \"\", \"linkedin\": \"\", \"instagram\": \"\"}', 'ygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvy', 'working_capital', 'pending', '2025-08-29 12:31:55', '2025-09-01 13:35:42', '2025-09-07 10:00:00', 0, NULL, NULL, 'funded', NULL, NULL, NULL, NULL, NULL),
+(10, 2, 5000.00, 'AUD', '314f134g134g134g', NULL, '134g134g134g134g', 'working_capital', 'closed', '2025-09-01 04:57:35', '2025-09-01 05:39:50', '2025-09-07 10:00:00', 0, NULL, NULL, 'funded', 1, '2025-09-01 05:39:50', 'erinougeqroginqeoirgjnioqenriogqoier', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -292,7 +289,8 @@ INSERT INTO `users` (`id`, `email`, `password_hash`, `first_name`, `last_name`, 
 (2, 'borrower1@company.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'John', 'Smith', 'borrower', 'Tech Startup Inc', '+1234567891', '456 Business Ave, Tech City', 1, 1, 0, 0, NULL, NULL, NULL, 'dark', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-09-01 13:33:56'),
 (3, 'lender1@bank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Jane', 'Doe', 'lender', 'Investment Bank Ltd', '+1234567892', '789 Finance Blvd, Bank City', 1, 1, 0, 0, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37'),
 (4, 'borrower2@individual.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Mike', 'Johnson', 'borrower', NULL, '+1234567893', '321 Personal St, Individual City', 1, 1, 0, 0, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-09-08 04:11:54'),
-(5, 'lender2@investor.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Sarah', 'Wilson', 'lender', NULL, '+1234567894', '654 Investor Ave, Investment City', 0, 0, 0, 0, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-09-08 04:11:58');
+(5, 'lender2@investor.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Sarah', 'Wilson', 'lender', NULL, '+1234567894', '654 Investor Ave, Investment City', 0, 0, 0, 0, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-09-08 04:11:58'),
+(6, 'complete.borrower@test.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Complete', 'Borrower', 'borrower', 'Complete Tech Solutions Inc', '+1555123456', '456 Innovation Drive, Silicon Valley, CA 94000', 1, 1, 0, 0, NULL, NULL, 'Experienced entrepreneur with 7+ years in the tech industry, specializing in AI/ML solutions.', 'auto', 'en', 'UTC', '{\"sms\": false, \"push\": true, \"email\": true}', '2025-09-09 12:21:17', '2025-09-09 12:21:17');
 
 --
 -- Indexes for dumped tables
@@ -347,8 +345,7 @@ ALTER TABLE `lender_profiles`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `user_id` (`user_id`),
   ADD KEY `idx_lender_institution_type` (`institution_type`),
-  ADD KEY `idx_lender_risk_appetite` (`risk_appetite`),
-  ADD KEY `idx_lender_profile_completion` (`profile_completion_percentage`);
+  ADD KEY `idx_lender_risk_appetite` (`risk_appetite`);
 
 --
 -- Indexes for table `loan_requests`
@@ -361,7 +358,8 @@ ALTER TABLE `loan_requests`
   ADD KEY `idx_loan_requests_created_at` (`created_at`),
   ADD KEY `idx_loan_requests_expires_at` (`expires_at`),
   ADD KEY `fk_loan_requests_archived_by` (`archived_by`),
-  ADD KEY `fk_loan_requests_closed_by` (`closed_by`);
+  ADD KEY `fk_loan_requests_closed_by` (`closed_by`),
+  ADD KEY `fk_loan_requests_funded_by` (`funded_by`);
 
 --
 -- Indexes for table `migrations`
@@ -404,7 +402,7 @@ ALTER TABLE `admin_profiles`
 -- AUTO_INCREMENT for table `borrower_profiles`
 --
 ALTER TABLE `borrower_profiles`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `company_statistics`
@@ -446,7 +444,7 @@ ALTER TABLE `password_reset_tokens`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Constraints for dumped tables
@@ -488,7 +486,8 @@ ALTER TABLE `lender_profiles`
 ALTER TABLE `loan_requests`
   ADD CONSTRAINT `fk_loan_requests_archived_by` FOREIGN KEY (`archived_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `fk_loan_requests_borrower` FOREIGN KEY (`borrower_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_loan_requests_closed_by` FOREIGN KEY (`closed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+  ADD CONSTRAINT `fk_loan_requests_closed_by` FOREIGN KEY (`closed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_loan_requests_funded_by` FOREIGN KEY (`funded_by`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Constraints for table `password_reset_tokens`

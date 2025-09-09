@@ -147,10 +147,11 @@ export async function getActiveLoanRequests(): Promise<LoanRequestWithBorrower[]
     SELECT lr.*, 
            CONCAT(u.first_name, ' ', u.last_name) as borrower_name,
            u.company as borrower_company,
-           u.website,
-           u.linkedin
+           bp.website,
+           bp.linkedin
     FROM loan_requests lr
     JOIN users u ON lr.borrower_id = u.id
+    LEFT JOIN borrower_profiles bp ON u.id = bp.user_id
     WHERE lr.status IN ('pending', 'active')
     AND (lr.expires_at IS NULL OR lr.expires_at > NOW())
     AND u.is_active = 1
@@ -276,9 +277,10 @@ export async function deleteLoanRequest(id: number): Promise<boolean> {
  */
 export async function getLoanRequestsByStatus(status: LoanRequest['status']): Promise<LoanRequest[]> {
   const query = `
-    SELECT lr.*, u.website, u.linkedin
+    SELECT lr.*, bp.website, bp.linkedin
     FROM loan_requests lr
     JOIN users u ON lr.borrower_id = u.id
+    LEFT JOIN borrower_profiles bp ON u.id = bp.user_id
     WHERE lr.status = ?
     ORDER BY lr.created_at DESC
   `;
@@ -303,9 +305,10 @@ export async function getLoanRequestsByStatus(status: LoanRequest['status']): Pr
  */
 export async function getLoanRequestsByType(loanType: LoanRequest['loan_type']): Promise<LoanRequest[]> {
   const query = `
-    SELECT lr.*, u.website, u.linkedin
+    SELECT lr.*, bp.website, bp.linkedin
     FROM loan_requests lr
     JOIN users u ON lr.borrower_id = u.id
+    LEFT JOIN borrower_profiles bp ON u.id = bp.user_id
     WHERE lr.loan_type = ? AND lr.status IN ("pending", "active")
     ORDER BY lr.created_at DESC
   `;
@@ -333,10 +336,11 @@ export async function getAllLoanRequests(): Promise<LoanRequestWithBorrower[]> {
     SELECT lr.*, 
            CONCAT(u.first_name, ' ', u.last_name) as borrower_name,
            u.company as borrower_company,
-           u.website,
-           u.linkedin
+           bp.website,
+           bp.linkedin
     FROM loan_requests lr
     JOIN users u ON lr.borrower_id = u.id
+    LEFT JOIN borrower_profiles bp ON u.id = bp.user_id
     ORDER BY lr.created_at DESC
   `;
   
@@ -364,11 +368,12 @@ export async function getArchivedLoanRequests(): Promise<LoanRequestWithBorrower
     SELECT lr.*, 
            CONCAT(u.first_name, ' ', u.last_name) as borrower_name,
            u.company as borrower_company,
-           u.website,
-           u.linkedin,
+           bp.website,
+           bp.linkedin,
            CONCAT(admin.first_name, ' ', admin.last_name) as closed_by_name
     FROM loan_requests lr
     JOIN users u ON lr.borrower_id = u.id
+    LEFT JOIN borrower_profiles bp ON u.id = bp.user_id
     LEFT JOIN users admin ON lr.closed_by = admin.id
     WHERE lr.status = 'closed'
     ORDER BY lr.closed_at DESC
@@ -401,9 +406,10 @@ export async function getArchivedLoanRequests(): Promise<LoanRequestWithBorrower
  */
 export async function getLoanRequestsByAmountRange(minAmount: number, maxAmount: number, currency: string = 'USD'): Promise<LoanRequest[]> {
   const query = `
-    SELECT lr.*, u.website, u.linkedin
+    SELECT lr.*, bp.website, bp.linkedin
     FROM loan_requests lr
     JOIN users u ON lr.borrower_id = u.id
+    LEFT JOIN borrower_profiles bp ON u.id = bp.user_id
     WHERE lr.amount_requested BETWEEN ? AND ? 
     AND lr.currency = ? 
     AND lr.status IN ("pending", "active")
