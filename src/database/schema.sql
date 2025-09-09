@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql:3306
--- Generation Time: Sep 01, 2025 at 04:00 AM
+-- Generation Time: Sep 09, 2025 at 12:38 PM
 -- Server version: 8.0.43
 -- PHP Version: 8.2.27
 
@@ -20,6 +20,67 @@ SET time_zone = "+00:00";
 --
 -- Database: `equirank`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `admin_profiles`
+--
+
+CREATE TABLE `admin_profiles` (
+  `id` int NOT NULL,
+  `user_id` int NOT NULL COMMENT 'Foreign key to users table',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `admin_level` enum('super_admin','admin','moderator') COLLATE utf8mb4_unicode_ci DEFAULT 'admin' COMMENT 'Admin permission level',
+  `website` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Personal or company website',
+  `linkedin` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'LinkedIn profile URL',
+  `preferences` json DEFAULT NULL COMMENT 'User preferences and settings'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `admin_profiles`
+--
+
+INSERT INTO `admin_profiles` (`id`, `user_id`, `created_at`, `updated_at`, `admin_level`, `website`, `linkedin`, `preferences`) VALUES
+(1, 1, '2025-09-08 04:10:30', '2025-09-08 04:10:30', 'admin', NULL, NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `borrower_profiles`
+--
+
+CREATE TABLE `borrower_profiles` (
+  `id` int NOT NULL,
+  `user_id` int NOT NULL COMMENT 'Foreign key to users table',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `industry` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Industry sector for risk assessment',
+  `location` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Geographic location for risk assessment',
+  `capabilities` text COLLATE utf8mb4_unicode_ci COMMENT 'Company capabilities and expertise',
+  `years_in_business` int DEFAULT NULL COMMENT 'Years the company has been in business',
+  `employee_count` int DEFAULT NULL COMMENT 'Number of employees',
+  `revenue_range` enum('0-50k','50k-100k','100k-500k','500k-1m','1m-5m','5m-10m','10m-50m','50m+') COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Annual revenue range',
+  `profile_completion_percentage` int DEFAULT '0' COMMENT 'Profile completion percentage (0-100)',
+  `profile_completed_at` timestamp NULL DEFAULT NULL COMMENT 'When profile was completed',
+  `profile_completion_required` tinyint(1) DEFAULT '1' COMMENT 'Whether profile completion is required for loan requests',
+  `website` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Personal or company website',
+  `linkedin` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'LinkedIn profile URL',
+  `preferences` json DEFAULT NULL COMMENT 'User preferences and settings',
+  `qa_rating` decimal(3,2) DEFAULT NULL COMMENT 'Quality assurance rating (0.00-5.00)',
+  `company_logo` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'URL to company logo image',
+  `qa_rating_updated_at` timestamp NULL DEFAULT NULL COMMENT 'When QA rating was last updated'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `borrower_profiles`
+--
+
+INSERT INTO `borrower_profiles` (`id`, `user_id`, `created_at`, `updated_at`, `industry`, `location`, `capabilities`, `years_in_business`, `employee_count`, `revenue_range`, `profile_completion_percentage`, `profile_completed_at`, `profile_completion_required`, `website`, `linkedin`, `preferences`, `qa_rating`, `company_logo`, `qa_rating_updated_at`) VALUES
+(1, 2, '2025-09-08 04:10:30', '2025-09-09 12:29:10', 'Technology', 'San Francisco, CA', 'AI/ML development, Cloud architecture, Mobile app development, Data analytics', 7, 50, '5m-10m', 100, '2025-09-09 12:29:10', 0, 'https://www.completetech.com', 'https://linkedin.com/in/completeborrower', '{\"marketing\": false, \"notifications\": true}', 4.85, 'https://www.completetech.com/logo.png', NULL),
+(2, 4, '2025-09-08 04:10:30', '2025-09-08 04:11:27', NULL, NULL, NULL, NULL, NULL, NULL, 20, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(4, 6, '2025-09-09 12:21:17', '2025-09-09 12:21:17', 'Technology', 'San Francisco, CA', 'AI/ML development, Cloud architecture, Mobile app development, Data analytics, Product management, Team leadership', 7, 50, '5m-10m', 100, '2025-09-09 12:21:17', 0, 'https://www.completetech.com', 'https://linkedin.com/in/completeborrower', '{\"marketing\": false, \"email_updates\": true, \"notifications\": true}', 4.85, 'https://www.completetech.com/logo.png', NULL);
 
 -- --------------------------------------------------------
 
@@ -67,14 +128,45 @@ CREATE TABLE `contact_messages` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `archived` tinyint(1) DEFAULT '0' COMMENT 'Whether the message is archived'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `contact_messages`
 --
 
 INSERT INTO `contact_messages` (`id`, `conversation_id`, `name`, `email`, `subject`, `message`, `message_type`, `parent_message_id`, `status`, `ip_address`, `user_agent`, `created_at`, `updated_at`, `archived`) VALUES
-(1, '44e1bb16-2b47-4d8e-8e09-9e691cfaeb8b', 'Chay Fong Hong', 'chayfong9009@gmail.com', 'general', 'rfqerfgqergqergq', 'user_message', NULL, 'new', NULL, NULL, '2025-08-25 05:36:06', '2025-08-25 05:36:58', 1);
+(1, '44e1bb16-2b47-4d8e-8e09-9e691cfaeb8b', 'Chay Fong Hong', 'chayfong9009@gmail.com', 'general', 'rfqerfgqergqergq', 'user_message', NULL, 'new', NULL, NULL, '2025-08-25 05:36:06', '2025-08-25 05:36:58', 1),
+(2, 'd69c86fc-0f56-433a-a72f-a491a7863c09', 'Chay Fong Hong', 'chayfong9009@iojergijerijgrqojigroij.com', 'support', '13iough3oiue4rgoqeirgio34gq3e4r5giuh', 'user_message', NULL, 'new', NULL, NULL, '2025-09-01 05:29:02', '2025-09-01 05:29:02', 0);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `lender_profiles`
+--
+
+CREATE TABLE `lender_profiles` (
+  `id` int NOT NULL,
+  `user_id` int NOT NULL COMMENT 'Foreign key to users table',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `institution_type` enum('bank','credit_union','investment_firm','private_lender','peer_to_peer','other') COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Type of lending institution',
+  `risk_appetite` enum('conservative','moderate','aggressive') COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Risk tolerance level',
+  `target_industries` json DEFAULT NULL COMMENT 'JSON array of target industries',
+  `target_markets` json DEFAULT NULL COMMENT 'JSON array of target geographic markets',
+  `min_loan_amount` decimal(15,2) DEFAULT NULL COMMENT 'Minimum loan amount preference',
+  `max_loan_amount` decimal(15,2) DEFAULT NULL COMMENT 'Maximum loan amount preference',
+  `website` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Personal or company website',
+  `linkedin` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'LinkedIn profile URL',
+  `preferences` json DEFAULT NULL COMMENT 'User preferences and settings'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `lender_profiles`
+--
+
+INSERT INTO `lender_profiles` (`id`, `user_id`, `created_at`, `updated_at`, `institution_type`, `risk_appetite`, `target_industries`, `target_markets`, `min_loan_amount`, `max_loan_amount`, `website`, `linkedin`, `preferences`) VALUES
+(1, 3, '2025-09-08 04:10:30', '2025-09-08 04:11:27', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(2, 5, '2025-09-08 04:10:30', '2025-09-08 04:11:27', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -101,16 +193,18 @@ CREATE TABLE `loan_requests` (
   `original_status` enum('pending','active','funded','closed','expired') COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'The status before it was closed',
   `closed_by` int DEFAULT NULL COMMENT 'Admin who closed this request',
   `closed_at` timestamp NULL DEFAULT NULL COMMENT 'When the request was closed',
-  `closed_reason` text COLLATE utf8mb4_unicode_ci COMMENT 'Reason for closing the request'
+  `closed_reason` text COLLATE utf8mb4_unicode_ci COMMENT 'Reason for closing the request',
+  `funded_by` int DEFAULT NULL COMMENT 'Lender who funded this request',
+  `funded_at` timestamp NULL DEFAULT NULL COMMENT 'When the request was funded'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `loan_requests`
 --
 
-INSERT INTO `loan_requests` (`id`, `borrower_id`, `amount_requested`, `currency`, `company_description`, `social_media_links`, `loan_purpose`, `loan_type`, `status`, `created_at`, `updated_at`, `expires_at`, `archived`, `archived_by`, `archived_at`, `original_status`, `closed_by`, `closed_at`, `closed_reason`) VALUES
-(8, 2, 10000.00, 'USD', 'iuogyvyuvyuvyuvyuvuyv', '{\"twitter\": \"\", \"website\": \"\", \"facebook\": \"\", \"linkedin\": \"\", \"instagram\": \"\"}', 'ygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyu', 'working_capital', 'closed', '2025-08-29 12:31:55', '2025-09-01 03:59:11', '2025-09-07 10:00:00', 0, NULL, NULL, 'funded', 1, '2025-09-01 03:59:11', 'funded'),
-(9, 2, 5000.00, 'USD', NULL, NULL, 'eweadsxdmvresrrtxrt', 'working_capital', 'pending', '2025-08-29 16:13:57', '2025-08-29 16:13:57', '2025-09-10 10:00:00', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `loan_requests` (`id`, `borrower_id`, `amount_requested`, `currency`, `company_description`, `social_media_links`, `loan_purpose`, `loan_type`, `status`, `created_at`, `updated_at`, `expires_at`, `archived`, `archived_by`, `archived_at`, `original_status`, `closed_by`, `closed_at`, `closed_reason`, `funded_by`, `funded_at`) VALUES
+(8, 2, 10000.00, 'USD', 'iuogyvyuvyuvyuvyuvuyv', '{\"twitter\": \"\", \"website\": \"\", \"facebook\": \"\", \"linkedin\": \"\", \"instagram\": \"\"}', 'ygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvy', 'working_capital', 'pending', '2025-08-29 12:31:55', '2025-09-01 13:35:42', '2025-09-07 10:00:00', 0, NULL, NULL, 'funded', NULL, NULL, NULL, NULL, NULL),
+(10, 2, 5000.00, 'AUD', '314f134g134g134g', NULL, '134g134g134g134g', 'working_capital', 'closed', '2025-09-01 04:57:35', '2025-09-01 05:39:50', '2025-09-07 10:00:00', 0, NULL, NULL, 'funded', 1, '2025-09-01 05:39:50', 'erinougeqroginqeoirgjnioqenriogqoier', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -146,7 +240,7 @@ CREATE TABLE `password_reset_tokens` (
   `expires_at` timestamp NOT NULL COMMENT 'Token expiration timestamp',
   `used` tinyint(1) DEFAULT '0' COMMENT 'Whether token has been used',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `password_reset_tokens`
@@ -168,7 +262,6 @@ CREATE TABLE `users` (
   `first_name` varchar(100) NOT NULL,
   `last_name` varchar(100) NOT NULL,
   `user_type` enum('borrower','lender','admin') NOT NULL,
-  `entity_type` enum('company','individual') NOT NULL,
   `company` varchar(255) DEFAULT NULL,
   `phone` varchar(20) DEFAULT NULL,
   `address` text,
@@ -179,31 +272,52 @@ CREATE TABLE `users` (
   `account_locked_until` timestamp NULL DEFAULT NULL COMMENT 'Account lockout until timestamp',
   `profile_picture` varchar(500) DEFAULT NULL COMMENT 'URL to profile picture',
   `bio` text COMMENT 'User biography/description',
-  `website` varchar(255) DEFAULT NULL COMMENT 'Personal or company website',
-  `linkedin` varchar(255) DEFAULT NULL COMMENT 'LinkedIn profile URL',
-  `preferences` json DEFAULT NULL COMMENT 'User preferences and settings',
   `theme` enum('light','dark','auto') DEFAULT 'auto' COMMENT 'UI theme preference',
   `language` varchar(10) DEFAULT 'en' COMMENT 'Language preference (ISO 639-1)',
   `timezone` varchar(50) DEFAULT 'UTC' COMMENT 'Timezone preference',
   `notifications` json DEFAULT NULL COMMENT 'Notification preferences',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `email`, `password_hash`, `first_name`, `last_name`, `user_type`, `entity_type`, `company`, `phone`, `address`, `is_active`, `is_approved`, `is_super_admin`, `failed_login_attempts`, `account_locked_until`, `profile_picture`, `bio`, `website`, `linkedin`, `preferences`, `theme`, `language`, `timezone`, `notifications`, `created_at`, `updated_at`) VALUES
-(1, 'admin@equirank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Admin', 'User', 'admin', 'company', 'EquiRank Admin', '+1234567890', '123 Admin St, Admin City', 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-08-17 06:38:47'),
-(2, 'borrower1@company.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'John', 'Smith', 'borrower', 'company', 'Tech Startup Inc', '+1234567891', '456 Business Ave, Tech City', 1, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37'),
-(3, 'lender1@bank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Jane', 'Doe', 'lender', 'company', 'Investment Bank Ltd', '+1234567892', '789 Finance Blvd, Bank City', 1, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37'),
-(4, 'borrower2@individual.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Mike', 'Johnson', 'borrower', 'individual', NULL, '+1234567893', '321 Personal St, Individual City', 1, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37'),
-(5, 'lender2@investor.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Sarah', 'Wilson', 'lender', 'individual', NULL, '+1234567894', '654 Investor Ave, Investment City', 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37');
+INSERT INTO `users` (`id`, `email`, `password_hash`, `first_name`, `last_name`, `user_type`, `company`, `phone`, `address`, `is_active`, `is_approved`, `is_super_admin`, `failed_login_attempts`, `account_locked_until`, `profile_picture`, `bio`, `theme`, `language`, `timezone`, `notifications`, `created_at`, `updated_at`) VALUES
+(1, 'admin@equirank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Admin', 'User', 'admin', 'EquiRank Admin', '+1234567890', '123 Admin St, Admin City', 1, 1, 1, 0, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-08-17 06:38:47'),
+(2, 'borrower1@company.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'John', 'Smith', 'borrower', 'Tech Startup Inc', '+1234567891', '456 Business Ave, Tech City', 1, 1, 0, 0, NULL, NULL, NULL, 'dark', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-09-01 13:33:56'),
+(3, 'lender1@bank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Jane', 'Doe', 'lender', 'Investment Bank Ltd', '+1234567892', '789 Finance Blvd, Bank City', 1, 1, 0, 0, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37'),
+(4, 'borrower2@individual.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Mike', 'Johnson', 'borrower', NULL, '+1234567893', '321 Personal St, Individual City', 1, 1, 0, 0, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-09-08 04:11:54'),
+(5, 'lender2@investor.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Sarah', 'Wilson', 'lender', NULL, '+1234567894', '654 Investor Ave, Investment City', 0, 0, 0, 0, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-09-08 04:11:58'),
+(6, 'complete.borrower@test.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Complete', 'Borrower', 'borrower', 'Complete Tech Solutions Inc', '+1555123456', '456 Innovation Drive, Silicon Valley, CA 94000', 1, 1, 0, 0, NULL, NULL, 'Experienced entrepreneur with 7+ years in the tech industry, specializing in AI/ML solutions.', 'auto', 'en', 'UTC', '{\"sms\": false, \"push\": true, \"email\": true}', '2025-09-09 12:21:17', '2025-09-09 12:21:17');
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `admin_profiles`
+--
+ALTER TABLE `admin_profiles`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `user_id` (`user_id`),
+  ADD KEY `idx_admin_level` (`admin_level`);
+
+--
+-- Indexes for table `borrower_profiles`
+--
+ALTER TABLE `borrower_profiles`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `user_id` (`user_id`),
+  ADD KEY `idx_borrower_industry` (`industry`),
+  ADD KEY `idx_borrower_location` (`location`),
+  ADD KEY `idx_borrower_years_in_business` (`years_in_business`),
+  ADD KEY `idx_borrower_employee_count` (`employee_count`),
+  ADD KEY `idx_borrower_revenue_range` (`revenue_range`),
+  ADD KEY `idx_borrower_profile_completion` (`profile_completion_percentage`),
+  ADD KEY `idx_borrower_qa_rating` (`qa_rating`),
+  ADD KEY `idx_borrower_qa_rating_updated` (`qa_rating_updated_at`);
 
 --
 -- Indexes for table `company_statistics`
@@ -225,6 +339,15 @@ ALTER TABLE `contact_messages`
   ADD KEY `idx_contact_messages_parent_message_id` (`parent_message_id`);
 
 --
+-- Indexes for table `lender_profiles`
+--
+ALTER TABLE `lender_profiles`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `user_id` (`user_id`),
+  ADD KEY `idx_lender_institution_type` (`institution_type`),
+  ADD KEY `idx_lender_risk_appetite` (`risk_appetite`);
+
+--
 -- Indexes for table `loan_requests`
 --
 ALTER TABLE `loan_requests`
@@ -235,7 +358,8 @@ ALTER TABLE `loan_requests`
   ADD KEY `idx_loan_requests_created_at` (`created_at`),
   ADD KEY `idx_loan_requests_expires_at` (`expires_at`),
   ADD KEY `fk_loan_requests_archived_by` (`archived_by`),
-  ADD KEY `fk_loan_requests_closed_by` (`closed_by`);
+  ADD KEY `fk_loan_requests_closed_by` (`closed_by`),
+  ADD KEY `fk_loan_requests_funded_by` (`funded_by`);
 
 --
 -- Indexes for table `migrations`
@@ -269,6 +393,18 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT for table `admin_profiles`
+--
+ALTER TABLE `admin_profiles`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `borrower_profiles`
+--
+ALTER TABLE `borrower_profiles`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT for table `company_statistics`
 --
 ALTER TABLE `company_statistics`
@@ -278,13 +414,19 @@ ALTER TABLE `company_statistics`
 -- AUTO_INCREMENT for table `contact_messages`
 --
 ALTER TABLE `contact_messages`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `lender_profiles`
+--
+ALTER TABLE `lender_profiles`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `loan_requests`
 --
 ALTER TABLE `loan_requests`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `migrations`
@@ -302,11 +444,23 @@ ALTER TABLE `password_reset_tokens`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `admin_profiles`
+--
+ALTER TABLE `admin_profiles`
+  ADD CONSTRAINT `fk_admin_profiles_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `borrower_profiles`
+--
+ALTER TABLE `borrower_profiles`
+  ADD CONSTRAINT `fk_borrower_profiles_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `company_statistics`
@@ -321,12 +475,19 @@ ALTER TABLE `contact_messages`
   ADD CONSTRAINT `fk_parent_message` FOREIGN KEY (`parent_message_id`) REFERENCES `contact_messages` (`id`) ON DELETE SET NULL;
 
 --
+-- Constraints for table `lender_profiles`
+--
+ALTER TABLE `lender_profiles`
+  ADD CONSTRAINT `fk_lender_profiles_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `loan_requests`
 --
 ALTER TABLE `loan_requests`
   ADD CONSTRAINT `fk_loan_requests_archived_by` FOREIGN KEY (`archived_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `fk_loan_requests_borrower` FOREIGN KEY (`borrower_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_loan_requests_closed_by` FOREIGN KEY (`closed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+  ADD CONSTRAINT `fk_loan_requests_closed_by` FOREIGN KEY (`closed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_loan_requests_funded_by` FOREIGN KEY (`funded_by`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Constraints for table `password_reset_tokens`

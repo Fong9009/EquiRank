@@ -12,7 +12,6 @@ interface User {
   last_name: string;
   email: string;
   user_type: 'borrower' | 'lender' | 'admin';
-  entity_type: 'company' | 'individual';
   company?: string;
   phone?: string;
   address?: string;
@@ -213,7 +212,6 @@ export default function ApprovalDashboard() {
                 <h3>{user.first_name} {user.last_name}</h3>
                 <p><strong>Email:</strong> {user.email}</p>
                 <p><strong>Type:</strong> {user.user_type}</p>
-                <p><strong>Entity:</strong> {user.entity_type}</p>
                 {user.company && <p><strong>Company:</strong> {user.company}</p>}
                 {user.phone && <p><strong>Phone:</strong> {user.phone}</p>}
                 {user.address && <p><strong>Address:</strong> {user.address}</p>}

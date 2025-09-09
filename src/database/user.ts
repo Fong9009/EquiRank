@@ -24,6 +24,24 @@ export interface User {
     language?: string;
     timezone?: string;
     notifications?: any;
+    // Enhanced profile fields
+    industry?: string;
+    location?: string;
+    capabilities?: string;
+    years_in_business?: number;
+    employee_count?: number;
+    revenue_range?: string;
+    // Lender-specific fields
+    institution_type?: string;
+    risk_appetite?: string;
+    target_industries?: string[];
+    target_markets?: string[];
+    min_loan_amount?: number;
+    max_loan_amount?: number;
+    // Profile completion tracking
+    profile_completion_percentage?: number;
+    profile_completed_at?: string;
+    profile_completion_required?: boolean;
     created_at: Date;
     updated_at: Date;
 }
@@ -40,8 +58,8 @@ export async function createUser(
     address?: string
 ): Promise<number> {
     const query = `
-    INSERT INTO users (email, password_hash, first_name, last_name, user_type, entity_type, company, phone, address, is_approved)
-    VALUES (?, ?, ?, ?, ?, 'company', ?, ?, ?, false)
+    INSERT INTO users (email, password_hash, first_name, last_name, user_type, company, phone, address, is_approved)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, false)
   `;
     const result = await executeSingleQuery(query, [email, passwordHash, firstName, lastName, userType, company, phone, address]);
     return result.insertId;
@@ -58,7 +76,7 @@ export async function createAdminUser(
     address?: string
 ): Promise<number> {
     const query = `
-    INSERT INTO users (email, password_hash, first_name, last_name, user_type, entity_type, company, phone, address, is_approved)
+    INSERT INTO users (email, password_hash, first_name, last_name, user_type, company, phone, address, is_approved)
     VALUES (?, ?, ?, ?, 'admin', 'company', ?, ?, ?, true)
   `;
     const result = await executeSingleQuery(query, [
@@ -163,7 +181,7 @@ export async function getAllUsersForAdmin(): Promise<User[]> {
 
 export async function getAllActiveUsers(): Promise<User[]> {
     const query = `
-    SELECT id,email,first_name,last_name,user_type,entity_type,company,phone,address,is_super_admin FROM users
+    SELECT id,email,first_name,last_name,user_type,company,phone,address,is_super_admin FROM users
     WHERE is_active = 1 AND is_approved = 1
     ORDER by first_name DESC`;
     return await executeQuery<User>(query);
@@ -171,7 +189,7 @@ export async function getAllActiveUsers(): Promise<User[]> {
 
 export async function getAllArchivedUsers(): Promise<User[]> {
     const query = `
-    SELECT id,email,first_name,last_name,user_type,entity_type,company,phone,address,is_super_admin,created_at,updated_at FROM users
+    SELECT id,email,first_name,last_name,user_type,company,phone,address,is_super_admin,created_at,updated_at FROM users
     WHERE is_active = 0
     ORDER BY first_name DESC`;
     return await executeQuery<User>(query);
@@ -335,7 +353,6 @@ export async function updateUserByIDAdmin(
         website?: string;
         linkedin?: string;
         user_type?: 'borrower' | 'lender' | 'admin';
-        entity_type?: 'company' | 'individual';
         is_active?: boolean;
         is_approved?: boolean;
         is_super_admin?: boolean;
@@ -454,6 +471,24 @@ export async function updateUserProfile(
         language?: string;
         timezone?: string;
         notifications?: any;
+        // Enhanced profile fields
+        industry?: string;
+        location?: string;
+        capabilities?: string;
+        years_in_business?: number;
+        employee_count?: number;
+        revenue_range?: string;
+        // Lender-specific fields
+        institution_type?: string;
+        risk_appetite?: string;
+        target_industries?: string[];
+        target_markets?: string[];
+        min_loan_amount?: number;
+        max_loan_amount?: number;
+        // Profile completion tracking
+        profile_completion_percentage?: number;
+        profile_completed_at?: string;
+        profile_completion_required?: boolean;
     }
 ): Promise<boolean> {
     const fields = [];
