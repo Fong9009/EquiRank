@@ -49,3 +49,103 @@
     display: flex;
     justify-content: center;
 }
+
+.dashboardGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 2rem 50px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.dashboardCard {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+}
+
+.dashboardCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.cardTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    color: #111827;
+}
+
+.cardDescription {
+    color: #6b7280;
+    margin: 0 0 1.5rem 0;
+    line-height: 1.6;
+}
+
+.cardButton {
+    display: inline-block;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.cardButton:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* Dark theme styles */
+.darkLenderHomePage .dashboardCard {
+    background: #374151;
+    border-color: #4b5563;
+}
+
+.darkLenderHomePage .cardTitle {
+    color: #f9fafb;
+}
+
+.darkLenderHomePage .cardDescription {
+    color: #d1d5db;
+}
+
+.fundedLoansSection {
+    padding: 2rem 50px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.sectionTitle {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0 0 1.5rem 0;
+    color: #111827;
+}
+
+.darkLenderHomePage .sectionTitle {
+    color: #f9fafb;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .dashboardGrid {
+        padding: 1rem;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .dashboardCard {
+        padding: 1.5rem;
+    }
+    
+    .fundedLoansSection {
+        padding: 1rem;
+    }
+}

@@ -12,7 +12,6 @@ interface User {
   last_name: string;
   email: string;
   user_type: 'borrower' | 'lender' | 'admin';
-  entity_type: 'company' | 'individual';
   company?: string;
   phone?: string;
   address?: string;

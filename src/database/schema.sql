@@ -168,7 +168,6 @@ CREATE TABLE `users` (
   `first_name` varchar(100) NOT NULL,
   `last_name` varchar(100) NOT NULL,
   `user_type` enum('borrower','lender','admin') NOT NULL,
-  `entity_type` enum('company','individual') NOT NULL,
   `company` varchar(255) DEFAULT NULL,
   `phone` varchar(20) DEFAULT NULL,
   `address` text,
@@ -186,6 +185,21 @@ CREATE TABLE `users` (
   `language` varchar(10) DEFAULT 'en' COMMENT 'Language preference (ISO 639-1)',
   `timezone` varchar(50) DEFAULT 'UTC' COMMENT 'Timezone preference',
   `notifications` json DEFAULT NULL COMMENT 'Notification preferences',
+  `industry` varchar(100) DEFAULT NULL COMMENT 'Industry sector for risk assessment',
+  `location` varchar(100) DEFAULT NULL COMMENT 'Geographic location for risk assessment',
+  `capabilities` text DEFAULT NULL COMMENT 'Company capabilities and expertise',
+  `years_in_business` int DEFAULT NULL COMMENT 'Years the company has been in business',
+  `employee_count` int DEFAULT NULL COMMENT 'Number of employees',
+  `revenue_range` enum('0-50k','50k-100k','100k-500k','500k-1m','1m-5m','5m-10m','10m-50m','50m+') DEFAULT NULL COMMENT 'Annual revenue range',
+  `institution_type` enum('bank','credit_union','investment_firm','private_lender','peer_to_peer','other') DEFAULT NULL COMMENT 'Type of lending institution (for lenders)',
+  `risk_appetite` enum('conservative','moderate','aggressive') DEFAULT NULL COMMENT 'Risk tolerance level (for lenders)',
+  `target_industries` json DEFAULT NULL COMMENT 'JSON array of target industries (for lenders)',
+  `target_markets` json DEFAULT NULL COMMENT 'JSON array of target geographic markets (for lenders)',
+  `min_loan_amount` decimal(15,2) DEFAULT NULL COMMENT 'Minimum loan amount preference (for lenders)',
+  `max_loan_amount` decimal(15,2) DEFAULT NULL COMMENT 'Maximum loan amount preference (for lenders)',
+  `profile_completion_percentage` int DEFAULT 0 COMMENT 'Profile completion percentage (0-100)',
+  `profile_completed_at` timestamp NULL DEFAULT NULL COMMENT 'When profile was completed',
+  `profile_completion_required` tinyint(1) DEFAULT 1 COMMENT 'Whether profile completion is required for loan requests',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -194,12 +208,12 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `email`, `password_hash`, `first_name`, `last_name`, `user_type`, `entity_type`, `company`, `phone`, `address`, `is_active`, `is_approved`, `is_super_admin`, `failed_login_attempts`, `account_locked_until`, `profile_picture`, `bio`, `website`, `linkedin`, `preferences`, `theme`, `language`, `timezone`, `notifications`, `created_at`, `updated_at`) VALUES
-(1, 'admin@equirank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Admin', 'User', 'admin', 'company', 'EquiRank Admin', '+1234567890', '123 Admin St, Admin City', 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-08-17 06:38:47'),
-(2, 'borrower1@company.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'John', 'Smith', 'borrower', 'company', 'Tech Startup Inc', '+1234567891', '456 Business Ave, Tech City', 1, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37'),
-(3, 'lender1@bank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Jane', 'Doe', 'lender', 'company', 'Investment Bank Ltd', '+1234567892', '789 Finance Blvd, Bank City', 1, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37'),
-(4, 'borrower2@individual.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Mike', 'Johnson', 'borrower', 'individual', NULL, '+1234567893', '321 Personal St, Individual City', 1, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37'),
-(5, 'lender2@investor.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Sarah', 'Wilson', 'lender', 'individual', NULL, '+1234567894', '654 Investor Ave, Investment City', 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37');
+INSERT INTO `users` (`id`, `email`, `password_hash`, `first_name`, `last_name`, `user_type`, `company`, `phone`, `address`, `is_active`, `is_approved`, `is_super_admin`, `failed_login_attempts`, `account_locked_until`, `profile_picture`, `bio`, `website`, `linkedin`, `preferences`, `theme`, `language`, `timezone`, `notifications`, `industry`, `location`, `capabilities`, `years_in_business`, `employee_count`, `revenue_range`, `institution_type`, `risk_appetite`, `target_industries`, `target_markets`, `min_loan_amount`, `max_loan_amount`, `profile_completion_percentage`, `profile_completed_at`, `profile_completion_required`, `created_at`, `updated_at`) VALUES
+(1, 'admin@equirank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Admin', 'User', 'admin', 'EquiRank Admin', '+1234567890', '123 Admin St, Admin City', 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 100, '2025-08-10 11:54:38', 0, '2025-08-10 11:54:38', '2025-08-17 06:38:47'),
+(2, 'borrower1@company.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'John', 'Smith', 'borrower', 'Tech Startup Inc', '+1234567891', '456 Business Ave, Tech City', 1, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, 'Technology', 'San Francisco, CA', 'Software development, AI/ML, Cloud computing', 3, 15, '100k-500k', NULL, NULL, NULL, NULL, NULL, NULL, 75, '2025-08-15 10:30:00', 1, '2025-08-10 11:54:38', '2025-08-10 15:19:37'),
+(3, 'lender1@bank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Jane', 'Doe', 'lender', 'Investment Bank Ltd', '+1234567892', '789 Finance Blvd, Bank City', 1, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, 'Financial Services', 'New York, NY', 'Commercial lending, Risk assessment, Portfolio management', 25, 500, '50m+', 'bank', 'moderate', '["Technology", "Manufacturing", "Healthcare"]', '["North America", "Europe"]', 100000.00, 10000000.00, 90, '2025-08-20 14:15:00', 1, '2025-08-10 11:54:38', '2025-08-10 15:19:37'),
+(4, 'borrower2@individual.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Mike', 'Johnson', 'borrower', 'Individual Business', '+1234567893', '321 Personal St, Individual City', 1, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, 'Retail', 'Austin, TX', 'E-commerce, Customer service, Inventory management', 1, 5, '50k-100k', NULL, NULL, NULL, NULL, NULL, NULL, 45, NULL, 1, '2025-08-10 11:54:38', '2025-08-10 15:19:37'),
+(5, 'lender2@investor.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Sarah', 'Wilson', 'lender', 'Investment Firm', '+1234567894', '654 Investor Ave, Investment City', 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, 'Investment', 'Los Angeles, CA', 'Angel investing, Startup mentoring, Due diligence', 8, 1, '1m-5m', 'private_lender', 'aggressive', '["Technology", "Biotech", "Clean Energy"]', '["North America", "Asia"]', 50000.00, 2000000.00, 60, NULL, 1, '2025-08-10 11:54:38', '2025-08-10 15:19:37');
 
 --
 -- Indexes for dumped tables
@@ -262,7 +276,15 @@ ALTER TABLE `password_reset_tokens`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`);
+  ADD UNIQUE KEY `email` (`email`),
+  ADD KEY `idx_users_industry` (`industry`),
+  ADD KEY `idx_users_location` (`location`),
+  ADD KEY `idx_users_years_in_business` (`years_in_business`),
+  ADD KEY `idx_users_employee_count` (`employee_count`),
+  ADD KEY `idx_users_revenue_range` (`revenue_range`),
+  ADD KEY `idx_users_institution_type` (`institution_type`),
+  ADD KEY `idx_users_risk_appetite` (`risk_appetite`),
+  ADD KEY `idx_users_profile_completion` (`profile_completion_percentage`);
 
 --
 -- AUTO_INCREMENT for dumped tables

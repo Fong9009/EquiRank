@@ -5,7 +5,7 @@ export interface LoanRequest {
   borrower_id: number;
   amount_requested: number;
   currency: 'USD' | 'EUR' | 'GBP' | 'CAD' | 'AUD' | 'JPY' | 'CHF' | 'CNY';
-  company_description?: string;
+  company_description?: string; 
   social_media_links?: {
     linkedin?: string;
     twitter?: string;
@@ -16,7 +16,7 @@ export interface LoanRequest {
   loan_purpose: string;
   loan_type: 'equipment' | 'expansion' | 'working_capital' | 'inventory' | 'real_estate' | 'startup' | 'other';
   status: 'pending' | 'active' | 'funded' | 'closed' | 'expired';
-  original_status?: string; // The status before it was closed
+  original_status?: string; 
   closed_by?: number;
   closed_at?: Date;
   closed_reason?: string;
@@ -28,6 +28,9 @@ export interface LoanRequest {
 export interface LoanRequestWithBorrower extends LoanRequest {
   borrower_name: string;
   borrower_company?: string;
+  funded_by?: number;
+  funded_at?: Date;
+  funded_by_name?: string;
 }
 
 /**
@@ -65,10 +68,8 @@ export async function createLoanRequest(request: Omit<LoanRequest, 'id' | 'creat
 export async function getLoanRequestById(id: number): Promise<(LoanRequest & { borrower_name: string; borrower_company?: string; website?: string; linkedin?: string }) | null> {
   const query = `
     SELECT lr.*, 
-           CONCAT(u.first_name, ' ', u.last_name) as borrower_name,
-           u.company as borrower_company,
-           u.website,
-           u.linkedin
+      CONCAT(u.first_name, ' ', u.last_name) as borrower_name,
+      u.company as borrower_company
     FROM loan_requests lr
     JOIN users u ON lr.borrower_id = u.id
     WHERE lr.id = ?
@@ -84,11 +85,11 @@ export async function getLoanRequestById(id: number): Promise<(LoanRequest & { b
     const row = result[0];
     
     const socialMediaLinks = {
-      linkedin: row.linkedin || '',
+      linkedin: '',
       twitter: '', 
       facebook: '', 
       instagram: '',
-      website: row.website || ''
+      website: ''
     };
     
     const processedRow = {
@@ -113,22 +114,22 @@ export async function getLoanRequestById(id: number): Promise<(LoanRequest & { b
  */
 export async function getLoanRequestsByBorrower(borrowerId: number): Promise<LoanRequest[]> {
   const query = `
-    SELECT lr.*, u.website, u.linkedin, u.company as borrower_company
+    SELECT lr.*, u.company as borrower_company
     FROM loan_requests lr
     JOIN users u ON lr.borrower_id = u.id
     WHERE lr.borrower_id = ?
     ORDER BY lr.created_at DESC
   `;
-  const result = await executeQuery<LoanRequest & { website?: string; linkedin?: string; borrower_company?: string }>(query, [borrowerId]);
+  const result = await executeQuery<LoanRequest & { borrower_company?: string }>(query, [borrowerId]);
   
   return result.map(request => {
     // Create social media links from user profile
     const socialMediaLinks = {
-      linkedin: (request as any).linkedin || '',
+      linkedin: '',
       twitter: '', // Not stored in user profile yet
       facebook: '', // Not stored in user profile yet
       instagram: '', // Not stored in user profile yet
-      website: (request as any).website || ''
+      website: ''
     };
     
     request.social_media_links = socialMediaLinks;
@@ -423,6 +424,48 @@ export async function getLoanRequestsByAmountRange(minAmount: number, maxAmount:
     request.social_media_links = socialMediaLinks;
     return request;
   });
+}
+
+/**
+ * Get funded loans by lender ID
+ */
+export async function getFundedLoansByLender(lenderId: number): Promise<LoanRequestWithBorrower[]> {
+  const query = `
+    SELECT 
+      lr.*,
+      u.first_name as borrower_name,
+      u.company as borrower_company,
+      lr.funded_by,
+      lr.funded_at,
+      lender.first_name as funded_by_name
+    FROM loan_requests lr
+    JOIN users u ON lr.borrower_id = u.id
+    LEFT JOIN users lender ON lr.funded_by = lender.id
+    WHERE lr.funded_by = ? 
+    AND lr.status = 'funded'
+    ORDER BY lr.funded_at DESC
+  `;
+  
+  return await executeQuery<LoanRequestWithBorrower>(query, [lenderId]);
+}
+
+/**
+ * Update loan request to mark as funded by a specific lender
+ */
+export async function fundLoanRequest(loanRequestId: number, lenderId: number): Promise<boolean> {
+  try {
+    const query = `
+      UPDATE loan_requests 
+      SET status = 'funded', funded_by = ?, funded_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ? AND status = 'active'
+    `;
+    
+    const result = await executeSingleQuery(query, [lenderId, loanRequestId]);
+    return result.affectedRows > 0;
+  } catch (error) {
+    console.error('Error funding loan request:', error);
+    return false;
+  }
 }
 
 

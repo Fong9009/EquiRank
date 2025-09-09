@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import LoanRequestDetailModal from './LoanRequestDetailModal';
 import EditLoanRequestModal from './EditLoanRequestModal';
+import LoanRequestAccessGuard from '@/components/common/LoanRequestAccessGuard';
 import styles from '@/styles/pages/borrower/loanRequestList.module.css';
 import clsx from 'clsx';
 
@@ -32,7 +33,7 @@ export default function LoanRequestList() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [selectedRequest, setSelectedRequest] = useState<number | null>(null);
   const [editingRequest, setEditingRequest] = useState<number | null>(null);
-
+  const [profileCompletionPercentage, setProfileCompletionPercentage] = useState(0);
   const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
 
   //Colour Mode Editing
@@ -42,7 +43,14 @@ export default function LoanRequestList() {
 
   useEffect(() => {
     if (session?.user) {
-      fetchLoanRequests();
+      // Only fetch for borrowers
+      if ((session.user as any).userType === 'borrower') {
+        fetchLoanRequests();
+      } else {
+        setIsLoading(false);
+        setError('Only borrowers can view their loan requests');
+      }
+      fetchProfileCompletion();
     }
   }, [session]);
 
@@ -68,7 +76,12 @@ export default function LoanRequestList() {
         const data = await response.json();
         setLoanRequests(data);
       } else {
-        setError('Failed to fetch loan requests');
+        let serverMsg = '';
+        try {
+          const body = await response.json();
+          serverMsg = body?.error || '';
+        } catch {}
+        setError(serverMsg || `Failed to fetch loan requests (${response.status})`);
       }
     } catch (error) {
       console.error('Error fetching loan requests:', error);
@@ -77,6 +90,20 @@ export default function LoanRequestList() {
       setIsLoading(false);
     }
   };
+
+  const fetchProfileCompletion = async () => {
+    try {
+      const response = await fetch('/api/users/profile');
+      if (response.ok) {
+        const data = await response.json();
+        setProfileCompletionPercentage(data.profile_completion_percentage || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching profile completion:', error);
+    }
+  };
+
+  // Wizard flow removed in favor of redirect to settings in guard
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -175,21 +202,32 @@ export default function LoanRequestList() {
   if (loanRequests.length === 0) {
     return (
         <div className={backgroundColour}>
-          <div className={styles.emptyState}>
-            <h3 className={textColour}>No Loan Requests Yet</h3>
-            <p className={textColour}>You haven't submitted any loan requests yet. Start by creating your first request!</p>
-          </div>
+          <LoanRequestAccessGuard
+            userType="borrower"
+            profileCompletionPercentage={profileCompletionPercentage}
+          >
+            <div className={styles.emptyState}>
+              <h3 className={textColour}>No Loan Requests Yet</h3>
+              <p className={textColour}>You haven't submitted any loan requests yet. Start by creating your first request!</p>
+            </div>
+          </LoanRequestAccessGuard>
         </div>
     );
   }
 
+  // No wizard modal; guard will redirect to settings
+
   return (
       <div className={backgroundColour}>
-        <div className={styles.container}>
-          <div className={styles.header}>
-            <h2 className={clsx(styles.title,textColour)}>My Loan Requests</h2>
-            <p className={styles.subtitle}>Track the status of your funding requests</p>
-          </div>
+        <LoanRequestAccessGuard
+          userType="borrower"
+          profileCompletionPercentage={profileCompletionPercentage}
+        >
+          <div className={styles.container}>
+            <div className={styles.header}>
+              <h2 className={clsx(styles.title,textColour)}>My Loan Requests</h2>
+              <p className={styles.subtitle}>Track the status of your funding requests</p>
+            </div>
 
           {successMessage && (
             <div className={`${styles.message} ${styles.success}`}>
@@ -325,7 +363,8 @@ export default function LoanRequestList() {
               onUpdate={handleRequestUpdated}
             />
           )}
-        </div>
+          </div>
+        </LoanRequestAccessGuard>
       </div>
   );
 }
