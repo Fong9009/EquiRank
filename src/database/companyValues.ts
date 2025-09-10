@@ -35,3 +35,24 @@ export async function getAllCompaniesById(borrowerId: number): Promise<CompanyVa
     const results: CompanyValues[] = await executeQuery(query, [borrowerId]);
     return results;
 }
+
+export async function getCompanyCovenant(id: number): Promise<any> {
+    const query = 'SELECT covenant_statistic FROM company_values WHERE id = ?';
+    const results = await executeQuery(query, [id]);
+
+    return results.length > 0 ? results[0] : null;
+}
+
+export async function getCompanyABS(id: number): Promise<any> {
+    const query = 'SELECT abs_benchmark FROM company_values WHERE id = ?';
+    const results = await executeQuery(query, [id]);
+
+    return results.length > 0 ? results[0] : null;
+}
+
+export async function getCompanyFinanceSummary(id: number): Promise<any> {
+    const query = 'SELECT financial_summary FROM company_values WHERE id = ?';
+    const results = await executeQuery(query, [id]);
+
+    return results.length > 0 ? results[0] : null;
+}

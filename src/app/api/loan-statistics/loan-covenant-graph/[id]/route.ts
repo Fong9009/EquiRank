@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { getCovenantRatios } from '@/database/loanStatistics';
+import {getCompanyCovenant} from "@/database/companyValues";
+import {getCompanyId} from "@/database/loanRequest";
+//import { getCovenantRatios } from '@/database/loanStatistics';
 
 type MetricRaw = {
     value: number | null;
@@ -32,33 +34,42 @@ export async function GET(
             return NextResponse.json({ error: 'Invalid loan request ID' }, { status: 400 });
         }
 
-        const covenantRatios = await  getCovenantRatios(id);
+        const companyID = await getCompanyId(id);
+
+        if (!companyID) {
+            // Handle the case where no company ID is found
+            throw new Error('Company ID not found for this loan request');
+            // or return an error response, depending on your context
+        }
+        const covenantRatiosRaw = await getCompanyCovenant(companyID);
+        const covenantRatios = covenantRatiosRaw.covenant_statistic;
+
         if (!covenantRatios) {
             return NextResponse.json({ error: 'Loan request not found' }, { status: 404 });
         }
-        console.log('current ratio:', covenantRatios[0]?.current_ratio);
+        //console.log('current ratio:', covenantRatios?.current_ratio);
 
         const rawMetrics: MetricRaw[] = [
-            { value: covenantRatios[0]?.current_ratio, comparison: '>', target: 88, category: 'Liquidity' },
-            { value: covenantRatios[0]?.quick_ratio, comparison: '>', target: 1, category: 'Liquidity' },
+            { value: covenantRatios?.current_ratio, comparison: '>', target: 88, category: 'Liquidity' },
+            { value: covenantRatios?.quick_ratio, comparison: '>', target: 1, category: 'Liquidity' },
 
-            { value: covenantRatios[0]?.debt_ratio, comparison: '>', target: 40, category: 'Solvency' },
-            { value: covenantRatios[0]?.equity_ratio, comparison: '>', target: 60, category: 'Solvency' },
-            { value: covenantRatios[0]?.quasi_equity_ratio, comparison: '>', target: 15, category: 'Solvency' },
-            { value: covenantRatios[0]?.capitalisation_ratio, comparison: '>', target: 123, category: 'Solvency' },
-            { value: covenantRatios[0]?.interest_cover, comparison: '>', target: 3, category: 'Solvency' },
+            { value: covenantRatios?.debt_ratio, comparison: '>', target: 40, category: 'Solvency' },
+            { value: covenantRatios?.equity_ratio, comparison: '>', target: 60, category: 'Solvency' },
+            { value: covenantRatios?.quasi_equity_ratio, comparison: '>', target: 15, category: 'Solvency' },
+            { value: covenantRatios?.capitalisation_ratio, comparison: '>', target: 123, category: 'Solvency' },
+            { value: covenantRatios?.interest_cover, comparison: '>', target: 3, category: 'Solvency' },
 
-            { value: covenantRatios[0]?.receivables_turnover, comparison: '>', target: 2, category: 'Efficiency & Working-Capital' },
-            { value: covenantRatios[0]?.inventory_turnover, comparison: '>', target: 2, category: 'Efficiency & Working-Capital' },
-            { value: covenantRatios[0]?.creditors_turnover, comparison: '>', target: 2, category: 'Efficiency & Working-Capital' },
-            { value: covenantRatios[0]?.avg_collection_period, comparison: '<', target: 30, category: 'Efficiency & Working-Capital' },
-            { value: covenantRatios[0]?.avg_payment_period, comparison: '<', target: 45, category: 'Efficiency & Working-Capital' },
-            { value: covenantRatios[0]?.inventory_turnover_days, comparison: '<', target: 50, category: 'Efficiency & Working-Capital' },
-            { value: covenantRatios[0]?.operating_cycle, comparison: '<', target: 30, category: 'Efficiency & Working-Capital' },
+            { value: covenantRatios?.receivables_turnover, comparison: '>', target: 2, category: 'Efficiency & Working-Capital' },
+            { value: covenantRatios?.inventory_turnover, comparison: '>', target: 2, category: 'Efficiency & Working-Capital' },
+            { value: covenantRatios?.creditors_turnover, comparison: '>', target: 2, category: 'Efficiency & Working-Capital' },
+            { value: covenantRatios?.avg_collection_period, comparison: '<', target: 30, category: 'Efficiency & Working-Capital' },
+            { value: covenantRatios?.avg_payment_period, comparison: '<', target: 45, category: 'Efficiency & Working-Capital' },
+            { value: covenantRatios?.inventory_turnover_days, comparison: '<', target: 50, category: 'Efficiency & Working-Capital' },
+            { value: covenantRatios?.operating_cycle, comparison: '<', target: 30, category: 'Efficiency & Working-Capital' },
 
-            { value: covenantRatios[0]?.gross_profit_margin, comparison: '>', target: 40, category: 'Profitability' },
-            { value: covenantRatios[0]?.net_profit_margin, comparison: '>', target: 15, category: 'Profitability' },
-            { value: covenantRatios[0]?.return_on_total_assets, comparison: '>', target: 8, category: 'Profitability' },
+            { value: covenantRatios?.gross_profit_margin, comparison: '>', target: 40, category: 'Profitability' },
+            { value: covenantRatios?.net_profit_margin, comparison: '>', target: 15, category: 'Profitability' },
+            { value: covenantRatios?.return_on_total_assets, comparison: '>', target: 8, category: 'Profitability' },
         ];
 
         const grouped: Record<string, { passes: number; total: number }> = {};
@@ -68,7 +79,7 @@ export async function GET(
             if (!grouped[cat]) grouped[cat] = { passes: 0, total: 0 };
             grouped[cat].total += 1;
             if (isPass(metric)) grouped[cat].passes += 1;
-            console.log(grouped);
+            //console.log(grouped);
         });
 
 // Convert to final data array

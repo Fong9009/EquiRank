@@ -10,7 +10,7 @@
 .container {
     flex: 1;
     max-width: 600px;
-    max-height: 500px;
+    max-height: 600px;
     padding: 2rem;
     background-color: #1b1b1b;
     border-radius: 8px;
@@ -25,6 +25,32 @@
 .titleText {
     font-family: 'MyCustomFont', sans-serif;
     font-size: 30px;
+}
+
+.titleSection {
+    font-family: 'MyCustomFont', sans-serif;
+    font-size: 40px;
+}
+
+.ribbon {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-left: 10px;
+    background-color: #2e2e2e;
+}
+
+.barContainer {
+    flex: 1;
+    max-width: 450px;
+    max-height: 450px;
+    padding: 2rem;
+    background-color: #1b1b1b;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.barChart {
+    margin: 10px 10px 20px 20px;
 }
 
 @media (max-width: 768px) {

@@ -64,6 +64,14 @@ export async function createLoanRequest(request: Omit<LoanRequest, 'id' | 'creat
   return result.insertId || 0;
 }
 
+export async function getCompanyId(id: number): Promise<number | null> {
+  const query = 'SELECT company_id FROM loan_requests WHERE id = ?';
+  const results = await executeQuery(query, [id]);
+
+  // Return the company_id, or null if not found
+  return results.length > 0 ? results[0].company_id : null;
+}
+
 /**
  * Get a loan request by ID with borrower information
  */
