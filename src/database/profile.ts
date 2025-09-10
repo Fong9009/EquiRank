@@ -350,3 +350,9 @@ export async function getProfileCompletionPercentage(userId: number, userType: s
     }
 }
 
+//Get IDS
+export async function getBorrowerID(user_id:number): Promise<{id: number}> {
+    const query = `SELECT id FROM borrower_profiles WHERE user_id = ?`;
+    const results = await executeQuery(query, [user_id]);
+    return results.length > 0 ? results[0] : null;
+}

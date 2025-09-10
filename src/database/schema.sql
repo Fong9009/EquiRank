@@ -2,10 +2,10 @@
 -- version 5.2.2
 -- https://www.phpmyadmin.net/
 --
--- Host: mysql:3306
--- Generation Time: Sep 09, 2025 at 12:38 PM
--- Server version: 8.0.43
--- PHP Version: 8.2.27
+-- Host: localhost:3306
+-- Generation Time: Sep 10, 2025 at 02:21 AM
+-- Server version: 8.4.3
+-- PHP Version: 8.3.16
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -32,9 +32,9 @@ CREATE TABLE `admin_profiles` (
   `user_id` int NOT NULL COMMENT 'Foreign key to users table',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `admin_level` enum('super_admin','admin','moderator') COLLATE utf8mb4_unicode_ci DEFAULT 'admin' COMMENT 'Admin permission level',
-  `website` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Personal or company website',
-  `linkedin` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'LinkedIn profile URL',
+  `admin_level` enum('super_admin','admin','moderator') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'admin' COMMENT 'Admin permission level',
+  `website` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Personal or company website',
+  `linkedin` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'LinkedIn profile URL',
   `preferences` json DEFAULT NULL COMMENT 'User preferences and settings'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -56,20 +56,20 @@ CREATE TABLE `borrower_profiles` (
   `user_id` int NOT NULL COMMENT 'Foreign key to users table',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `industry` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Industry sector for risk assessment',
-  `location` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Geographic location for risk assessment',
-  `capabilities` text COLLATE utf8mb4_unicode_ci COMMENT 'Company capabilities and expertise',
+  `industry` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Industry sector for risk assessment',
+  `location` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Geographic location for risk assessment',
+  `capabilities` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Company capabilities and expertise',
   `years_in_business` int DEFAULT NULL COMMENT 'Years the company has been in business',
   `employee_count` int DEFAULT NULL COMMENT 'Number of employees',
-  `revenue_range` enum('0-50k','50k-100k','100k-500k','500k-1m','1m-5m','5m-10m','10m-50m','50m+') COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Annual revenue range',
+  `revenue_range` enum('0-50k','50k-100k','100k-500k','500k-1m','1m-5m','5m-10m','10m-50m','50m+') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Annual revenue range',
   `profile_completion_percentage` int DEFAULT '0' COMMENT 'Profile completion percentage (0-100)',
   `profile_completed_at` timestamp NULL DEFAULT NULL COMMENT 'When profile was completed',
   `profile_completion_required` tinyint(1) DEFAULT '1' COMMENT 'Whether profile completion is required for loan requests',
-  `website` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Personal or company website',
-  `linkedin` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'LinkedIn profile URL',
+  `website` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Personal or company website',
+  `linkedin` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'LinkedIn profile URL',
   `preferences` json DEFAULT NULL COMMENT 'User preferences and settings',
   `qa_rating` decimal(3,2) DEFAULT NULL COMMENT 'Quality assurance rating (0.00-5.00)',
-  `company_logo` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'URL to company logo image',
+  `company_logo` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'URL to company logo image',
   `qa_rating_updated_at` timestamp NULL DEFAULT NULL COMMENT 'When QA rating was last updated'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -95,7 +95,7 @@ CREATE TABLE `company_statistics` (
   `employee_count` int DEFAULT NULL COMMENT 'Number of employees',
   `years_in_business` int DEFAULT NULL COMMENT 'Years the company has been in business',
   `credit_score` int DEFAULT NULL COMMENT 'Credit score (300-850)',
-  `industry` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Industry sector',
+  `industry` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Industry sector',
   `financial_ratios` json DEFAULT NULL COMMENT 'JSON object containing financial ratios',
   `last_updated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -106,6 +106,31 @@ CREATE TABLE `company_statistics` (
 
 INSERT INTO `company_statistics` (`id`, `user_id`, `annual_revenue`, `employee_count`, `years_in_business`, `credit_score`, `industry`, `financial_ratios`, `last_updated`) VALUES
 (1, 2, 2500000.00, 25, 5, 720, 'Manufacturing', '{\"current_ratio\": 1.8, \"profit_margin\": 0.15, \"debt_to_equity\": 0.45}', '2025-08-29 11:50:04');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `company_values`
+--
+
+CREATE TABLE `company_values` (
+  `id` int NOT NULL,
+  `borrower_id` int NOT NULL COMMENT 'foreign key to borrower profile',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `company_name` varchar(100) COLLATE utf8mb3_unicode_ci DEFAULT NULL COMMENT 'Name of company',
+  `industry` varchar(100) COLLATE utf8mb3_unicode_ci DEFAULT NULL COMMENT 'Industry of Company',
+  `revenue_range` enum('0-50k','50k-100k','100k-500k','500k-1m','1m-5m','5m-10m','10m-50m','50m+') COLLATE utf8mb3_unicode_ci DEFAULT NULL COMMENT 'Annual revenue range',
+  `covenant_statistic` json DEFAULT NULL COMMENT 'The Covenant Statistics'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+--
+-- Dumping data for table `company_values`
+--
+
+INSERT INTO `company_values` (`id`, `borrower_id`, `created_at`, `updated_at`, `company_name`, `industry`, `revenue_range`, `covenant_statistic`) VALUES
+(1, 1, '2025-09-09 23:26:37', '2025-09-09 23:26:37', 'Tech Builders', 'Household', '50k-100k', '{\"debt_ratio\": 47.52, \"quick_ratio\": 0.96, \"equity_ratio\": 52.48, \"current_ratio\": 1.93, \"dividend_ratio\": 1, \"interest_cover\": 17.2, \"operating_cycle\": 53.92, \"net_profit_margin\": 4.02, \"avg_payment_period\": 28.59, \"creditors_turnover\": 12.77, \"inventory_turnover\": 0.0, \"quasi_equity_ratio\": 63.93, \"gross_profit_margin\": 22.15, \"capitalisation_ratio\": 190.55, \"receivables_turnover\": 8.79, \"avg_collection_period\": 41.57, \"return_on_total_assets\": 8.2, \"inventory_turnover_days\": 40.94}'),
+(2, 1, '2025-09-10 00:58:48', '2025-09-10 00:58:48', 'Test Company', 'Some industry', '50k-100k', NULL);
 
 -- --------------------------------------------------------
 
@@ -149,14 +174,14 @@ CREATE TABLE `lender_profiles` (
   `user_id` int NOT NULL COMMENT 'Foreign key to users table',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `institution_type` enum('bank','credit_union','investment_firm','private_lender','peer_to_peer','other') COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Type of lending institution',
-  `risk_appetite` enum('conservative','moderate','aggressive') COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Risk tolerance level',
+  `institution_type` enum('bank','credit_union','investment_firm','private_lender','peer_to_peer','other') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Type of lending institution',
+  `risk_appetite` enum('conservative','moderate','aggressive') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Risk tolerance level',
   `target_industries` json DEFAULT NULL COMMENT 'JSON array of target industries',
   `target_markets` json DEFAULT NULL COMMENT 'JSON array of target geographic markets',
   `min_loan_amount` decimal(15,2) DEFAULT NULL COMMENT 'Minimum loan amount preference',
   `max_loan_amount` decimal(15,2) DEFAULT NULL COMMENT 'Maximum loan amount preference',
-  `website` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Personal or company website',
-  `linkedin` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'LinkedIn profile URL',
+  `website` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Personal or company website',
+  `linkedin` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'LinkedIn profile URL',
   `preferences` json DEFAULT NULL COMMENT 'User preferences and settings'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -177,23 +202,24 @@ INSERT INTO `lender_profiles` (`id`, `user_id`, `created_at`, `updated_at`, `ins
 CREATE TABLE `loan_requests` (
   `id` int NOT NULL,
   `borrower_id` int NOT NULL COMMENT 'Foreign key to users table',
+  `company_id` int DEFAULT NULL,
   `amount_requested` decimal(15,2) NOT NULL COMMENT 'Amount of money requested',
-  `currency` enum('USD','EUR','GBP','CAD','AUD','JPY','CHF','CNY') COLLATE utf8mb4_unicode_ci DEFAULT 'USD' COMMENT 'Currency of the loan',
-  `company_description` text COLLATE utf8mb4_unicode_ci COMMENT 'Description of the company',
+  `currency` enum('USD','EUR','GBP','CAD','AUD','JPY','CHF','CNY') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'USD' COMMENT 'Currency of the loan',
+  `company_description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Description of the company',
   `social_media_links` json DEFAULT NULL COMMENT 'JSON object containing social media links',
-  `loan_purpose` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Reason for loan requirement',
-  `loan_type` enum('equipment','expansion','working_capital','inventory','real_estate','startup','other') COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Type of loan',
-  `status` enum('pending','active','funded','closed','expired') COLLATE utf8mb4_unicode_ci DEFAULT 'pending' COMMENT 'Current status of the loan request',
+  `loan_purpose` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Reason for loan requirement',
+  `loan_type` enum('equipment','expansion','working_capital','inventory','real_estate','startup','other') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Type of loan',
+  `status` enum('pending','active','funded','closed','expired') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'pending' COMMENT 'Current status of the loan request',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `expires_at` timestamp NULL DEFAULT NULL COMMENT 'When the request expires',
   `archived` tinyint(1) DEFAULT '0' COMMENT 'Whether the loan request is archived by admin',
   `archived_by` int DEFAULT NULL COMMENT 'Admin who archived this request',
   `archived_at` timestamp NULL DEFAULT NULL COMMENT 'When the request was archived',
-  `original_status` enum('pending','active','funded','closed','expired') COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'The status before it was closed',
+  `original_status` enum('pending','active','funded','closed','expired') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'The status before it was closed',
   `closed_by` int DEFAULT NULL COMMENT 'Admin who closed this request',
   `closed_at` timestamp NULL DEFAULT NULL COMMENT 'When the request was closed',
-  `closed_reason` text COLLATE utf8mb4_unicode_ci COMMENT 'Reason for closing the request',
+  `closed_reason` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Reason for closing the request',
   `funded_by` int DEFAULT NULL COMMENT 'Lender who funded this request',
   `funded_at` timestamp NULL DEFAULT NULL COMMENT 'When the request was funded'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -202,9 +228,11 @@ CREATE TABLE `loan_requests` (
 -- Dumping data for table `loan_requests`
 --
 
-INSERT INTO `loan_requests` (`id`, `borrower_id`, `amount_requested`, `currency`, `company_description`, `social_media_links`, `loan_purpose`, `loan_type`, `status`, `created_at`, `updated_at`, `expires_at`, `archived`, `archived_by`, `archived_at`, `original_status`, `closed_by`, `closed_at`, `closed_reason`, `funded_by`, `funded_at`) VALUES
-(8, 2, 10000.00, 'USD', 'iuogyvyuvyuvyuvyuvuyv', '{\"twitter\": \"\", \"website\": \"\", \"facebook\": \"\", \"linkedin\": \"\", \"instagram\": \"\"}', 'ygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvy', 'working_capital', 'pending', '2025-08-29 12:31:55', '2025-09-01 13:35:42', '2025-09-07 10:00:00', 0, NULL, NULL, 'funded', NULL, NULL, NULL, NULL, NULL),
-(10, 2, 5000.00, 'AUD', '314f134g134g134g', NULL, '134g134g134g134g', 'working_capital', 'closed', '2025-09-01 04:57:35', '2025-09-01 05:39:50', '2025-09-07 10:00:00', 0, NULL, NULL, 'funded', 1, '2025-09-01 05:39:50', 'erinougeqroginqeoirgjnioqenriogqoier', NULL, NULL);
+INSERT INTO `loan_requests` (`id`, `borrower_id`, `company_id`, `amount_requested`, `currency`, `company_description`, `social_media_links`, `loan_purpose`, `loan_type`, `status`, `created_at`, `updated_at`, `expires_at`, `archived`, `archived_by`, `archived_at`, `original_status`, `closed_by`, `closed_at`, `closed_reason`, `funded_by`, `funded_at`) VALUES
+(8, 2, 1, 10000.00, 'USD', 'iuogyvyuvyuvyuvyuvuyv', '{\"twitter\": \"\", \"website\": \"\", \"facebook\": \"\", \"linkedin\": \"\", \"instagram\": \"\"}', 'ygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvy', 'working_capital', 'pending', '2025-08-29 12:31:55', '2025-09-10 00:02:46', '2025-09-07 10:00:00', 0, NULL, NULL, 'funded', NULL, NULL, NULL, NULL, NULL),
+(10, 2, 1, 5000.00, 'AUD', '314f134g134g134g', NULL, '134g134g134g134g', 'working_capital', 'closed', '2025-09-01 04:57:35', '2025-09-10 00:02:46', '2025-09-07 10:00:00', 0, NULL, NULL, 'funded', 1, '2025-09-01 05:39:50', 'erinougeqroginqeoirgjnioqenriogqoier', NULL, NULL),
+(12, 2, 1, 100.00, 'AUD', NULL, NULL, 'weasea', 'equipment', 'pending', '2025-09-10 01:24:00', '2025-09-10 01:24:00', '2025-09-11 00:00:00', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(15, 2, 1, 213121.00, 'AUD', NULL, NULL, '123132', 'equipment', 'pending', '2025-09-10 02:02:09', '2025-09-10 02:02:09', '2025-09-25 00:00:00', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -328,6 +356,13 @@ ALTER TABLE `company_statistics`
   ADD KEY `idx_company_statistics_industry` (`industry`);
 
 --
+-- Indexes for table `company_values`
+--
+ALTER TABLE `company_values`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `borrowerForeignKey` (`borrower_id`);
+
+--
 -- Indexes for table `contact_messages`
 --
 ALTER TABLE `contact_messages`
@@ -359,7 +394,8 @@ ALTER TABLE `loan_requests`
   ADD KEY `idx_loan_requests_expires_at` (`expires_at`),
   ADD KEY `fk_loan_requests_archived_by` (`archived_by`),
   ADD KEY `fk_loan_requests_closed_by` (`closed_by`),
-  ADD KEY `fk_loan_requests_funded_by` (`funded_by`);
+  ADD KEY `fk_loan_requests_funded_by` (`funded_by`),
+  ADD KEY `fk_company_key` (`company_id`);
 
 --
 -- Indexes for table `migrations`
@@ -411,6 +447,12 @@ ALTER TABLE `company_statistics`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT for table `company_values`
+--
+ALTER TABLE `company_values`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `contact_messages`
 --
 ALTER TABLE `contact_messages`
@@ -426,7 +468,7 @@ ALTER TABLE `lender_profiles`
 -- AUTO_INCREMENT for table `loan_requests`
 --
 ALTER TABLE `loan_requests`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `migrations`
@@ -444,7 +486,7 @@ ALTER TABLE `password_reset_tokens`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Constraints for dumped tables
@@ -469,6 +511,12 @@ ALTER TABLE `company_statistics`
   ADD CONSTRAINT `fk_company_statistics_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `company_values`
+--
+ALTER TABLE `company_values`
+  ADD CONSTRAINT `borrowerForeignKey` FOREIGN KEY (`borrower_id`) REFERENCES `borrower_profiles` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+--
 -- Constraints for table `contact_messages`
 --
 ALTER TABLE `contact_messages`
@@ -484,6 +532,7 @@ ALTER TABLE `lender_profiles`
 -- Constraints for table `loan_requests`
 --
 ALTER TABLE `loan_requests`
+  ADD CONSTRAINT `fk_company_key` FOREIGN KEY (`company_id`) REFERENCES `company_values` (`id`) ON DELETE SET NULL ON UPDATE SET NULL,
   ADD CONSTRAINT `fk_loan_requests_archived_by` FOREIGN KEY (`archived_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `fk_loan_requests_borrower` FOREIGN KEY (`borrower_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_loan_requests_closed_by` FOREIGN KEY (`closed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,

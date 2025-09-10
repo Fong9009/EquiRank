@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     }
 
     const loanRequests = await getLoanRequestsByBorrower(parseInt(session.user.id));
-    
+    console.log("Test", loanRequests);
     return NextResponse.json(loanRequests);
 
   } catch (error) {
