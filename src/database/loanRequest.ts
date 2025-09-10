@@ -3,6 +3,7 @@ import { executeQuery, executeSingleQuery } from './index';
 export interface LoanRequest {
   id?: number;
   borrower_id: number;
+  company_id?: number;
   amount_requested: number;
   currency: 'USD' | 'EUR' | 'GBP' | 'CAD' | 'AUD' | 'JPY' | 'CHF' | 'CNY';
   company_description?: string; 
@@ -39,14 +40,15 @@ export interface LoanRequestWithBorrower extends LoanRequest {
 export async function createLoanRequest(request: Omit<LoanRequest, 'id' | 'created_at' | 'updated_at'>): Promise<number> {
       const query = `
       INSERT INTO loan_requests (
-        borrower_id, amount_requested, currency, company_description,
+        borrower_id, company_id, amount_requested, currency, company_description,
         loan_purpose, 
         loan_type, status, expires_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     
     const params = [
       request.borrower_id,
+      request.company_id || null,
       request.amount_requested,
       request.currency,
       request.company_description || null,
@@ -67,11 +69,13 @@ export async function createLoanRequest(request: Omit<LoanRequest, 'id' | 'creat
  */
 export async function getLoanRequestById(id: number): Promise<(LoanRequest & { borrower_name: string; borrower_company?: string; website?: string; linkedin?: string }) | null> {
   const query = `
-    SELECT lr.*, 
-      CONCAT(u.first_name, ' ', u.last_name) as borrower_name,
-      u.company as borrower_company
+    SELECT lr.*,
+           CONCAT(u.first_name, ' ', u.last_name) AS borrower_name,
+           u.company AS borrower_company,
+           cv.company_name AS company_name
     FROM loan_requests lr
-    JOIN users u ON lr.borrower_id = u.id
+           JOIN users u ON lr.borrower_id = u.id
+           LEFT JOIN company_values cv ON lr.company_id = cv.id
     WHERE lr.id = ?
   `;
   
@@ -114,9 +118,13 @@ export async function getLoanRequestById(id: number): Promise<(LoanRequest & { b
  */
 export async function getLoanRequestsByBorrower(borrowerId: number): Promise<LoanRequest[]> {
   const query = `
-    SELECT lr.*, u.company as borrower_company
+    SELECT
+      lr.*,
+      u.company AS borrower_company,
+      cv.company_name AS company_name
     FROM loan_requests lr
-    JOIN users u ON lr.borrower_id = u.id
+           JOIN users u ON lr.borrower_id = u.id
+           LEFT JOIN company_values cv ON lr.company_id = cv.id
     WHERE lr.borrower_id = ?
     ORDER BY lr.created_at DESC
   `;
@@ -144,17 +152,19 @@ export async function getLoanRequestsByBorrower(borrowerId: number): Promise<Loa
  */
 export async function getActiveLoanRequests(): Promise<LoanRequestWithBorrower[]> {
   const query = `
-    SELECT lr.*, 
-           CONCAT(u.first_name, ' ', u.last_name) as borrower_name,
-           u.company as borrower_company,
+    SELECT lr.*,
+           CONCAT(u.first_name, ' ', u.last_name) AS borrower_name,
+           u.company AS borrower_company,
            bp.website,
-           bp.linkedin
+           bp.linkedin,
+           cv.company_name AS company_name
     FROM loan_requests lr
-    JOIN users u ON lr.borrower_id = u.id
-    LEFT JOIN borrower_profiles bp ON u.id = bp.user_id
+           JOIN users u ON lr.borrower_id = u.id
+           LEFT JOIN borrower_profiles bp ON u.id = bp.user_id
+           LEFT JOIN company_values cv ON lr.company_id = cv.id
     WHERE lr.status IN ('pending', 'active')
-    AND (lr.expires_at IS NULL OR lr.expires_at > NOW())
-    AND u.is_active = 1
+      AND (lr.expires_at IS NULL OR lr.expires_at > NOW())
+      AND u.is_active = 1
     ORDER BY lr.created_at DESC
   `;
   

@@ -1,38 +1,35 @@
 "use client";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import {useSession} from "next-auth/react";
-import {useRouter} from "next/navigation";
-import {useEffect, useState} from "react";
+import { useSession } from "next-auth/react";
+import { useRouter, useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import LoanAnalysis from "@/components/pages/lender/LoanAnalysis";
 
-interface Props {
-    params: { id: string } | Promise<{ id: string }>;
-}
-
-export default function LoanRequestDetail({ params }: Props) {
+export default function LoanRequestDetail() {
     const [id, setId] = useState<string | null>(null);
     const { data: session, status } = useSession();
     const router = useRouter();
+    const params = useParams(); // <-- get params from next/navigation
     const [isReady, setIsReady] = useState(false);
 
     useEffect(() => {
-        async function resolveParams() {
-            const resolved = 'then' in params ? await params : params;
-            setId(resolved.id);
+        if (params?.id) {
+            // Handle both string and string[] cases
+            const idValue = Array.isArray(params.id) ? params.id[0] : params.id;
+            setId(idValue);
         }
-        resolveParams();
     }, [params]);
 
     useEffect(() => {
-        if (status === 'loading') return;
+        if (status === "loading") return;
 
-        if (!session?.user || session.user.userType !== 'lender') {
-            if(!session?.user){
-                router.push('/login');
-            } else if (session.user.userType === 'borrower') {
-                router.push('/dashboard/borrower');
+        if (!session?.user || session.user.userType !== "lender") {
+            if (!session?.user) {
+                router.push("/login");
+            } else if (session.user.userType === "borrower") {
+                router.push("/dashboard/borrower");
             } else {
-                router.push('/dashboard/admin');
+                router.push("/dashboard/admin");
             }
             return;
         }
@@ -40,11 +37,11 @@ export default function LoanRequestDetail({ params }: Props) {
         setIsReady(true);
     }, [session, status, router]);
 
-    if (status === 'loading') {
+    if (status === "loading") {
         return <div>Loading...</div>;
     }
 
-    if (!isReady || !session?.user || session.user.userType !== 'lender') {
+    if (!isReady || !session?.user || session.user.userType !== "lender") {
         return null;
     }
 

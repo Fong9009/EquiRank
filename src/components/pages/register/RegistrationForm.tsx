@@ -13,7 +13,6 @@ interface FormData {
   firstName: string;
   lastName: string;
   userType: 'borrower' | 'lender';
-  entityType: 'company';
   company: string;
   phone: string;
   address: string;
@@ -27,7 +26,6 @@ export default function RegistrationForm() {
     firstName: '',
     lastName: '',
     userType: 'borrower',
-    entityType: 'company',
     company: '',
     phone: '',
     address: ''

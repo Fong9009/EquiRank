@@ -23,6 +23,7 @@ interface LoanRequest {
   expires_at: string | null;
   company_description?: string;
   borrower_company?: string;
+  company_name?: string;
 }
 
 export default function LoanRequestList() {
@@ -274,10 +275,10 @@ export default function LoanRequestList() {
                     </span>
                   </div>
 
-                  {request.borrower_company && (
+                  {request.company_name && (
                     <div className={styles.detailRow}>
                       <span className={styles.label}>Company:</span>
-                      <span className={styles.value}>{request.borrower_company}</span>
+                      <span className={styles.value}>{request.company_name}</span>
                     </div>
                   )}
 

@@ -22,7 +22,8 @@ export async function POST(request: NextRequest) {
       loan_purpose,
       loan_type,
       other_loan_type,
-      expires_at
+      expires_at,
+      company_id,
     } = body;
 
     // Validate required fields
@@ -66,6 +67,7 @@ export async function POST(request: NextRequest) {
     // Create loan request
     const loanRequestData = {
       borrower_id: parseInt(session.user.id),
+      company_id: parseInt(company_id),
       amount_requested: parseFloat(amount_requested),
       currency,
       company_description,

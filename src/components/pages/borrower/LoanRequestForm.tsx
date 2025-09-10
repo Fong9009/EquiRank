@@ -13,6 +13,12 @@ interface LoanRequestFormData {
   loan_type: 'equipment' | 'expansion' | 'working_capital' | 'inventory' | 'real_estate' | 'startup' | 'other';
   other_loan_type: string;
   expires_at: string;
+  company_id: number;
+}
+
+interface Company {
+  id: number;
+  company_name: string;
 }
 
 export default function LoanRequestForm() {
@@ -21,6 +27,7 @@ export default function LoanRequestForm() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
   const [profileCompletionPercentage, setProfileCompletionPercentage] = useState(0);
+  const [companies, setCompanies] = useState<Company[]>([]);
 
   //Colour Mode Editing
   const textColour = theme === "light" ? styles.lightTextColour : styles.darkTextColour;
@@ -34,7 +41,8 @@ export default function LoanRequestForm() {
     loan_purpose: '',
     loan_type: 'working_capital',
     other_loan_type: '',
-    expires_at: ''
+    expires_at: '',
+    company_id: 0
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -94,7 +102,8 @@ export default function LoanRequestForm() {
           loan_purpose: '',
           loan_type: 'working_capital',
           other_loan_type: '',
-          expires_at: ''
+          expires_at: '',
+          company_id: 0
         });
       } else {
         setMessage({ type: 'error', text: result.error || 'Failed to submit loan request' });
@@ -119,6 +128,20 @@ export default function LoanRequestForm() {
           }
         });
   }, [session]);
+
+  useEffect(() => {
+    async function fetchCompanies() {
+      try {
+        const res = await fetch("/api/borrower/companies");
+        const data = await res.json();
+        console.log(data);
+        setCompanies(data);
+      } catch (err) {
+        console.error("Error fetching companies:", err);
+      }
+    }
+    fetchCompanies();
+  }, []);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -195,6 +218,27 @@ export default function LoanRequestForm() {
                     <option value="CNY">CNY</option>
                   </select>
                 </div>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="company_id" className={styles.label}>
+                  Select Company *
+                </label>
+                <select
+                    id="company_id"
+                    name="company_id"
+                    value={formData.company_id}
+                    onChange={handleInputChange}
+                    required
+                    className={styles.select}
+                >
+                  <option value="">-- Select a company --</option>
+                  {companies.map((company) => (
+                      <option key={company.id} value={company.id}>
+                        {company.company_name}
+                      </option>
+                  ))}
+                </select>
               </div>
 
               <div className={styles.formGroup}>
