@@ -45,12 +45,15 @@ export async function GET(
 
         const statements = financialData.financial_summary.financialStatements as Record<string, FinancialStatement>;
 
-        const chartData = Object.entries(statements).map(([year, data]) => ({
-            year: year,
-            currentAssets: data.currentAssets,
-            // Format for display in millions
-            currentAssetsDisplay: (data.currentAssets / 1000000).toFixed(1)
-        }));
+        const chartData = Object.entries(statements).map(([year, data]) => {
+            const { raw, display } = formatToUnits(data.currentAssets);
+
+            return {
+                year,
+                currentAssets: raw,
+                currentAssetsDisplay: display
+            };
+        });
 
         console.log("Test", chartData);
         return NextResponse.json(chartData);
@@ -62,4 +65,17 @@ export async function GET(
             details: error instanceof Error ? error.message : 'Unknown error'
         }, { status: 500 });
     }
+}
+
+function formatToUnits(value: number): { raw: number; display: string } {
+    if (value === null || value === undefined) return { raw: 0, display: "-" };
+
+    const absVal = Math.abs(value);
+
+    if (absVal >= 1_000_000_000_000) return { raw: value, display: (value / 1_000_000_000_000).toFixed(1) + "T" };
+    if (absVal >= 1_000_000_000)     return { raw: value, display: (value / 1_000_000_000).toFixed(1) + "B" };
+    if (absVal >= 1_000_000)         return { raw: value, display: (value / 1_000_000).toFixed(1) + "M" };
+    if (absVal >= 1_000)             return { raw: value, display: (value / 1_000).toFixed(1) + "K" };
+
+    return { raw: value, display: value.toString() };
 }

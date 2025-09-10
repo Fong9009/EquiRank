@@ -35,68 +35,6 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
     const [currentAssetsGraph, setCurrentAssetsGraph] = useState<any>();
     const [testData, setData] = useState<any>(null);
 
-    const financialData = {
-        "financialStatements": {
-            "2023": {
-                "date": "2023-06-30",
-                "currentAssets": 3729525,
-                "nonCurrentAssets": 1522677,
-                "totalAssets": 5252202,
-                "currentLiabilities": 1137720,
-                "nonCurrentLiabilities": 930315,
-                "totalLiabilities": 2068035,
-                "equity": 3184167,
-                "netRevenue": 15766553,
-                "costOfGoodsSold": 12326088,
-                "grossProfit": 3440466,
-                "otherIncome": 232860,
-                "depreciation": 133758,
-                "interest": 17661,
-                "otherExpenses": 2709194,
-                "profitLoss": 812712,
-                "ebitda": 964131
-            },
-            "2024": {
-                "date": "2024-06-30",
-                "currentAssets": 3019410,
-                "nonCurrentAssets": 1994932,
-                "totalAssets": 5014341,
-                "currentLiabilities": 966396,
-                "nonCurrentLiabilities": 1528151,
-                "totalLiabilities": 2494547,
-                "equity": 2519795,
-                "netRevenue": 13736093,
-                "costOfGoodsSold": 11123405,
-                "grossProfit": 2612688,
-                "otherIncome": 319437,
-                "depreciation": 172402,
-                "interest": 78,
-                "otherExpenses": 2432864,
-                "profitLoss": 326782,
-                "ebitda": 499261
-            },
-            "2025": {
-                "date": "2025-06-30",
-                "currentAssets": 3704382,
-                "nonCurrentAssets": 4463481,
-                "totalAssets": 8167863,
-                "currentLiabilities": 1917820,
-                "nonCurrentLiabilities": 1963688,
-                "totalLiabilities": 3881508,
-                "equity": 4286355,
-                "netRevenue": 15699648,
-                "costOfGoodsSold": 12222437,
-                "grossProfit": 3477211,
-                "otherIncome": 371514,
-                "depreciation": 283548,
-                "interest": 38939,
-                "otherExpenses": 2895266,
-                "profitLoss": 630973,
-                "ebitda": 953459
-            }
-        }
-    };
-
     //Used to Obtain the Covenant Statistics
     useEffect(() => {
         if (!loanId) return;
@@ -146,24 +84,13 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
     };
 
     const formatTooltip = (value: number, name: string) => {
-        if (name === 'currentAssets') {
-            return [`$${(value / 1000000).toFixed(1)}M`, 'Current Assets'];
-        }
-        return [value, name];
+        return [formatWithUnits(value), name];
     };
 
     const formatYAxis = (value: number) => {
-        return `$${(value / 1000000).toFixed(0)}M`;
+        return formatWithUnits(value);
     };
 
-
-
-    const chartData = Object.entries(financialData.financialStatements).map(([year, data]) => ({
-        year: year,
-        currentAssets: data.currentAssets,
-        // Format for display in millions
-        currentAssetsDisplay: (data.currentAssets / 1000000).toFixed(1)
-    }));
     return(
         <div>
             <div className={styles.ribbon}>
@@ -295,4 +222,15 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
     );
 }
 
+function formatWithUnits(value: number): string {
+    if (value === null || value === undefined) return "-";
 
+    const absVal = Math.abs(value);
+
+    if (absVal >= 1_000_000_000_000) return `$${(value / 1_000_000_000_000).toFixed(1)}T`;
+    if (absVal >= 1_000_000_000)     return `$${(value / 1_000_000_000).toFixed(1)}B`;
+    if (absVal >= 1_000_000)         return `$${(value / 1_000_000).toFixed(1)}M`;
+    if (absVal >= 1_000)             return `$${(value / 1_000).toFixed(1)}K`;
+
+    return `$${value}`;
+}
