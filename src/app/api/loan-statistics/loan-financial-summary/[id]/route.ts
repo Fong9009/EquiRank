@@ -94,7 +94,6 @@ export async function GET(
             };
         });
 
-        console.log(combinedChartData);
         return NextResponse.json(combinedChartData);
 
     } catch (error) {
