@@ -17,6 +17,10 @@ export async function GET(request: NextRequest) {
 
         const userId = parseInt(session.user.id);
         const borrowerID = await getBorrowerID(userId);
+        if(!borrowerID) {
+            return NextResponse.json({ error: 'Borrower Profile Not Found' }, { status: 404 });
+        }
+
         const companyList = await getAllCompaniesById(borrowerID.id);
 
         return NextResponse.json(companyList);
