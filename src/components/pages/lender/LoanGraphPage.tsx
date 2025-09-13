@@ -4,7 +4,11 @@ import {
     Bar,
     BarChart,
     CartesianGrid,
+    Cell,
     LabelList,
+    PieChart,
+    Pie,
+    Legend,
     PolarAngleAxis,
     PolarGrid,
     PolarRadiusAxis,
@@ -16,6 +20,7 @@ import {
     YAxis,
 } from "recharts";
 import styles from "@/styles/pages/lender/loanGraphPage.module.css";
+import LoadingPage from "@/components/common/LoadingPage";
 
 interface LoanAnalysisProps {
     loanId: string;
@@ -23,25 +28,58 @@ interface LoanAnalysisProps {
 
 export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
     const [radarWithDescriptions, setDataWithDescriptions] = useState<any[]>([]);
-    const [testData, setData] = useState<any>(null);
+    const [absStatistics, setAbsStatistics] = useState<any[]>([]);
+    const [financialSummaryData, setFinancialSummaryData] =  useState<any>();
+    const [selectedYear, setSelectedYear] = useState<string>('');
+    const [selectedLiabilityYear, setSelectedLiabilityYear] = useState<string>('');
+    const COLORS = ['#4CAF50', '#2E7D32'];
+    const LIAB_COLORS = ['#47ace3', '#2076b1'];
+
+    const [isLoading, setIsLoading] = useState(true);
+
+    //Used to Obtain the Covenant Statistics
+    useEffect(() => {
+        if (!loanId) return;
+
+        const fetchAllData = async () => {
+            setIsLoading(true);
+            try {
+                const [covenantRes, absRes, financeSumRes] = await Promise.all([
+                    fetch(`/api/loan-statistics/loan-covenant-graph/${loanId}`),
+                    fetch(`/api/loan-statistics/loan-abs-graph/${loanId}`),
+                    fetch(`/api/loan-statistics/loan-financial-summary/${loanId}`),
+                ]);
+
+                if (!covenantRes.ok) throw new Error("Failed to fetch covenant data");
+                if (!absRes.ok) throw new Error("Failed to fetch ABS data");
+                if (!financeSumRes.ok) throw new Error("Failed to fetch financial asset data");
+
+                const [covenantData, absData, financeSumData] = await Promise.all([
+                    covenantRes.json(),
+                    absRes.json(),
+                    financeSumRes.json(),
+                ]);
+
+                setDataWithDescriptions(covenantData);
+                setAbsStatistics(absData.abs_benchmark);
+                setFinancialSummaryData(financeSumData);
+            } catch (err) {
+                console.error("Data fetching error:", err);
+                // Handle error state appropriately
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchAllData();
+    }, [loanId]);
 
     useEffect(() => {
-        async function fetchData() {
-            try {
-                const res = await fetch(`/api/loan-statistics/loan-covenant-graph/${loanId}`);
-                if (!res.ok) throw new Error("Failed to fetch data");
-
-                const json = await res.json();
-                // JSON already contains description & color
-                setDataWithDescriptions(json);
-                console.log("Fetched data with descriptions:", json);
-            } catch (err) {
-                console.error(err);
-            }
+        if (financialSummaryData && financialSummaryData.length > 0) {
+            setSelectedYear(financialSummaryData[2].year);
+            setSelectedLiabilityYear(financialSummaryData[2].year);
         }
-
-        fetchData();
-    }, [loanId]);
+    }, [financialSummaryData]);
 
     const CustomTooltip = ({ active, payload }: any) => {
         if (active && payload && payload.length) {
@@ -56,52 +94,118 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
         return null;
     };
 
-    const Graphdata = [
-        {
-            name: "Wages/Revenue",
-            value: 26.84,
-            benchmark: 11,
-            comparison: ">",
-        },
-        {
-            name: "Total Exp/Total Inc",
-            value: 62.16,
-            benchmark: 61,
-            comparison: ">",
-        },
-        {
-            name: "Total Exp/Total Inc",
-            value: 62.16,
-            benchmark: 61,
-            comparison: ">",
-        },
-        {
-            name: "Net Profit Margin",
-            value: 36.53,
-            benchmark: 48,
-            comparison: "<",
-        },
-        {
-            name: "EBITDA/Revenue",
-            value: 37.12,
-            benchmark: 43,
-            comparison: "<",
-        },
-    ];
-
-    const getStatusColor = (value: number, benchmark: number, comparison: string) => {
-        if (comparison === "<") {
-            return value < benchmark ? "#4CAF50" : "#F44336"; // green if less, red if more
-        }
-        if (comparison === ">") {
-            return value > benchmark ? "#4CAF50" : "#F44336"; // green if greater, red if less
-        }
-        return "#9E9E9E";
+    //Pie Chart Functions (Assets Pie)
+    const getDataForYear = (year: string): any => {
+        return financialSummaryData.find((item: { year: string; }) => item.year === year);
     };
 
+    const formatDataForChart = (year: string) => {
+        const data = getDataForYear(year);
+        if (!data) return [];
+
+        return [
+            {
+                name: 'Current Assets',
+                value: data.currentAssets,
+                displayValue: data.currentAssetDisplay
+            },
+            {
+                name: 'Non-Current Assets',
+                value: data.nonCurrentAssets,
+                displayValue: data.nonCurrentAssetDisplay
+            }
+        ];
+    };
+
+    const renderLabel = (entry: any) => {
+        const chartData = formatDataForChart(selectedYear);
+        const total = chartData.reduce((sum, item) => sum + item.value, 0);
+        const percentage = ((entry.value / total) * 100).toFixed(1);
+        return `${percentage}%`;
+    };
+
+    const PieCustomTooltip = ({ active, payload }: any) => {
+        if (active && payload && payload.length) {
+            const data = payload[0];
+            const chartData = formatDataForChart(selectedYear);
+            const total = chartData.reduce((sum, item) => sum + item.value, 0);
+            const percentage = ((data.value / total) * 100).toFixed(1);
+
+            return (
+                <div className="tooltip">
+                    <strong>{data.payload.name}</strong>
+                    <p>{data.payload.displayValue}</p>
+                    <p>{percentage}% of total assets</p>
+                </div>
+            );
+        }
+        return null;
+    }
+
+    //Pie Chart Functions (Liabilities Pie)
+    const formatDataForLiabilityChart = (year: string) => {
+        const data = getDataForYear(year);
+        if (!data) return [];
+
+        return [
+            {
+                name: 'Current Liabilities',
+                value: data.currentLiabilities,
+                displayValue: data.currentLiabilitiesDisplay,
+            },
+            {
+                name: 'Non-Current Liabilities',
+                value: data.nonCurrentLiabilities,
+                displayValue: data.nonCurrentLiabilitiesDisplay
+            }
+        ];
+    };
+
+    const renderLiabilityLabel = (entry: any) => {
+        const chartData = formatDataForLiabilityChart(selectedYear);
+        const total = chartData.reduce((sum, item) => sum + item.value, 0);
+        const percentage = ((entry.value / total) * 100).toFixed(1);
+        return `${percentage}%`;
+    };
+
+    const LiabilityPieCustomTooltip = ({ active, payload }: any) => {
+        if (active && payload && payload.length) {
+            const data = payload[0];
+            const chartData = formatDataForLiabilityChart(selectedYear);
+            const total = chartData.reduce((sum, item) => sum + item.value, 0);
+            const percentage = ((data.value / total) * 100).toFixed(1);
+
+            return (
+                <div className="tooltip">
+                    <strong>{data.payload.name}</strong>
+                    <p>{data.payload.displayValue}</p>
+                    <p>{percentage}% of total Liabilities</p>
+                </div>
+            );
+        }
+        return null;
+    }
+
+    //END OF PIE FUNCTIONS
+
+
+    const formatTooltip = (value: number, name: string) => {
+        return [formatWithUnits(value), name];
+    };
+
+    const formatYAxis = (value: number) => {
+        return formatWithUnits(value);
+    };
+
+    if (isLoading) {
+        return <LoadingPage />;
+    }
 
     return(
         <div>
+            <div className={styles.ribbon}>
+                <h1 className={styles.titleSection}>Core Investor Graphs</h1>
+            </div>
             <div className={styles.graphRow}>
                 <div className={styles.container}>
                     <h1 className={styles.titleText}>High Level Investor View</h1>
@@ -117,34 +221,593 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
                 </div>
                 <div className={styles.container}>
                     <h1 className={styles.titleText}>ABS Benchmark</h1>
-                    <ResponsiveContainer width="100%" height={400}>
+                    <ResponsiveContainer width="100%" height={500}>
                         <BarChart
                             layout="vertical"
-                            data={Graphdata}
-                            margin={{ top: 20, right: 10, left: 80, bottom: 20 }}
+                            data={absStatistics}
+                            className={styles.barChart}
                         >
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis type="number" domain={[0, 100]} tickFormatter={(val) => `${val}%`} />
-                            <YAxis type="category" dataKey="name" />
-                            <Tooltip formatter={(val: number) => `${val}%`} />
+                            <YAxis
+                                type="category"
+                                dataKey="name"
+                                width={150}
+                                tick={{ fontSize: 16 }}
+                                tickFormatter={(value) => {
+                                    // Shorten long names
+                                    const shortNames: any = {
+                                        "Wages and Salaries/Revenue": "Wages/Revenue",
+                                        "Total Expenses/Total Income": "Total Exp/Total Inc",
+                                        "Total Expenses/Revenue": "Total Exp/Revenue",
+                                        "Operating Profit Before Tax/Total Income": "Op Profit/Total Inc",
+                                        "Net Profit/Loss (-) Margin": "Net Profit Margin",
+                                        "EBITDA/Net Revenue": "EBITDA/Revenue",
+                                        "Total Other Income/Revenue": "Other Inc/Revenue",
+                                        "Total Other Income/Net Profit/Loss Before Tax": "Other Inc/Net Profit",
+                                        "Depreciation and Amortisation/Net Revenue": "Depreciation/Revenue"
+                                    };
+                                    return shortNames[value] || value;
+                                }}
+                            />
+                            <Tooltip
+                                labelStyle={{ color: 'black', fontWeight: 'bold' }}
+                                formatter={(value: number, name: string) => {
+                                    const displayName = name === 'benchmarkValue' ? 'Benchmark Value' :
+                                        name === 'calculatedValue' ? 'Calculated Value' : name;
+                                    return [`${value}%`, displayName];
+                                }}
+                            />
 
                             <Bar
-                                dataKey="value"
+                                dataKey="calculatedValue"
                                 barSize={20}
                                 shape={(props: any) => {
                                     const { x, y, width, height, payload } = props;
-                                    const color = getStatusColor(payload.value, payload.benchmark, payload.comparison);
+                                    const color = "#4CAF50"
                                     return <rect x={x} y={y} width={width} height={height} fill={color} rx={5} />;
                                 }}
                             >
-                                <LabelList dataKey="value" position="right" formatter={(val: any) => `${val}%`} />
+                                <LabelList dataKey="calculatedValue" position="right" formatter={(val: any) => `${val}%`} />
+                            </Bar>
+                            <Bar
+                                dataKey="benchmarkValue"
+                                barSize={20}
+                                shape={(props: any) => {
+                                    const { x, y, width, height, payload } = props;
+                                    const color =  "#fdb523"
+                                    return <rect x={x} y={y} width={width} height={height} fill={color} rx={5} />;
+                                }}
+                            >
+                                <LabelList dataKey="benchmarkValue" position="right" formatter={(val: any) => `${val}%`} />
                             </Bar>
                         </BarChart>
                     </ResponsiveContainer>
+                </div>
+            </div>
+            <div className={styles.ribbon}>
+                <h1 className={styles.titleSection}>Financial Summary Past 3 Years</h1>
+            </div>
+
+            {/*The Financial Summary Section*/}
+            <div className={styles.graphRow}>
+                <div className={styles.barContainer}>
+                    <div className={styles.titleContainer}>
+                        <h1 className={styles.titleText}>Total Assets</h1>
+                        <div className={styles.tooltipWrapper}>
+                            <span className={styles.questionMark}>?</span>
+                            <div className={styles.tooltip}>
+                                Total Assets represent the sum of all assets owned by the company,
+                                including current assets (cash, inventory, receivables) and
+                                non-current assets (property, equipment, investments).
+                            </div>
+                        </div>
+                    </div>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <BarChart
+                            data={financialSummaryData}
+                            margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                            <XAxis
+                                dataKey="year"
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                            />
+                            <YAxis
+                                tickFormatter={formatYAxis}
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                            />
+                            <Tooltip
+                                formatter={formatTooltip}
+                                labelStyle={{ color: 'black', fontWeight: 'bold' }}
+                                contentStyle={{
+                                    backgroundColor: 'white',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                }}
+                            />
+                            <Bar
+                                dataKey="totalAssets"
+                                fill="#297bae"
+                                radius={[4, 4, 0, 0]}
+                                stroke="#297bae"
+                                strokeWidth={1}
+                            />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+                <div className={styles.barContainer}>
+                    <div className={styles.titleContainer}>
+                        <h1 className={styles.titleText}>Total Liabilities</h1>
+                        <div className={styles.tooltipWrapper}>
+                            <span className={styles.questionMark}>?</span>
+                            <div className={styles.tooltip}>
+                                Total Liabilities are what the business owes to outsiders such as banks, suppliers
+                                ,lenders or anyone it needs to pay back. There are current(Due within 12 months)
+                                and non current liabilities(Long term debts due after 12 months).
+                            </div>
+                        </div>
+                    </div>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <BarChart
+                            data={financialSummaryData}
+                            margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                            <XAxis
+                                dataKey="year"
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                            />
+                            <YAxis
+                                tickFormatter={formatYAxis}
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                            />
+                            <Tooltip
+                                formatter={formatTooltip}
+                                labelStyle={{ color: 'black', fontWeight: 'bold' }}
+                                contentStyle={{
+                                    backgroundColor: 'white',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                }}
+                            />
+                            <Bar
+                                dataKey="totalLiabilities"
+                                fill="#d79656"
+                                radius={[4, 4, 0, 0]}
+                                stroke="#d79656"
+                                strokeWidth={1}
+                            />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+                <div className={styles.barContainer}>
+                    <div className={styles.titleContainer}>
+                        <h1 className={styles.titleText}>Equity of Company</h1>
+                        <div className={styles.tooltipWrapper}>
+                            <span className={styles.questionMark}>?</span>
+                            <div className={styles.tooltip}>
+                                This is the owners claim on the business after all debts are paid off
+                                Equity = Assets = Liabilities, it is the net worth of the company and shows
+                            </div>
+                        </div>
+                    </div>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <BarChart
+                            data={financialSummaryData}
+                            margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                            <XAxis
+                                dataKey="year"
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                            />
+                            <YAxis
+                                tickFormatter={formatYAxis}
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                            />
+                            <Tooltip
+                                formatter={formatTooltip}
+                                labelStyle={{ color: 'black', fontWeight: 'bold' }}
+                                contentStyle={{
+                                    backgroundColor: 'white',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                }}
+                            />
+                            <Bar
+                                dataKey="equity"
+                                fill="#4CAF50"
+                                radius={[4, 4, 0, 0]}
+                                stroke="#45a049"
+                                strokeWidth={1}
+                            />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+                <div className={styles.barContainer}>
+                    <div className={styles.titleContainer}>
+                        <h1 className={styles.titleText}>Gross Profit</h1>
+                        <div className={styles.tooltipWrapper}>
+                            <span className={styles.questionMark}>?</span>
+                            <div className={styles.tooltip}>
+                                This is the profit a company makes after removing the direct costs of producing
+                                and selling the goods or services it has. It is to demonstrate efficiency of the companies
+                                production.
+                            </div>
+                        </div>
+                    </div>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <BarChart
+                            data={financialSummaryData}
+                            margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                            <XAxis
+                                dataKey="year"
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                            />
+                            <YAxis
+                                tickFormatter={formatYAxis}
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                            />
+                            <Tooltip
+                                formatter={formatTooltip}
+                                labelStyle={{ color: 'black', fontWeight: 'bold' }}
+                                contentStyle={{
+                                    backgroundColor: 'white',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                }}
+                            />
+                            <Bar
+                                dataKey="grossProfit"
+                                fill="#FFD700"
+                                radius={[4, 4, 0, 0]}
+                                stroke="#FFD700"
+                                strokeWidth={1}
+                            />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
+            <div className={styles.graphRow}>
+                <div className={styles.barContainer}>
+                    <div className={styles.titleContainer}>
+                        <h1 className={styles.titleText}>EBITDA</h1>
+                        <div className={styles.tooltipWrapper}>
+                            <span className={styles.questionMark}>?</span>
+                            <div className={styles.tooltip}>
+                                This is earnings before interest, taxes, depreciation and Amotisation, It is the companies
+                                Operating performance from it's core operations without being affected by other values
+                            </div>
+                        </div>
+                    </div>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <BarChart
+                            data={financialSummaryData}
+                            margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                            <XAxis
+                                dataKey="year"
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                            />
+                            <YAxis
+                                tickFormatter={formatYAxis}
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                            />
+                            <Tooltip
+                                formatter={formatTooltip}
+                                labelStyle={{ color: 'black', fontWeight: 'bold' }}
+                                contentStyle={{
+                                    backgroundColor: 'white',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                }}
+                            />
+                            <Bar
+                                dataKey="ebitda"
+                                fill="#8329ae"
+                                radius={[4, 4, 0, 0]}
+                                stroke="#8329ae"
+                                strokeWidth={1}
+                            />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+                <div className={styles.barContainer}>
+                    <div className={styles.titleContainer}>
+                        <h1 className={styles.titleText}>Profit/Loss</h1>
+                        <div className={styles.tooltipWrapper}>
+                            <span className={styles.questionMark}>?</span>
+                            <div className={styles.tooltip}>
+                                This is the final result after subtracting all expenses from the company revenue
+                            </div>
+                        </div>
+                    </div>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <BarChart
+                            data={financialSummaryData}
+                            margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                            <XAxis
+                                dataKey="year"
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                            />
+                            <YAxis
+                                tickFormatter={formatYAxis}
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                            />
+                            <Tooltip
+                                formatter={formatTooltip}
+                                labelStyle={{ color: 'black', fontWeight: 'bold' }}
+                                contentStyle={{
+                                    backgroundColor: 'white',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                }}
+                            />
+                            <Bar
+                                dataKey="profitLoss"
+                                fill="#B5D99C"
+                                radius={[4, 4, 0, 0]}
+                                stroke="#B5D99C"
+                                strokeWidth={1}
+                            />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+                <div className={styles.barContainer}>
+                    <div className={styles.titleContainer}>
+                        <h1 className={styles.titleText}>Other Expenses</h1>
+                        <div className={styles.tooltipWrapper}>
+                            <span className={styles.questionMark}>?</span>
+                            <div className={styles.tooltip}>
+                                These are costs that a company incurs that are not included in the cost of Goods Sold or
+                                The interest/ depreciation they only cover the operating and administrative costs that the
+                                Business needs to run.
+                            </div>
+                        </div>
+                    </div>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <BarChart
+                            data={financialSummaryData}
+                            margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                            <XAxis
+                                dataKey="year"
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                            />
+                            <YAxis
+                                tickFormatter={formatYAxis}
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                            />
+                            <Tooltip
+                                formatter={formatTooltip}
+                                labelStyle={{ color: 'black', fontWeight: 'bold' }}
+                                contentStyle={{
+                                    backgroundColor: 'white',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                }}
+                            />
+                            <Bar
+                                dataKey="otherExpenses"
+                                fill="#FFFD98"
+                                radius={[4, 4, 0, 0]}
+                                stroke="#FFFD98"
+                                strokeWidth={1}
+                            />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+                <div className={styles.barContainer}>
+                    <div className={styles.titleContainer}>
+                        <h1 className={styles.titleText}>Depreciation</h1>
+                        <div className={styles.tooltipWrapper}>
+                            <span className={styles.questionMark}>?</span>
+                            <div className={styles.tooltip}>
+                                The cost of a long term asset like machinery over time in it's useful life, Instead of
+                                recording the full purchase it allows a business to expense a portion each year.
+                            </div>
+                        </div>
+                    </div>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <BarChart
+                            data={financialSummaryData}
+                            margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                            <XAxis
+                                dataKey="year"
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                            />
+                            <YAxis
+                                tickFormatter={formatYAxis}
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                            />
+                            <Tooltip
+                                formatter={formatTooltip}
+                                labelStyle={{ color: 'black', fontWeight: 'bold' }}
+                                contentStyle={{
+                                    backgroundColor: 'white',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                }}
+                            />
+                            <Bar
+                                dataKey="depreciation"
+                                fill="#F46036"
+                                radius={[4, 4, 0, 0]}
+                                stroke="#F46036"
+                                strokeWidth={1}
+                            />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
+
+            <div className={styles.ribbon}>
+                <h1 className={styles.titleSection}>Asset and Liability Make Up</h1>
+            </div>
+            <div className={styles.graphRow}>
+                <div className={styles.pieContainer}>
+                    <h1 className={styles.titleText}>Assets Breakdown - {selectedYear}</h1>
+                    <div>
+                        {financialSummaryData.map((item: any) => (
+                            <button
+                                key={item.year}
+                                className={styles.tab}
+                                onClick={() => setSelectedYear(item.year)}
+                            >
+                                {item.year}
+                            </button>
+                        ))}
+                    </div>
+                    <div className={styles.chartContainer}>
+                        <ResponsiveContainer width="100%" height={400}>
+                            <PieChart>
+                                <Pie
+                                    data={formatDataForChart(selectedYear)}
+                                    cx="50%"
+                                    cy="50%"
+                                    labelLine={false}
+                                    label={renderLabel}
+                                    outerRadius={120}
+                                    fill="#8884d8"
+                                    dataKey="value"
+                                    stroke="#fff"
+                                    strokeWidth={2}
+                                >
+                                    {formatDataForChart(selectedYear).map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip content={<PieCustomTooltip />} />
+                                <Legend
+                                    verticalAlign="bottom"
+                                    height={36}
+                                    formatter={(value, entry) => `${value}`}
+                                />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
+
+                    {/* Summary cards */}
+                    <div className={styles.summaryCards}>
+                        {formatDataForChart(selectedYear).map((item) => (
+                            <div key={item.name} className={`${styles.summaryCard} ${styles.current}`}>
+                                <h3>{item.name}</h3>
+                                <p className={styles.amount}>{item.displayValue}</p>
+                            </div>
+                        ))}
+                        <div className={`${styles.summaryCard} ${styles.total}`}>
+                            <h3>Total Assets</h3>
+                            <p className={styles.amount}>
+                                {getDataForYear(selectedYear)?.totalAssetsDisplay || '-'}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div className={styles.pieContainer}>
+                    <h1 className={styles.titleText}>Liabilities Breakdown - {selectedLiabilityYear}</h1>
+                    <div>
+                        {financialSummaryData.map((item: any) => (
+                            <button
+                                key={item.year}
+                                className={styles.tabLiability}
+                                onClick={() => setSelectedLiabilityYear(item.year)}
+                            >
+                                {item.year}
+                            </button>
+                        ))}
+                    </div>
+                    <div className={styles.chartContainer}>
+                        <ResponsiveContainer width="100%" height={400}>
+                            <PieChart>
+                                <Pie
+                                    data={formatDataForLiabilityChart(selectedLiabilityYear)}
+                                    cx="50%"
+                                    cy="50%"
+                                    labelLine={false}
+                                    label={renderLiabilityLabel}
+                                    outerRadius={120}
+                                    fill="#8884d8"
+                                    dataKey="value"
+                                    stroke="#fff"
+                                    strokeWidth={2}
+                                >
+                                    {formatDataForLiabilityChart(selectedLiabilityYear).map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={LIAB_COLORS[index % LIAB_COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip content={<LiabilityPieCustomTooltip />} />
+                                <Legend
+                                    verticalAlign="bottom"
+                                    height={36}
+                                    formatter={(value, entry) => `${value}`}
+                                />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
+
+                    {/* Summary cards */}
+                    <div className={styles.summaryCards}>
+                        {formatDataForLiabilityChart(selectedLiabilityYear).map((item) => (
+                            <div key={item.name} className={`${styles.summaryCard} ${styles.current}`}>
+                                <h3>{item.name}</h3>
+                                <p className={styles.amount}>{item.displayValue}</p>
+                            </div>
+                        ))}
+                        <div className={`${styles.summaryCard} ${styles.total}`}>
+                            <h3>Total Liabilities</h3>
+                            <p className={styles.amount}>
+                                {getDataForYear(selectedLiabilityYear)?.totalAssetsDisplay || '-'}
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     );
 }
 
+function formatWithUnits(value: number): string {
+    if (value === null || value === undefined) return "-";
 
+    const absVal = Math.abs(value);
+
+    if (absVal >= 1_000_000_000_000) return `$${(value / 1_000_000_000_000).toFixed(1)}T`;
+    if (absVal >= 1_000_000_000)     return `$${(value / 1_000_000_000).toFixed(1)}B`;
+    if (absVal >= 1_000_000)         return `$${(value / 1_000_000).toFixed(1)}M`;
+    if (absVal >= 1_000)             return `$${(value / 1_000).toFixed(1)}K`;
+
+    return `$${value}`;
+}

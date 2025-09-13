@@ -9,17 +9,30 @@
 
 .container {
     flex: 1;
-    max-width: 600px;
-    max-height: 500px;
+    max-width: 700px;
+    max-height: 600px;
     padding: 2rem;
     background-color: #1b1b1b;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
+
+.pieContainer {
+    flex: 1;
+    max-width: 700px;
+    padding: 2rem;
+    background-color: #1b1b1b;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+
 .graphRow {
     display: flex;
     gap: 20px; /* space between charts */
     flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 10px;
 }
 
 .titleText {
@@ -27,9 +40,234 @@
     font-size: 30px;
 }
 
+.titleSection {
+    font-family: 'MyCustomFont', sans-serif;
+    font-size: 40px;
+}
+
+.titleContainer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.titleText {
+    margin: 0;
+    /* Your existing title styles */
+}
+
+.tooltipWrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 8px;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.4;
+    width: 280px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+/* Tooltip arrow */
+.tooltip::before {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent transparent #333 transparent;
+}
+
+.tooltipWrapper:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(4px);
+}
+
+.ribbon {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-left: 10px;
+    background-color: #2e2e2e;
+}
+.questionMark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: help;
+    transition: all 0.3s ease;
+}
+
+.questionMark:hover {
+    background-color: #45a049;
+    transform: scale(1.1);
+}
+
+.barContainer {
+    flex: 1;
+    max-width: 450px;
+    max-height: 450px;
+    padding: 2rem;
+    background-color: #1b1b1b;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.barChart {
+    margin: 10px 10px 20px 20px;
+}
+
+.tab,
+.tabLiability {
+    flex: 1;
+    padding: 12px 20px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: #ccc;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: all 0.3s ease;
+}
+
+.tab {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+}
+.tabLiability {
+    background: linear-gradient(135deg, #46abe1 0%, #2075b0 100%);
+}
+
+.tab:hover {
+    background: linear-gradient(135deg, #515151 0%, #404040 100%);
+    color: white;
+}
+
+.title {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.chartContainer {
+    margin-bottom: 2rem;
+}
+
+.tooltip {
+    background-color: white;
+    color: black;
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 1px solid #ddd;
+}
+
+.tooltip strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.tooltip p {
+    margin: 2px 0;
+    font-size: 14px;
+}
+
+.summaryCards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.summaryCard {
+    background-color: #2a2a2a;
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    border-left: 4px solid transparent;
+}
+
+.summaryCard.current {
+    border-left-color: #4CAF50;
+}
+
+.summaryCard.total {
+    border-left-color: #fdb523;
+}
+
+.summaryCard h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    color: #ccc;
+    font-weight: 500;
+}
+
+.summaryCard .amount {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: white;
+}
+@media (min-width: 769px) and (max-width: 1200px) {
+    .barContainer {
+        flex: 0 0 calc(50% - 1rem);
+        max-width: calc(50% - 1rem);
+    }
+
+    .graphRow {
+        justify-content: flex-start;
+    }
+}
+
 @media (max-width: 768px) {
     .graphRow {
         flex-direction: column;
         gap: 1rem;
+    }
+
+    .tooltip {
+        width: 240px;
+        font-size: 13px;
+        padding: 10px 14px;
+        left: 0;
+        transform: translateX(0);
+    }
+
+    .tooltip::before {
+        left: 20px;
+        transform: translateX(0);
+    }
+
+    .tooltipWrapper:hover .tooltip {
+        transform: translateX(-180px) translateY(4px);
     }
 }
