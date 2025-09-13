@@ -9,6 +9,13 @@ interface FinancialStatement {
     equity: number;
     grossProfit: number;
     ebitda: number;
+    profitLoss: number;
+    otherExpenses: number;
+    depreciation: number;
+    currentAssets: number;
+    nonCurrentAssets: number;
+    currentLiabilities: number;
+    nonCurrentLiabilities: number;
 }
 
 export async function GET(
@@ -50,6 +57,13 @@ export async function GET(
             const { raw: equityRaw, display: equityDisplay } = formatToUnits(data.equity);
             const { raw: grossRaw, display: grossDisplay } = formatToUnits(data.grossProfit);
             const { raw: ebitdaRaw, display: ebitdaDisplay } = formatToUnits(data.ebitda);
+            const { raw: profitLossRaw, display: profitLossDisplay } = formatToUnits(data.profitLoss);
+            const { raw: otherExpensesRaw, display: otherExpensesDisplay } = formatToUnits(data.otherExpenses);
+            const { raw: depreciationRaw, display: depreciationDisplay } = formatToUnits(data.depreciation);
+            const { raw: currentAssetsRaw, display: currentAssetDisplay } = formatToUnits(data.currentAssets);
+            const { raw: nonCurrentAssetsRaw, display: nonCurrentAssetDisplay } = formatToUnits(data.nonCurrentAssets);
+            const { raw: currentLiabilitiesRaw, display: currentLiabilitiesDisplay } = formatToUnits(data.currentLiabilities);
+            const { raw: nonCurrentLiabilitiesRaw, display: nonCurrentLiabilitiesDisplay } = formatToUnits(data.nonCurrentLiabilities);
 
             return {
                 year,
@@ -63,6 +77,20 @@ export async function GET(
                 grossDisplay: grossDisplay,
                 ebitda: ebitdaRaw,
                 ebitdaDisplay: ebitdaDisplay,
+                profitLoss: profitLossRaw,
+                profitLossDisplay: profitLossDisplay,
+                otherExpenses: otherExpensesRaw,
+                otherExpensesDisplay: otherExpensesDisplay,
+                depreciation: depreciationRaw,
+                depreciationDisplay: depreciationDisplay,
+                currentAssets: currentAssetsRaw,
+                currentAssetDisplay: currentAssetDisplay,
+                nonCurrentAssets: nonCurrentAssetsRaw,
+                nonCurrentAssetDisplay: nonCurrentAssetDisplay,
+                currentLiabilities: currentLiabilitiesRaw,
+                currentLiabilitiesDisplay: currentLiabilitiesDisplay,
+                nonCurrentLiabilities: nonCurrentLiabilitiesRaw,
+                nonCurrentLiabilitiesDisplay: nonCurrentLiabilitiesDisplay,
             };
         });
 

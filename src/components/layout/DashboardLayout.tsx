@@ -48,7 +48,8 @@ export default function DashboardLayout({ role, children, activeTab, setActiveTa
                 backgroundColor: '#1f2123',
                 minHeight: '100vh',
                 height: '100vh',
-                overflow: 'auto'
+                overflow: 'auto',
+                overflowX: 'hidden'
             }}>
                 {children}
             </main>

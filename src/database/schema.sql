@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Sep 10, 2025 at 02:21 AM
+-- Generation Time: Sep 13, 2025 at 08:22 AM
 -- Server version: 8.4.3
 -- PHP Version: 8.3.16
 
@@ -121,16 +121,18 @@ CREATE TABLE `company_values` (
   `company_name` varchar(100) COLLATE utf8mb3_unicode_ci DEFAULT NULL COMMENT 'Name of company',
   `industry` varchar(100) COLLATE utf8mb3_unicode_ci DEFAULT NULL COMMENT 'Industry of Company',
   `revenue_range` enum('0-50k','50k-100k','100k-500k','500k-1m','1m-5m','5m-10m','10m-50m','50m+') COLLATE utf8mb3_unicode_ci DEFAULT NULL COMMENT 'Annual revenue range',
-  `covenant_statistic` json DEFAULT NULL COMMENT 'The Covenant Statistics'
+  `covenant_statistic` json DEFAULT NULL COMMENT 'The Covenant Statistics',
+  `abs_benchmark` json DEFAULT NULL,
+  `financial_summary` json DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 --
 -- Dumping data for table `company_values`
 --
 
-INSERT INTO `company_values` (`id`, `borrower_id`, `created_at`, `updated_at`, `company_name`, `industry`, `revenue_range`, `covenant_statistic`) VALUES
-(1, 1, '2025-09-09 23:26:37', '2025-09-09 23:26:37', 'Tech Builders', 'Household', '50k-100k', '{\"debt_ratio\": 47.52, \"quick_ratio\": 0.96, \"equity_ratio\": 52.48, \"current_ratio\": 1.93, \"dividend_ratio\": 1, \"interest_cover\": 17.2, \"operating_cycle\": 53.92, \"net_profit_margin\": 4.02, \"avg_payment_period\": 28.59, \"creditors_turnover\": 12.77, \"inventory_turnover\": 0.0, \"quasi_equity_ratio\": 63.93, \"gross_profit_margin\": 22.15, \"capitalisation_ratio\": 190.55, \"receivables_turnover\": 8.79, \"avg_collection_period\": 41.57, \"return_on_total_assets\": 8.2, \"inventory_turnover_days\": 40.94}'),
-(2, 1, '2025-09-10 00:58:48', '2025-09-10 00:58:48', 'Test Company', 'Some industry', '50k-100k', NULL);
+INSERT INTO `company_values` (`id`, `borrower_id`, `created_at`, `updated_at`, `company_name`, `industry`, `revenue_range`, `covenant_statistic`, `abs_benchmark`, `financial_summary`) VALUES
+(1, 1, '2025-09-09 23:26:37', '2025-09-09 23:26:37', 'Tech Builders', 'Household', '50k-100k', '{\"debt_ratio\": 47.52, \"quick_ratio\": 0.96, \"equity_ratio\": 52.48, \"current_ratio\": 1.93, \"dividend_ratio\": 1, \"interest_cover\": 17.2, \"operating_cycle\": 53.92, \"net_profit_margin\": 4.02, \"avg_payment_period\": 28.59, \"creditors_turnover\": 12.77, \"inventory_turnover\": 0.0, \"quasi_equity_ratio\": 63.93, \"gross_profit_margin\": 22.15, \"capitalisation_ratio\": 190.55, \"receivables_turnover\": 8.79, \"avg_collection_period\": 41.57, \"return_on_total_assets\": 8.2, \"inventory_turnover_days\": 40.94}', '[{\"name\": \"Wages and Salaries/Revenue\", \"benchmarkValue\": 14, \"calculatedValue\": 7.44}, {\"name\": \"Total Expenses/Total Income\", \"benchmarkValue\": 94, \"calculatedValue\": 83.61}, {\"name\": \"Total Expenses/Revenue\", \"benchmarkValue\": 96, \"calculatedValue\": 20.5}, {\"name\": \"Operating Profit Before Tax/Total Income\", \"benchmarkValue\": 6, \"calculatedValue\": 16.39}, {\"name\": \"Net Profit/Loss (-) Margin\", \"benchmarkValue\": 6, \"calculatedValue\": 4.02}, {\"name\": \"EBITDA/Net Revenue\", \"benchmarkValue\": 7, \"calculatedValue\": 6.07}, {\"name\": \"Interest Cover\", \"benchmarkValue\": 7.5, \"calculatedValue\": 17.2}, {\"name\": \"EBITDA Margin\", \"benchmarkValue\": 7, \"calculatedValue\": 24.77}, {\"name\": \"Total Other Income/Revenue\", \"benchmarkValue\": 1, \"calculatedValue\": 2.37}, {\"name\": \"Total Other Income/Net Profit/Loss Before Tax\", \"benchmarkValue\": 20, \"calculatedValue\": 58.88}, {\"name\": \"Depreciation and Amortisation/Net Revenue\", \"benchmarkValue\": 1, \"calculatedValue\": 1.81}, {\"name\": \"Interest/Revenue\", \"benchmarkValue\": 1, \"calculatedValue\": 0.25}]', '{\"financialStatements\": {\"2023\": {\"date\": \"2023-06-30\", \"ebitda\": 964131, \"equity\": 3184167, \"interest\": 17661, \"netRevenue\": 15766553, \"profitLoss\": 812712, \"grossProfit\": 3440466, \"otherIncome\": 232860, \"totalAssets\": 5252202, \"depreciation\": 133758, \"currentAssets\": 3729525, \"otherExpenses\": 2709194, \"costOfGoodsSold\": 12326088, \"nonCurrentAssets\": 1522677, \"totalLiabilities\": 2068035, \"currentLiabilities\": 1137720, \"nonCurrentLiabilities\": 930315}, \"2024\": {\"date\": \"2024-06-30\", \"ebitda\": 499261, \"equity\": 2519795, \"interest\": 78, \"netRevenue\": 13736093, \"profitLoss\": 326782, \"grossProfit\": 2612688, \"otherIncome\": 319437, \"totalAssets\": 5014341, \"depreciation\": 172402, \"currentAssets\": 3019410, \"otherExpenses\": 2432864, \"costOfGoodsSold\": 11123405, \"nonCurrentAssets\": 1994932, \"totalLiabilities\": 2494547, \"currentLiabilities\": 966396, \"nonCurrentLiabilities\": 1528151}, \"2025\": {\"date\": \"2025-06-30\", \"ebitda\": 953459, \"equity\": 4286355, \"interest\": 38939, \"netRevenue\": 15699648, \"profitLoss\": 630973, \"grossProfit\": 3477211, \"otherIncome\": 371514, \"totalAssets\": 8167863, \"depreciation\": 283548, \"currentAssets\": 3704382, \"otherExpenses\": 2895266, \"costOfGoodsSold\": 12222437, \"nonCurrentAssets\": 4463481, \"totalLiabilities\": 3881508, \"currentLiabilities\": 1917820, \"nonCurrentLiabilities\": 1963688}}}'),
+(2, 1, '2025-09-10 00:58:48', '2025-09-10 00:58:48', 'Test Company', 'Some industry', '50k-100k', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -153,7 +155,7 @@ CREATE TABLE `contact_messages` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `archived` tinyint(1) DEFAULT '0' COMMENT 'Whether the message is archived'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `contact_messages`
@@ -268,7 +270,7 @@ CREATE TABLE `password_reset_tokens` (
   `expires_at` timestamp NOT NULL COMMENT 'Token expiration timestamp',
   `used` tinyint(1) DEFAULT '0' COMMENT 'Whether token has been used',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `password_reset_tokens`
@@ -306,7 +308,7 @@ CREATE TABLE `users` (
   `notifications` json DEFAULT NULL COMMENT 'Notification preferences',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `users`
