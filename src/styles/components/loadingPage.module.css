@@ -1,0 +1,163 @@
+/* Loading Screen Styles */
+.loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+}
+
+.loadingContent {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 3rem;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    max-width: 400px;
+    width: 90%;
+}
+
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #4CAF50;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1.5rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loadingTitle {
+    color: #333;
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.loadingText {
+    color: #666;
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+.loadingSteps {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.loadingStep {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 0.9rem;
+    color: #555;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.loadingStep:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.loadingStep:nth-child(2) {
+    animation-delay: 0.5s;
+}
+
+.loadingStep:nth-child(3) {
+    animation-delay: 1s;
+}
+
+@keyframes pulse {
+    0%, 50%, 100% { opacity: 0.6; }
+    25% { opacity: 1; }
+}
+
+.stepIcon {
+    font-size: 1.2rem;
+    width: 24px;
+}
+
+/* Error Screen Styles */
+.errorContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+}
+
+.errorContent {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 3rem;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    max-width: 400px;
+    width: 90%;
+}
+
+.errorIcon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.errorTitle {
+    color: #333;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.errorText {
+    color: #666;
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+.retryButton {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.retryButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.retryButton:active {
+    transform: translateY(0);
+}
+
+/* Media queries for responsive design */
+@media (max-width: 768px) {
+    .loadingContent,
+    .errorContent {
+        padding: 2rem;
+        margin: 1rem;
+    }
+
+    .loadingTitle,
+    .errorTitle {
+        font-size: 1.5rem;
+    }
+
+    .spinner {
+        width: 50px;
+        height: 50px;
+    }
+}

@@ -16,54 +16,50 @@ import {
     YAxis,
 } from "recharts";
 import styles from "@/styles/pages/lender/loanGraphPage.module.css";
+import LoadingPage from "@/components/common/LoadingPage";
 
 interface LoanAnalysisProps {
     loanId: string;
 }
 
-interface FinancialStatement {
-    currentAssets: number;
-}
-
-interface FinancialSummary {
-    financialStatements: Record<string, FinancialStatement>;
-}
-
 export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
     const [radarWithDescriptions, setDataWithDescriptions] = useState<any[]>([]);
     const [absStatistics, setAbsStatistics] = useState<any[]>([]);
-    const [currentAssetsGraph, setCurrentAssetsGraph] = useState<any>();
-    const [testData, setData] = useState<any>(null);
+    const [financialSummaryData, setFinancialSummaryData] =  useState<any>();
+
+    const [isLoading, setIsLoading] = useState(true);
 
     //Used to Obtain the Covenant Statistics
     useEffect(() => {
         if (!loanId) return;
 
         const fetchAllData = async () => {
+            setIsLoading(true);
             try {
-                const [covenantRes, absRes, financeRes] = await Promise.all([
+                const [covenantRes, absRes, financeSumRes] = await Promise.all([
                     fetch(`/api/loan-statistics/loan-covenant-graph/${loanId}`),
                     fetch(`/api/loan-statistics/loan-abs-graph/${loanId}`),
-                    fetch(`/api/loan-statistics/loan-current-assets/${loanId}`)
+                    fetch(`/api/loan-statistics/loan-financial-summary/${loanId}`),
                 ]);
 
                 if (!covenantRes.ok) throw new Error("Failed to fetch covenant data");
                 if (!absRes.ok) throw new Error("Failed to fetch ABS data");
-                if (!financeRes.ok) throw new Error("Failed to fetch financial asset data");
+                if (!financeSumRes.ok) throw new Error("Failed to fetch financial asset data");
 
-                const [covenantData, absData, financeData] = await Promise.all([
+                const [covenantData, absData, financeSumData] = await Promise.all([
                     covenantRes.json(),
                     absRes.json(),
-                    financeRes.json()
+                    financeSumRes.json(),
                 ]);
-
 
                 setDataWithDescriptions(covenantData);
                 setAbsStatistics(absData.abs_benchmark);
-                setCurrentAssetsGraph(financeData);
+                setFinancialSummaryData(financeSumData);
             } catch (err) {
                 console.error("Data fetching error:", err);
                 // Handle error state appropriately
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -90,6 +86,10 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
     const formatYAxis = (value: number) => {
         return formatWithUnits(value);
     };
+
+    if (isLoading) {
+        return <LoadingPage />;
+    }
 
     return(
         <div>
@@ -176,15 +176,17 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
                 </div>
             </div>
             <div className={styles.ribbon}>
-                <h1 className={styles.titleSection}>Financial Summary</h1>
+                <h1 className={styles.titleSection}>Financial Summary Past 3 Years</h1>
             </div>
+
+            {/*The Financial Summary Section*/}
             <div className={styles.graphRow}>
                 <div className={styles.barContainer}>
-                    <h1 className={styles.titleText}>Current Assets Past 3 Years</h1>
+                    <h1 className={styles.titleText}>Total Assets</h1>
                     <ResponsiveContainer width="100%" height={300}>
                         <BarChart
-                            data={currentAssetsGraph}
-                            margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                            data={financialSummaryData}
+                            margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
                         >
                             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                             <XAxis
@@ -208,10 +210,164 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
                                 }}
                             />
                             <Bar
-                                dataKey="currentAssets"
+                                dataKey="totalAssets"
+                                fill="#297bae"
+                                radius={[4, 4, 0, 0]}
+                                stroke="#297bae"
+                                strokeWidth={1}
+                            />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+                <div className={styles.barContainer}>
+                    <h1 className={styles.titleText}>Total Liabilities</h1>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <BarChart
+                            data={financialSummaryData}
+                            margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                            <XAxis
+                                dataKey="year"
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                            />
+                            <YAxis
+                                tickFormatter={formatYAxis}
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                            />
+                            <Tooltip
+                                formatter={formatTooltip}
+                                labelStyle={{ color: 'black', fontWeight: 'bold' }}
+                                contentStyle={{
+                                    backgroundColor: 'white',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                }}
+                            />
+                            <Bar
+                                dataKey="totalLiabilities"
+                                fill="#d79656"
+                                radius={[4, 4, 0, 0]}
+                                stroke="#d79656"
+                                strokeWidth={1}
+                            />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+                <div className={styles.barContainer}>
+                    <h1 className={styles.titleText}>Equity of Company</h1>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <BarChart
+                            data={financialSummaryData}
+                            margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                            <XAxis
+                                dataKey="year"
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                            />
+                            <YAxis
+                                tickFormatter={formatYAxis}
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                            />
+                            <Tooltip
+                                formatter={formatTooltip}
+                                labelStyle={{ color: 'black', fontWeight: 'bold' }}
+                                contentStyle={{
+                                    backgroundColor: 'white',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                }}
+                            />
+                            <Bar
+                                dataKey="equity"
                                 fill="#4CAF50"
                                 radius={[4, 4, 0, 0]}
                                 stroke="#45a049"
+                                strokeWidth={1}
+                            />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+                <div className={styles.barContainer}>
+                    <h1 className={styles.titleText}>Gross Profit</h1>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <BarChart
+                            data={financialSummaryData}
+                            margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                            <XAxis
+                                dataKey="year"
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                            />
+                            <YAxis
+                                tickFormatter={formatYAxis}
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                            />
+                            <Tooltip
+                                formatter={formatTooltip}
+                                labelStyle={{ color: 'black', fontWeight: 'bold' }}
+                                contentStyle={{
+                                    backgroundColor: 'white',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                }}
+                            />
+                            <Bar
+                                dataKey="grossProfit"
+                                fill="#FFD700"
+                                radius={[4, 4, 0, 0]}
+                                stroke="#FFD700"
+                                strokeWidth={1}
+                            />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
+            <div className={styles.graphRow}>
+                <div className={styles.barContainer}>
+                    <h1 className={styles.titleText}>EBITDA</h1>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <BarChart
+                            data={financialSummaryData}
+                            margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                            <XAxis
+                                dataKey="year"
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                            />
+                            <YAxis
+                                tickFormatter={formatYAxis}
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                            />
+                            <Tooltip
+                                formatter={formatTooltip}
+                                labelStyle={{ color: 'black', fontWeight: 'bold' }}
+                                contentStyle={{
+                                    backgroundColor: 'white',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                }}
+                            />
+                            <Bar
+                                dataKey="ebitda"
+                                fill="#297bae"
+                                radius={[4, 4, 0, 0]}
+                                stroke="#297bae"
                                 strokeWidth={1}
                             />
                         </BarChart>

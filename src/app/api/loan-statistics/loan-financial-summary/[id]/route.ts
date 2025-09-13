@@ -4,12 +4,11 @@ import {getCompanyFinanceSummary} from "@/database/companyValues";
 import {getCompanyId} from "@/database/loanRequest";
 
 interface FinancialStatement {
-    currentAssets: number;
-    // add other fields if needed
-}
-
-interface FinancialSummary {
-    financialStatements: Record<string, FinancialStatement>;
+    totalAssets: number;
+    totalLiabilities: number;
+    equity: number;
+    grossProfit: number;
+    ebitda: number;
 }
 
 export async function GET(
@@ -45,18 +44,30 @@ export async function GET(
 
         const statements = financialData.financial_summary.financialStatements as Record<string, FinancialStatement>;
 
-        const chartData = Object.entries(statements).map(([year, data]) => {
-            const { raw, display } = formatToUnits(data.currentAssets);
+        const combinedChartData = Object.entries(statements).map(([year, data]) => {
+            const { raw: assetsRaw, display: assetsDisplay } = formatToUnits(data.totalAssets);
+            const { raw: liabilitiesRaw, display: liabilitiesDisplay } = formatToUnits(data.totalLiabilities);
+            const { raw: equityRaw, display: equityDisplay } = formatToUnits(data.equity);
+            const { raw: grossRaw, display: grossDisplay } = formatToUnits(data.grossProfit);
+            const { raw: ebitdaRaw, display: ebitdaDisplay } = formatToUnits(data.ebitda);
 
             return {
                 year,
-                currentAssets: raw,
-                currentAssetsDisplay: display
+                totalAssets: assetsRaw,
+                totalAssetsDisplay: assetsDisplay,
+                totalLiabilities: liabilitiesRaw,
+                totalLiabilitiesDisplay: liabilitiesDisplay,
+                equity: equityRaw,
+                equityDisplay: equityDisplay,
+                grossProfit: grossRaw,
+                grossDisplay: grossDisplay,
+                ebitda: ebitdaRaw,
+                ebitdaDisplay: ebitdaDisplay,
             };
         });
 
-        console.log("Test", chartData);
-        return NextResponse.json(chartData);
+        console.log(combinedChartData);
+        return NextResponse.json(combinedChartData);
 
     } catch (error) {
         console.error('Error fetching loan request:', error);
