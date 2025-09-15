@@ -45,7 +45,7 @@ interface ProfileData {
 }
 
 interface DisplayData {
-    theme: 'light' | 'dark';
+    theme: 'light' | 'dark' | 'auto';
 }
 
 export default function ProfileSettings() {
@@ -89,7 +89,7 @@ export default function ProfileSettings() {
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
     const [activeTab, setActiveTab] = useState<'profile' | 'display' | 'security'>('profile');
     const [displayData, setDisplayData] = useState<DisplayData>({
-        theme: 'light'
+        theme: 'auto'
     });
 
     const [showConfirmation, setShowConfirmation] = useState(false);
@@ -252,7 +252,7 @@ export default function ProfileSettings() {
             if (res.ok) {
                 const data = await res.json();
                 setDisplayData({
-                    theme: data.theme.theme || 'dark',
+                    theme: data.theme.theme || 'auto',
                 });
             }
         } catch (err) {
@@ -439,6 +439,19 @@ export default function ProfileSettings() {
                             <div className={styles.section}>
                                 <h3>Display Information</h3>
                                 <div className={styles.formRow}>
+                                    <input
+                                        type="radio"
+                                        id="theme-auto"
+                                        name="theme"
+                                        value="auto"
+                                        checked={displayData.theme === 'auto'}
+                                        onChange={(e) => handleDisplayChange('theme', e.target.value)}
+                                        className={styles.radioInput}
+                                    />
+                                    <label htmlFor="theme-auto" className={styles.radioLabel}>
+                                        <div style={{ marginRight: '6px', width: '18px', height: '18px', display: 'inline-block', background: 'linear-gradient(45deg, #f6c23e 50%, #6c63ff 50%)', borderRadius: '50%' }} />
+                                        Auto (System)
+                                    </label>
                                     <input
                                         type="radio"
                                         id="theme-light"

@@ -2,10 +2,27 @@
     height: 100vh;
     flex: 1;
     padding-top: 60px;
+    transition: margin-left 0.3s ease;
+}
+
+.sidebarOpen {
+    margin-left: 280px;
+}
+
+.sidebarClosed {
+    margin-left: 0px;
 }
 
 @media (max-width: 768px) {
    .dashboardLayout {
        overflow-x: hidden;
+   }
+   
+   .sidebarOpen {
+       margin-left: 0px; /* No margin on mobile - sidebar overlays */
+   }
+   
+   .sidebarClosed {
+       margin-left: 0px;
    }
 }

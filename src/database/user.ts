@@ -454,6 +454,36 @@ export async function deleteUserById(userId: number): Promise<boolean> {
     return result.affectedRows > 0;
 }
 
+export async function getUserPasswordHash(userId: number): Promise<string | null> {
+    try {
+        const query = 'SELECT password_hash FROM users WHERE id = ?';
+        const [rows] = await executeQuery(query, [userId]);
+        
+        if (rows && rows.length > 0) {
+            return rows[0].password_hash;
+        }
+        return null;
+    } catch (error) {
+        console.error('Error getting user password hash:', error);
+        return null;
+    }
+}
+
+export async function getUserEmail(userId: number): Promise<string | null> {
+    try {
+        const query = 'SELECT email FROM users WHERE id = ?';
+        const [rows] = await executeQuery(query, [userId]);
+        
+        if (rows && rows.length > 0) {
+            return rows[0].email;
+        }
+        return null;
+    } catch (error) {
+        console.error('Error getting user email:', error);
+        return null;
+    }
+}
+
 export async function updateUserProfile(
     userId: number,
     profileData: {

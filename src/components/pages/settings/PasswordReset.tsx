@@ -3,6 +3,7 @@ import styles from '@/styles/pages/profile/passwordReset.module.css';
 import CustomConfirmation from "@/components/common/CustomConfirmation";
 
 export default function ChangePassword() {
+    const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
@@ -12,6 +13,7 @@ export default function ChangePassword() {
     const [loading, setLoading] = useState(false);
 
     const rules = {
+        currentPassword: currentPassword.length > 0,
         length: newPassword.length >= 12,
         uppercase: /[A-Z]/.test(newPassword),
         lowercase: /[a-z]/.test(newPassword),
@@ -68,6 +70,7 @@ export default function ChangePassword() {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
+                    currentPassword: currentPassword,
                     newPassword: newPassword,
                 }),
             });
@@ -85,6 +88,7 @@ export default function ChangePassword() {
             console.log("Password updated successfully:", data);
 
             // Optionally reset fields
+            setCurrentPassword("");
             setNewPassword("");
             setConfirmPassword("");
         } catch (err) {
@@ -113,6 +117,19 @@ export default function ChangePassword() {
                     <div className={styles.row}>
                         {/* Left: Inputs */}
                         <div className={styles.inputColumn}>
+                            <div className={styles.formGroup}>
+                                <label>Current Password</label>
+                                <input
+                                    type="password"
+                                    value={currentPassword}
+                                    onChange={(e) => setCurrentPassword(e.target.value)}
+                                    className={styles.input}
+                                    onFocus={() => setFocused(true)}
+                                    onBlur={() => setFocused(false)}
+                                    required
+                                />
+                            </div>
+
                             <div className={styles.formGroup}>
                                 <label>New Password</label>
                                 <input
@@ -147,22 +164,24 @@ export default function ChangePassword() {
 
                         <div className={styles.validationColumn}>
                             <p className={styles.validationTitle}>Validation Requirements</p>
-                            <p>Click "New Password" or "Confirm Password" To see them</p>
+                            <p>Click "Current Password", "New Password" or "Confirm Password" To see them</p>
                             {focused ? (
                                 Object.entries(rules).map(([key, passed]) => (
                                     <p key={key} className={passed ? styles.valid : styles.invalid}>
                                         {passed ? "✔" : "✖"}{" "}
-                                        {key === "length"
-                                            ? "At least 12 characters"
-                                            : key === "uppercase"
-                                                ? "Contains uppercase letter"
-                                                : key === "lowercase"
-                                                    ? "Contains lowercase letter"
-                                                    : key === "number"
-                                                        ? "Contains number"
-                                                        : key === "special"
-                                                            ? "Contains special character"
-                                                            : "Matches confirmation"}
+                                        {key === "currentPassword"
+                                            ? "Current password entered"
+                                            : key === "length"
+                                                ? "At least 12 characters"
+                                                : key === "uppercase"
+                                                    ? "Contains uppercase letter"
+                                                    : key === "lowercase"
+                                                        ? "Contains lowercase letter"
+                                                        : key === "number"
+                                                            ? "Contains number"
+                                                            : key === "special"
+                                                                ? "Contains special character"
+                                                                : "Matches confirmation"}
                                     </p>
                                 ))
                             ) : (

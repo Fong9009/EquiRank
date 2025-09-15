@@ -316,3 +316,37 @@
     text-align: center;
   }
 }
+
+/* Loan Actions */
+.loanActions {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: center;
+}
+
+.darkBackground .loanActions {
+  border-top-color: #374151;
+}
+
+.viewButton {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.viewButton:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.viewButton:active {
+  transform: translateY(0);
+}

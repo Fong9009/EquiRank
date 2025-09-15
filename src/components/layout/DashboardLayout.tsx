@@ -42,9 +42,7 @@ export default function DashboardLayout({ role, children, activeTab, setActiveTa
                 toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
                 isSuperAdmin={isSuperAdmin}
             />
-            <main className={styles.dashboardLayout}    style={{
-                marginLeft: sidebarOpen ? '280px' : '0px',
-                transition: 'margin-left 0.3s ease', 
+            <main className={`${styles.dashboardLayout} ${sidebarOpen ? styles.sidebarOpen : styles.sidebarClosed}`} style={{
                 backgroundColor: '#1f2123',
                 minHeight: '100vh',
                 height: '100vh',

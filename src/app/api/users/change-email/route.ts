@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {updateEmail, updateUserPassword} from '@/database/user';
+import {updateEmail, getUserEmail} from '@/database/user';
 import { auth } from '@/lib/auth';
-import bcrypt from "bcryptjs";
 
 export async function POST(req: NextRequest) {
     try {
@@ -14,9 +13,21 @@ export async function POST(req: NextRequest) {
         }
 
         const body = await req.json();
-        const { newEmail } = body;
-        if (!newEmail) {
-            return NextResponse.json({ message: 'Email is required' }, { status: 400 });
+        const { currentEmail, newEmail } = body;
+        
+        if (!currentEmail || !newEmail) {
+            return NextResponse.json({ error: 'Current email and new email are required' }, { status: 400 });
+        }
+
+        // Get user's current email
+        const userCurrentEmail = await getUserEmail(parseInt(session.user.id));
+        if (!userCurrentEmail) {
+            return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        }
+
+        // Verify current email matches
+        if (currentEmail.toLowerCase() !== userCurrentEmail.toLowerCase()) {
+            return NextResponse.json({ error: 'Current email is incorrect' }, { status: 400 });
         }
 
         const success = await updateEmail(newEmail, parseInt(session.user.id));

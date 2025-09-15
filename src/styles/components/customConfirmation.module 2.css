@@ -13,6 +13,8 @@
   z-index: 1000;
   opacity: 0;
   transition: opacity 0.2s ease;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .overlay.show {

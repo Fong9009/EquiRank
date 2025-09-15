@@ -5,6 +5,7 @@ import CustomConfirmation from "@/components/common/CustomConfirmation";
 import {useSession} from "next-auth/react";
 
 export default function EmailChanger() {
+    const [currentEmail, setCurrentEmail] = useState("");
     const [newEmail, setNewEmail] = useState("");
     const { data: session } = useSession();
     const [error, setError] = useState("");
@@ -33,11 +34,35 @@ export default function EmailChanger() {
         setShowConfirmation(true);
     };
 
+    const validateCurrentEmail = (value: string) => {
+        if (!value.trim()) {
+            setEmailError('Current email is required');
+            setDisabled(true);
+            return false;
+        }
+        
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) {
+            setEmailError('Current email format is invalid');
+            setDisabled(true);
+            return false;
+        }
+        
+        setEmailError(null);
+        return true;
+    };
+
     const validateEmail = async (value: string) => {
         const currentUserEmail = session?.user?.email ?? ''
         const editUserID = session?.user?.id
+        
+        // Check if current email is provided and valid
+        if (!validateCurrentEmail(currentEmail)) {
+            return false;
+        }
+        
         if (!value.trim()) {
-            setEmailError('Email cannot be blank');
+            setEmailError('New email cannot be blank');
             setDisabled(true);
             return false;
         }
@@ -96,6 +121,7 @@ export default function EmailChanger() {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
+                    currentEmail: currentEmail,
                     newEmail: newEmail,
                 }),
             });
@@ -113,6 +139,7 @@ export default function EmailChanger() {
             console.log("Email updated successfully:", data);
 
             // Optionally reset fields
+            setCurrentEmail("");
             setNewEmail("");
         } catch (err) {
             console.error("Error updating email:", err);
@@ -139,6 +166,22 @@ export default function EmailChanger() {
 
                     <div className={styles.row}>
                         <div className={styles.inputColumn}>
+                            <div className={styles.formGroup}>
+                                <label>Current Email</label>
+                                <input
+                                    type="email"
+                                    value={currentEmail}
+                                    onChange={(e) => {
+                                        setCurrentEmail(e.target.value);
+                                        validateCurrentEmail(e.target.value);
+                                    }}
+                                    className={styles.input}
+                                    onFocus={() => setFocused(true)}
+                                    onBlur={() => setFocused(false)}
+                                    required
+                                />
+                            </div>
+
                             <div className={styles.formGroup}>
                                 <label>New Email</label>
                                 <input
