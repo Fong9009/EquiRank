@@ -42,12 +42,14 @@ export async function GET(
             // or return an error response, depending on your context
         }
         const covenantRatiosRaw = await getCompanyCovenant(companyID);
-        const covenantRatios = covenantRatiosRaw.covenant_statistic;
 
-        if (!covenantRatios) {
+        const covenantObjectRatios = covenantRatiosRaw.covenant_statistic;
+
+        if (!covenantObjectRatios) {
             return NextResponse.json({ error: 'Loan request not found' }, { status: 404 });
         }
-        //console.log('current ratio:', covenantRatios?.current_ratio);
+        // If covenantRatios is a JSON string
+        const covenantRatios = JSON.parse(covenantObjectRatios);
 
         const rawMetrics: MetricRaw[] = [
             { value: covenantRatios?.current_ratio, comparison: '>', target: 88, category: 'Liquidity' },
@@ -82,6 +84,7 @@ export async function GET(
             //console.log(grouped);
         });
 
+
 // Convert to final data array
         const data = Object.entries(grouped).map(([category, { passes, total }]) => ({
             category,
@@ -96,6 +99,8 @@ export async function GET(
                 color: info.color, // optional, if you want to color the radar points
             };
         });
+
+        console.log("Test", dataWithDescriptions)
         return NextResponse.json(dataWithDescriptions);
 
     } catch (error) {

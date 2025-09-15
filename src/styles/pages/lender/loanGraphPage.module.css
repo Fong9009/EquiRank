@@ -237,7 +237,7 @@
     font-weight: 600;
     color: white;
 }
-@media (min-width: 769px) and (max-width: 1200px) {
+@media (min-width: 769px) and (max-width: 1400px) {
     .barContainer {
         flex: 0 0 calc(50% - 1rem);
         max-width: calc(50% - 1rem);
