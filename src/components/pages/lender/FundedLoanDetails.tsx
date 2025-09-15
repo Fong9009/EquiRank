@@ -9,13 +9,6 @@ interface FundedLoanDetails {
   borrower_id: number;
   amount_requested: number;
   currency: string;
-  social_media_links?: {
-    linkedin?: string;
-    twitter?: string;
-    facebook?: string;
-    instagram?: string;
-    website?: string;
-  } | null;
   loan_purpose: string;
   loan_type: string;
   status: string;
@@ -251,64 +244,6 @@ export default function FundedLoanDetails({ loanId, onClose }: FundedLoanDetails
             </div>
           </div>
 
-          {/* Social Media Links */}
-          {loan.social_media_links && (
-            <div className={styles.section}>
-              <h3 className={textColour}>Contact Information</h3>
-              <div className={styles.socialLinks}>
-                {loan.social_media_links.website && (
-                  <a 
-                    href={loan.social_media_links.website} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className={styles.socialLink}
-                  >
-                    Website
-                  </a>
-                )}
-                {loan.social_media_links.linkedin && (
-                  <a 
-                    href={loan.social_media_links.linkedin} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className={styles.socialLink}
-                  >
-                    LinkedIn
-                  </a>
-                )}
-                {loan.social_media_links.twitter && (
-                  <a 
-                    href={loan.social_media_links.twitter} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className={styles.socialLink}
-                  >
-                    Twitter
-                  </a>
-                )}
-                {loan.social_media_links.facebook && (
-                  <a 
-                    href={loan.social_media_links.facebook} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className={styles.socialLink}
-                  >
-                    Facebook
-                  </a>
-                )}
-                {loan.social_media_links.instagram && (
-                  <a 
-                    href={loan.social_media_links.instagram} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className={styles.socialLink}
-                  >
-                    Instagram
-                  </a>
-                )}
-              </div>
-            </div>
-          )}
         </div>
 
         <div className={styles.footer}>

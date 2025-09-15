@@ -117,9 +117,6 @@ export default function LoanRequestDetailModal({ requestId, onClose }: LoanReque
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
           <h2>Loan Request Details</h2>
-          <button onClick={onClose} className={styles.closeButton}>
-            ×
-          </button>
         </div>
 
         <div className={styles.content}>

@@ -129,9 +129,6 @@ export default function AdminLoanRequestDetails({ requestId, onClose }: AdminLoa
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
           <h2>Loan Request Details (Admin View)</h2>
-          <button onClick={onClose} className={styles.closeButton}>
-            ×
-          </button>
         </div>
 
         <div className={styles.content}>
