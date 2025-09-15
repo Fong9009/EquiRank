@@ -745,7 +745,7 @@ export default function ContactMessages() {
               ? `Are you sure you want to archive this conversation?\n\nThis will move the following to the archive:\n• ${confirmationData.userMessageCount} user message(s)\n• ${confirmationData.adminReplyCount} admin reply(s)`
               : `Are you sure you want to mark all new messages as read?\n\nThis will update the status of ${confirmationData.userMessageCount} new messages to "read".`
           }
-          userName={confirmationData.userName || 'User'}
+          userName={confirmationData.userName}
           action={confirmationData.action === 'archive' ? 'archive' : 'approve'}
           confirmText="Confirm"
           cancelText="Cancel"

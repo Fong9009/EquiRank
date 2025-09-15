@@ -491,12 +491,18 @@ export async function updateUserProfile(
         profile_completion_required?: boolean;
     }
 ): Promise<boolean> {
+    // Fields that exist in the users table
+    const allowedUserFields = [
+        'first_name', 'last_name', 'phone', 'address', 'company', 
+        'profile_picture', 'bio', 'theme', 'language', 'timezone', 'notifications'
+    ];
+    
     const fields = [];
     const values = [];
     
-    // Build dynamic query based on provided fields
+    // Build dynamic query based on provided fields that exist in users table
     Object.entries(profileData).forEach(([key, value]) => {
-        if (value !== undefined) {
+        if (value !== undefined && allowedUserFields.includes(key)) {
             fields.push(`${key} = ?`);
             values.push(value);
         }

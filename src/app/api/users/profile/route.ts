@@ -50,14 +50,16 @@ export async function PUT(request: NextRequest) {
         }
 
         // Separate basic user data from role-specific profile data
-        const basicUserFields = ['first_name', 'last_name', 'phone', 'address', 'company', 'profile_picture', 'bio', 'website', 'linkedin', 'preferences', 'theme', 'language', 'timezone', 'notifications'];
+        const basicUserFields = ['first_name', 'last_name', 'phone', 'address', 'company', 'profile_picture', 'bio', 'preferences', 'theme', 'language', 'timezone', 'notifications'];
+        const profileFields = ['website', 'linkedin', 'industry', 'location', 'capabilities', 'years_in_business', 'employee_count', 'revenue_range', 'company_description', 'qa_rating', 'company_logo', 'institution_type', 'risk_appetite', 'target_industries', 'target_markets', 'min_loan_amount', 'max_loan_amount', 'profile_completion_percentage', 'profile_completed_at', 'profile_completion_required'];
+        
         const basicUserData: any = {};
         const roleProfileData: any = {};
         
         Object.entries(requestData).forEach(([key, value]) => {
             if (basicUserFields.includes(key)) {
                 basicUserData[key] = value;
-            } else {
+            } else if (profileFields.includes(key)) {
                 roleProfileData[key] = value;
             }
         });
@@ -90,8 +92,8 @@ export async function PUT(request: NextRequest) {
         if (currentUser.user_type === 'borrower') {
             await updateBorrowerProfile(userId, {
                 profile_completion_percentage: newCompletionPercentage,
-                profile_completed_at: newCompletionPercentage >= 100 ? new Date().toISOString() : undefined
-            });
+                profile_completed_at: newCompletionPercentage >= 100 ? new Date().toISOString().slice(0, 19).replace('T', ' ') : undefined
+            }); 
         } else if (currentUser.user_type === 'lender') {
             // Lenders don't need profile completion tracking
             // No profile completion update needed

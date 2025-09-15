@@ -201,36 +201,30 @@ export default function AdminLoanRequestDetails({ requestId, onClose }: AdminLoa
             </div>
           </div>
 
-          {/* Close Information (if request was closed) */}
-          {request.status === 'closed' && request.closed_reason && (
+          {/* Funding Information (if request was funded, current or previously) */}
+          {(request.status === 'funded' || request.original_status === 'funded') && (
             <div className={styles.section}>
-              <h3>Request Closure Information</h3>
+              <h3>Funding Information</h3>
               <div className={styles.loanInfo}>
-                {request.original_status && (
+                {request.funded_by_name && (
                   <div className={styles.infoRow}>
-                    <span className={styles.label}>Previous Status:</span>
-                    <span className={styles.value}>
-                      {request.original_status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                    </span>
+                    <span className={styles.label}>Funded By:</span>
+                    <span className={styles.value}>{request.funded_by_name}</span>
                   </div>
                 )}
-                {request.closed_at && (
+                {request.funded_at && (
                   <div className={styles.infoRow}>
-                    <span className={styles.label}>Closed On:</span>
-                    <span className={styles.value}>{formatDate(request.closed_at.toString())}</span>
+                    <span className={styles.label}>Funded On:</span>
+                    <span className={styles.value}>{formatDate(request.funded_at.toString())}</span>
                   </div>
                 )}
-                <div className={styles.infoRow}>
-                  <span className={styles.label}>Close Reason:</span>
-                  <span className={styles.value}>{request.closed_reason}</span>
-                </div>
               </div>
             </div>
           )}
 
           {/* Action Buttons */}
           <div className={styles.actions}>
-            {request.status === 'funded' ? (
+            {(request.status === 'pending' || request.status === 'funded') ? (
               <button 
                 onClick={() => setShowCloseModal(true)}
                 className={styles.closeRequestButton}

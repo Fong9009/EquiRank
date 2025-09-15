@@ -245,13 +245,15 @@ export async function initializeMigrationSystem(): Promise<boolean> {
 export async function runPendingMigrations(): Promise<MigrationResult[]> {
     try {
         console.log('🔄 Running pending migrations...');
-        
-        // For now, this is a placeholder
-        // In a real implementation, you would scan a migrations directory
-        // and run any migrations that haven't been executed yet
-        
-        console.log('✅ No pending migrations to run');
-        return [];
+        const results: MigrationResult[] = [];
+        const name = '002_add_lender_tolerance_bands';
+        if (!(await migrationExists(name))) {
+            const sql = `ALTER TABLE lender_profiles ADD COLUMN tolerance_bands JSON NULL`;
+            const res = await executeMigration(name, sql);
+            results.push(res);
+        }
+        console.log('✅ Pending migrations executed');
+        return results;
         
     } catch (error) {
         console.error('❌ Failed to run pending migrations:', error);

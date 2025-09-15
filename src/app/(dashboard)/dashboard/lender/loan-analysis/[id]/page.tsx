@@ -5,19 +5,22 @@ import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import LoanAnalysis from "@/components/pages/lender/LoanAnalysis";
 
-export default function LoanRequestDetail() {
+interface Props {
+    params: Promise<{ id: string }>;
+}
+
+export default function LoanRequestDetail({ params }: Props) {
     const [id, setId] = useState<string | null>(null);
     const { data: session, status } = useSession();
     const router = useRouter();
-    const params = useParams(); // <-- get params from next/navigation
     const [isReady, setIsReady] = useState(false);
 
     useEffect(() => {
-        if (params?.id) {
-            // Handle both string and string[] cases
-            const idValue = Array.isArray(params.id) ? params.id[0] : params.id;
-            setId(idValue);
+        async function resolveParams() {
+            const resolved = await params;
+            setId(resolved.id);
         }
+        resolveParams();
     }, [params]);
 
     useEffect(() => {

@@ -33,9 +33,9 @@ export async function POST(
     }
 
     // Check if the request can be closed (pending, active, or funded requests)
-    if (!['pending', 'active', 'funded'].includes(loanRequest.status)) {
+    if (!['pending', 'funded'].includes(loanRequest.status)) {
       return NextResponse.json({ 
-        error: 'Only pending, active, or funded loan requests can be closed' 
+        error: 'Only pending or funded loan requests can be closed' 
       }, { status: 400 });
     }
 

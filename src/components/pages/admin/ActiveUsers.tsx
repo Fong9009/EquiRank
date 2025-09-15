@@ -572,9 +572,9 @@ export default function ActiveUsers() {
                                         </div>
                                     </div>
                                     <p><strong>Email:</strong> {user.email}</p>
-                                    {user.company && <p><strong>Company:</strong> {user.company}</p>}
+                                    {user.company && <p style={{maxWidth:'200px', whiteSpace:'pre-wrap', wordBreak:'break-word', overflowWrap:'break-word'}}><strong>Company:</strong> {user.company}</p>}
                                     {user.phone && <p><strong>Phone:</strong> {user.phone}</p>}
-                                    {user.address && <p><strong>Address:</strong> {user.address}</p>}
+                                    {user.address && <p style={{maxWidth:'200px', whiteSpace:'pre-wrap', wordBreak:'break-word', overflowWrap:'break-word'}}><strong>Address:</strong> {user.address}</p>}
                                 </div>
 
                                 <div className={styles.actions}>
@@ -650,9 +650,9 @@ export default function ActiveUsers() {
                                         </div>
                                     </div>
                                     <p><strong>Email:</strong> {user.email}</p>
-                                    {user.company && <p><strong>Company:</strong> {user.company}</p>}
+                                    {user.company && <p style={{maxWidth:'200px', whiteSpace:'pre-wrap', wordBreak:'break-word', overflowWrap:'break-word'}}><strong>Company:</strong> {user.company}</p>}
                                     {user.phone && <p><strong>Phone:</strong> {user.phone}</p>}
-                                    {user.address && <p><strong>Address:</strong> {user.address}</p>}
+                                    {user.address && <p style={{maxWidth:'200px', whiteSpace:'pre-wrap', wordBreak:'break-word', overflowWrap:'break-word'}}><strong>Address:</strong> {user.address}</p>}
                                 </div>
 
                                 <div className={styles.actions}>
@@ -730,9 +730,9 @@ export default function ActiveUsers() {
                                         </div>
                                     </div>
                                     <p><strong>Email:</strong> {user.email}</p>
-                                    {user.company && <p><strong>Company:</strong> {user.company}</p>}
+                                    {user.company && <p style={{maxWidth:'200px', whiteSpace:'pre-wrap', wordBreak:'break-word', overflowWrap:'break-word'}}><strong>Company:</strong> {user.company}</p>}
                                     {user.phone && <p><strong>Phone:</strong> {user.phone}</p>}
-                                    {user.address && <p><strong>Address:</strong> {user.address}</p>}
+                                    {user.address && <p style={{maxWidth:'200px', whiteSpace:'pre-wrap', wordBreak:'break-word', overflowWrap:'break-word'}}><strong>Address:</strong> {user.address}</p>}
                                 </div>
 
                                 <div className={styles.actions}>

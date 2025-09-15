@@ -8,6 +8,7 @@ import PasswordReset from '@/components/pages/settings/PasswordReset';
 import EmailChanger from '@/components/pages/settings/EmailChanger';
 import { profileEvents } from '@/lib/profileEvents';
 import CustomConfirmation from "@/components/common/CustomConfirmation";
+import { useEffectiveTheme, type Theme } from '@/lib/theme';
 
 interface ProfileData {
     first_name: string;
@@ -92,10 +93,14 @@ export default function ProfileSettings() {
     });
 
     const [showConfirmation, setShowConfirmation] = useState(false);
-    const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
+    const [userTheme, setUserTheme] = useState<Theme>('auto');
     const [profileCompletionPercentage, setProfileCompletionPercentage] = useState(0);
-    const windowBackground = theme === "light" ? styles.lightPage : styles.darkPage;
-    const titleText = theme === "light" ? styles.lightText : styles.darkText;
+    
+    // Use the effective theme hook to handle 'auto' theme
+    const effectiveTheme = useEffectiveTheme(userTheme);
+    
+    const windowBackground = effectiveTheme === "light" ? styles.lightPage : styles.darkPage;
+    const titleText = effectiveTheme === "light" ? styles.lightText : styles.darkText;
 
     // Calculate profile completion via API
     const calculateProfileCompletionAPI = async (userType: string, profileData: ProfileData) => {
@@ -233,9 +238,9 @@ export default function ProfileSettings() {
             .then(res => res.json())
             .then(data => {
                 if (data.theme) {
-                    setTheme(data.theme.theme);
+                    setUserTheme(data.theme.theme);
                 } else {
-                    setTheme("auto");
+                    setUserTheme("auto");
                 }
             });
     }, [session]);
@@ -578,18 +583,6 @@ export default function ProfileSettings() {
                                     />
                                 </div>
 
-                                <div className={styles.formGroup}>
-                                    <label htmlFor="website">Website</label>
-                                    <input
-                                        type="url"
-                                        id="website"
-                                        value={profileData.website}
-                                        onChange={(e) => handleProfileChange('website', e.target.value)}
-                                        className={styles.input}
-                                        placeholder="https://yourwebsite.com"
-                                    />
-                                </div>
-
                                 <div className={styles.formRow}>
                                     <div className={styles.formGroup}>
                                         <label htmlFor="linkedin">LinkedIn</label>
@@ -643,6 +636,18 @@ export default function ProfileSettings() {
                                             className={styles.textarea}
                                             rows={3}
                                             placeholder="Describe your company's capabilities and expertise..."
+                                        />
+                                    </div>
+
+                                    <div className={styles.formGroup}>
+                                        <label htmlFor="website">Website</label>
+                                        <input
+                                            type="url"
+                                            id="website"
+                                            value={profileData.website}
+                                            onChange={(e) => handleProfileChange('website', e.target.value)}
+                                            className={styles.input}
+                                            placeholder="https://yourwebsite.com"
                                         />
                                     </div>
 

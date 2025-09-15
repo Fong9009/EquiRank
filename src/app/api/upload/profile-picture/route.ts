@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { executeQuery, executeSingleQuery } from '@/database/index';
+import { executeSingleQuery } from '@/database/index';
+import { writeFile, mkdir } from 'fs/promises';
+import { join } from 'path';
 
 export async function POST(request: NextRequest) {
     try {
@@ -31,66 +33,56 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Validate file size (max 5MB for database storage)
+        // Validate file size (max 5MB)
         const maxSize = 5 * 1024 * 1024; // 5MB
         if (file.size > maxSize) {
             return NextResponse.json(
-                { error: 'File size must be less than 5MB for database storage' },
+                { error: 'File size must be less than 5MB' },
                 { status: 400 }
             );
         }
 
-        // Convert file to base64
+        const userId = session.user.id;
+        const timestamp = Date.now();
+        
+        // Generate unique filename
+        const fileExtension = file.name.split('.').pop() || 'jpg';
+        const filename = `profile_${userId}_${timestamp}.${fileExtension}`;
+        
+        // Create uploads directory if it doesn't exist
+        const uploadsDir = join(process.cwd(), 'public', 'uploads', 'profile-pictures');
+        await mkdir(uploadsDir, { recursive: true });
+        
+        // Save file to filesystem
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
-        const base64Data = buffer.toString('base64');
+        const filepath = join(uploadsDir, filename);
+        await writeFile(filepath, buffer);
 
-        const userId = session.user.id;
-
-        // Check if user already has a profile picture
-        const [existingRows] = await executeSingleQuery(
-            'SELECT id FROM profile_pictures WHERE user_id = ?',
-            [parseInt(userId)]
-        );
-
-        if (existingRows && existingRows.length > 0) {
-            // Update existing profile picture
-            await executeQuery(
-                'UPDATE profile_pictures SET image_data = ?, image_type = ?, image_size = ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?',
-                [base64Data, file.type, file.size, parseInt(userId)]
-            );
-        } else {
-            // Insert new profile picture
-            await executeQuery(
-                'INSERT INTO profile_pictures (user_id, image_data, image_type, image_size) VALUES (?, ?, ?, ?)',
-                [parseInt(userId), base64Data, file.type, file.size]
-            );
-        }
-
-        // Update the users table profile_picture field to point to the new API endpoint
-        const profilePictureUrl = `/api/profile-picture/${userId}`;
-        await executeQuery(
+        // Update the users table profile_picture field with the file path
+        const profilePictureUrl = `/uploads/profile-pictures/${filename}`;
+        await executeSingleQuery(
             'UPDATE users SET profile_picture = ? WHERE id = ?',
             [profilePictureUrl, parseInt(userId)]
         );
 
-        console.log('Profile picture uploaded to database successfully:', {
+        console.log('Profile picture uploaded successfully:', {
             userId: session.user.id,
             fileType: file.type,
             fileSize: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
-            databaseUrl: profilePictureUrl
+            filePath: profilePictureUrl
         });
 
         return NextResponse.json({
             success: true,
             url: profilePictureUrl,
-            message: 'Profile picture stored in database'
+            message: 'Profile picture uploaded successfully'
         }, { status: 200 });
 
     } catch (error) {
-        console.error('Error uploading profile picture to database:', error);
+        console.error('Error uploading profile picture:', error);
         return NextResponse.json(
-            { error: 'Failed to upload file to database' },
+            { error: 'Failed to upload file' },
             { status: 500 }
         );
     }

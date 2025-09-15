@@ -6,6 +6,7 @@ import LoanRequestDetails from './LoanRequestDetails';
 import clsx from "clsx";
 import styles from '@/styles/pages/lender/loanRequestsList.module.css';
 import Link from "next/link";
+import { useEffectiveTheme, type Theme } from '@/lib/theme';
 
 interface LoanRequest {
   id: number;
@@ -26,7 +27,7 @@ export default function LoanRequestsList() {
   const { data: session } = useSession();
   const [loanRequests, setLoanRequests] = useState<LoanRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true)
-  const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
+  const [userTheme, setUserTheme] = useState<Theme>('auto');
   const [error, setError] = useState<string | null>(null);
   const [selectedRequest, setSelectedRequest] = useState<number | null>(null);
   const [filters, setFilters] = useState({
@@ -35,27 +36,43 @@ export default function LoanRequestsList() {
     minAmount: '',
     maxAmount: ''
   });
-  const windowBackground = theme === "light" ? styles.lightPage : styles.darkPage;
-  const cardBackground = theme === "light" ? styles.lightBackground : styles.darkBackground;
-  const textColour = theme === "light" ? styles.lightTextColour : styles.darkTextColour;
+  
+  // Use the effective theme hook to handle 'auto' theme
+  const effectiveTheme = useEffectiveTheme(userTheme);
+  
+  const windowBackground = effectiveTheme === "light" ? styles.lightPage : styles.darkPage;
+  const cardBackground = effectiveTheme === "light" ? styles.lightBackground : styles.darkBackground;
+  const textColour = effectiveTheme === "light" ? styles.lightTextColour : styles.darkTextColour;
 
   useEffect(() => {
-    if (session?.user) {
+    if (!session?.user) return;
+    const t = setTimeout(() => {
       fetchLoanRequests();
-    }
+    }, 300);
+    return () => clearTimeout(t);
   }, [session, filters]);
 
   useEffect(() => {
     if (!session) return;
-    fetch("/api/users/theme")
-        .then(res => res.json())
-        .then(data => {
-          if (data.theme) {
-            setTheme(data.theme.theme);
-          } else {
-            setTheme("auto");
-          }
-        });
+    const controller = new AbortController();
+
+    const loadTheme = async () => {
+      try {
+        const res = await fetch("/api/users/theme", { signal: controller.signal });
+        const data = await res.json();
+        setUserTheme(data.theme ? data.theme.theme : 'auto');
+      } catch (err: any) {
+        if (err?.name !== 'AbortError') {
+          console.error('Error loading theme:', err);
+        }
+      }
+    };
+
+    loadTheme();
+    
+    return () => {
+      controller.abort();
+    };
   }, [session]);
 
   const fetchLoanRequests = async () => {
@@ -93,8 +110,6 @@ export default function LoanRequestsList() {
     switch (status) {
       case 'pending':
         return styles.statusPending;
-      case 'active':
-        return styles.statusActive;
       case 'funded':
         return styles.statusFunded;
       case 'closed':
@@ -169,7 +184,9 @@ export default function LoanRequestsList() {
               >
                 <option value="all">All Statuses</option>
                 <option value="pending">Pending</option>
-                <option value="active">Active</option>
+                <option value="funded">Funded</option>
+                <option value="closed">Closed</option>
+                <option value="expired">Expired</option>
               </select>
             </div>
 

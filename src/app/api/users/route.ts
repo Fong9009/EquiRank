@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createUser, emailExists, activeEmailExists, getUserByEmailAny, updateUser } from '@/database/user';
+import { createBorrowerProfile, createLenderProfile, createAdminProfile } from '@/database/profile';
 import { hashPassword, validatePassword, validateEmail } from '@/lib/security';
 import { checkRateLimit, STRICT_RATE_LIMIT, createRateLimitHeaders } from '@/lib/rateLimiter';
 
@@ -190,6 +191,36 @@ export async function POST(request: NextRequest) {
       phone,
       address
     );
+
+    // Create corresponding empty profile row
+    let profileCreated = false;
+    if (userType === 'borrower') {
+      profileCreated = await createBorrowerProfile(userId, {});
+      
+      // Calculate initial profile completion percentage for borrowers
+      if (profileCreated) {
+        const { getProfileCompletionPercentage } = await import('@/database/profile');
+        const initialCompletionPercentage = await getProfileCompletionPercentage(userId, 'borrower');
+        
+        // Update the profile with the calculated completion percentage
+        const { updateBorrowerProfile } = await import('@/database/profile');
+        await updateBorrowerProfile(userId, {
+          profile_completion_percentage: initialCompletionPercentage,
+          profile_completed_at: initialCompletionPercentage >= 100 ? new Date().toISOString() : undefined
+        });
+      }
+    } else if (userType === 'lender') {
+      profileCreated = await createLenderProfile(userId, {});
+    } else if (userType === 'admin') {
+      profileCreated = await createAdminProfile(userId, {});
+    }
+
+    if (!profileCreated) {
+      return NextResponse.json(
+        { error: 'Failed to create user profile' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json(
       { 

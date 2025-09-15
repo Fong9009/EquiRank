@@ -7,16 +7,21 @@ import ContactMessages from '@/components/pages/admin/ContactMessages';
 import ArchivedMessages from '@/components/pages/admin/ArchivedMessages';
 import styles from '@/styles/pages/admin/adminPage.module.css';
 import clsx from 'clsx';
+import { useEffectiveTheme, type Theme } from '@/lib/theme';
 
 export default function AdminFrontPage() {
     const { data: session, status } = useSession();
     const [activeTab, setActiveTab] = useState<'messages' | 'archived'>('messages');
     const router = useRouter();
-    const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
+    const [userTheme, setUserTheme] = useState<Theme>('auto');
+    
+    // Use the effective theme hook to handle 'auto' theme
+    const effectiveTheme = useEffectiveTheme(userTheme);
+    
     //Colour Mode Editing
-    const textColour = theme === "light" ? styles.lightTextColour : styles.darkTextColour;
-    const backgroundColour = theme === "light" ? styles.lightBackground : styles.darkBackground;
-    const pageColour = theme === "light" ? styles.lightPage : styles.darkPage
+    const textColour = effectiveTheme === "light" ? styles.lightTextColour : styles.darkTextColour;
+    const backgroundColour = effectiveTheme === "light" ? styles.lightBackground : styles.darkBackground;
+    const pageColour = effectiveTheme === "light" ? styles.lightPage : styles.darkPage
 
     useEffect(() => {
         if (status === 'loading') return;
@@ -33,9 +38,9 @@ export default function AdminFrontPage() {
             .then(res => res.json())
             .then(data => {
                 if (data.theme) {
-                    setTheme(data.theme.theme);
+                    setUserTheme(data.theme.theme);
                 } else {
-                    setTheme("auto");
+                    setUserTheme("auto");
                 }
             });
     }, [session]);

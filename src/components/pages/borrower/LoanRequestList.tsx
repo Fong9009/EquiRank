@@ -24,6 +24,9 @@ interface LoanRequest {
   company_description?: string;
   borrower_company?: string;
   company_name?: string;
+  funded_by?: number;
+  funded_at?: string;
+  funded_by_name?: string;
 }
 
 export default function LoanRequestList() {
@@ -57,15 +60,30 @@ export default function LoanRequestList() {
 
   useEffect(() => {
     if (!session) return;
-    fetch("/api/users/theme")
-        .then(res => res.json())
-        .then(data => {
-          if (data.theme) {
-            setTheme(data.theme.theme);
-          } else {
-            setTheme("auto");
-          }
-        });
+    const controller = new AbortController();
+
+    const loadTheme = async (signal: AbortSignal) => {
+      try {
+        const res = await fetch("/api/users/theme", { signal });
+        const data = await res.json();
+        setTheme(data.theme ? data.theme.theme : "auto");
+      } catch (err: any) {
+        if (err?.name !== 'AbortError') {
+          console.error('Error loading theme:', err);
+        }
+      }
+    };
+
+    loadTheme(controller.signal);
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handle = () => {
+      loadTheme(controller.signal);
+    };
+    mq.addEventListener('change', handle);
+    return () => {
+      mq.removeEventListener('change', handle);
+      controller.abort();
+    };
   }, [session]);
 
   const fetchLoanRequests = async () => {
@@ -110,8 +128,6 @@ export default function LoanRequestList() {
     switch (status) {
       case 'pending':
         return styles.statusPending;
-      case 'active':
-        return styles.statusActive;
       case 'funded':
         return styles.statusFunded;
       case 'closed':
@@ -291,6 +307,20 @@ export default function LoanRequestList() {
                           : request.company_description
                         }
                       </span>
+                    </div>
+                  )}
+
+                  {/* Funding information for funded requests (current or previously funded) */}
+                  {(request.funded_by_name && (request.status === 'funded' || request.original_status === 'funded')) && (
+                    <div className={styles.detailRow}>
+                      <span className={styles.label}>Funded By:</span>
+                      <span className={styles.value}>{request.funded_by_name}</span>
+                    </div>
+                  )}
+                  {(request.funded_at && (request.status === 'funded' || request.original_status === 'funded')) && (
+                    <div className={styles.detailRow}>
+                      <span className={styles.label}>Funded On:</span>
+                      <span className={styles.value}>{formatDate(request.funded_at)}</span>
                     </div>
                   )}
 

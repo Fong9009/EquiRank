@@ -36,6 +36,13 @@ export async function POST(
       }, { status: 400 });
     }
 
+    // Business rule: do not allow restoring if the request was originally funded
+    if (loanRequest.original_status === 'funded') {
+      return NextResponse.json({
+        error: 'Funded requests cannot be restored'
+      }, { status: 400 });
+    }
+
     // Restore the loan request
     const success = await restoreLoanRequest(id);
     
