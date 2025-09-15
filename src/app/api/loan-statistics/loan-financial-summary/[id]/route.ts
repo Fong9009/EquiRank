@@ -49,7 +49,19 @@ export async function GET(
             return NextResponse.json({ error: 'Loan request not found' }, { status: 404 });
         }
 
-        const statements = financialData.financial_summary.financialStatements as Record<string, FinancialStatement>;
+        let parsedFinancialSummary;
+        try {
+            parsedFinancialSummary = JSON.parse(financialData.financial_summary);
+        } catch (error) {
+            return NextResponse.json({ error: 'Invalid financial data format' }, { status: 400 });
+        }
+
+        // Now check if financialStatements exists
+        if (!parsedFinancialSummary?.financialStatements) {
+            return NextResponse.json({ error: 'Financial statements not found' }, { status: 404 });
+        }
+
+        const statements = parsedFinancialSummary.financialStatements as Record<string, FinancialStatement>;
 
         const combinedChartData = Object.entries(statements).map(([year, data]) => {
             const { raw: assetsRaw, display: assetsDisplay } = formatToUnits(data.totalAssets);

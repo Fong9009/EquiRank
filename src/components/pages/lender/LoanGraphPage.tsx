@@ -61,7 +61,7 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
                 ]);
 
                 setDataWithDescriptions(covenantData);
-                setAbsStatistics(absData.abs_benchmark);
+                setAbsStatistics(absData);
                 setFinancialSummaryData(financeSumData);
             } catch (err) {
                 console.error("Data fetching error:", err);

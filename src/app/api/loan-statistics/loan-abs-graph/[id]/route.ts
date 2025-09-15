@@ -32,7 +32,13 @@ export async function GET(
             return NextResponse.json({ error: 'Loan request not found' }, { status: 404 });
         }
 
-        return NextResponse.json(absRatiosRaw);
+        let absBenchmark;
+        try {
+            absBenchmark = JSON.parse(absRatiosRaw.abs_benchmark);
+        } catch (error) {
+            return NextResponse.json({ error: 'Invalid ABS benchmark data format' }, { status: 400 });
+        }
+        return NextResponse.json(absBenchmark);
 
     } catch (error) {
         console.error('Error fetching loan request:', error);
