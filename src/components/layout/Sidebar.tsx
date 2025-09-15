@@ -1,7 +1,7 @@
 // components/Sidebar.tsx
 'use client';
 import { useEffect, useState } from 'react';
-import { Home, Settings, Users, Briefcase, Phone, User, Trash2, FileText, Plus } from "lucide-react";
+import { Home, Settings, Users, Briefcase, Phone, User, Trash2, FileText, Plus, CheckCircle2 } from "lucide-react";
 import styles from '@/styles/layout/sidebar.module.css'
 import ProfilePicture from '@/components/common/ProfilePicture';
 import UserTypeBadge from '@/components/common/UserTypeBadge';
@@ -73,6 +73,7 @@ export default function Sidebar({ role, activeTab, setActiveTab, isOpen, toggleS
                         items: [
                             { name: 'Home', icon: Home, path: '/dashboard/lender?tab=home', tabKey: 'home' },
                             { name: 'Loan Requests', icon: FileText, path: '/dashboard/lender?tab=loan-requests', tabKey: 'loan-requests' },
+                            { name: 'Funded Loans', icon: CheckCircle2, path: '/dashboard/lender?tab=funded-loans', tabKey: 'funded-loans' },
                             { name: 'Settings', icon: Settings, path: '/dashboard/lender?tab=settings', tabKey: 'settings' }
                         ]
                     }
@@ -149,6 +150,14 @@ export default function Sidebar({ role, activeTab, setActiveTab, isOpen, toggleS
                     </div>
                 ))}
             </aside>
+
+            {/* Mobile backdrop */}
+            {isOpen && (
+                <div 
+                    className={styles.mobileBackdrop}
+                    onClick={toggleSidebar}
+                />
+            )}
 
             {/* Toggle circle */}
             <button

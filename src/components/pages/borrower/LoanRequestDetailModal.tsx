@@ -27,6 +27,9 @@ interface LoanRequestDetail {
   expires_at?: string;
   borrower_name: string;
   borrower_company?: string;
+  funded_by?: number;
+  funded_at?: string;
+  funded_by_name?: string;
 }
 
 interface LoanRequestDetailModalProps {
@@ -114,9 +117,6 @@ export default function LoanRequestDetailModal({ requestId, onClose }: LoanReque
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
           <h2>Loan Request Details</h2>
-          <button onClick={onClose} className={styles.closeButton}>
-            ×
-          </button>
         </div>
 
         <div className={styles.content}>
@@ -170,6 +170,27 @@ export default function LoanRequestDetailModal({ requestId, onClose }: LoanReque
               {request.company_description && (
                 <p className={styles.companyDescription}>{request.company_description}</p>
               )}
+            </div>
+          )}
+
+          {/* Funding Information (if request was funded, current or previously) */}
+          {(request.status === 'funded' || request.original_status === 'funded') && (
+            <div className={styles.section}>
+              <h3>Funding Information</h3>
+              <div className={styles.loanInfo}>
+                {request.funded_by_name && (
+                  <div className={styles.infoRow}>
+                    <span className={styles.label}>Funded By:</span>
+                    <span className={styles.value}>{request.funded_by_name}</span>
+                  </div>
+                )}
+                {request.funded_at && (
+                  <div className={styles.infoRow}>
+                    <span className={styles.label}>Funded On:</span>
+                    <span className={styles.value}>{formatDate(request.funded_at)}</span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { fundLoanRequest } from '@/database/loanRequest';
+import { assignFunderToLoanRequest } from '@/database/loanRequest';
 
 export async function POST(
   request: NextRequest,
@@ -12,8 +12,8 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (session.user.userType !== 'lender') {
-      return NextResponse.json({ error: 'Only lenders can fund requests' }, { status: 403 });
+    if (session.user.userType !== 'admin') {
+      return NextResponse.json({ error: 'Admin privileges required' }, { status: 403 });
     }
 
     const resolvedParams = await params;
@@ -22,16 +22,22 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid loan request ID' }, { status: 400 });
     }
 
-    const lenderId = parseInt(session.user.id);
-    const success = await fundLoanRequest(id, lenderId);
+    const body = await request.json();
+    const lenderId = parseInt(body?.lenderId);
+    if (!lenderId || Number.isNaN(lenderId)) {
+      return NextResponse.json({ error: 'Valid lenderId is required' }, { status: 400 });
+    }
 
+    const success = await assignFunderToLoanRequest(id, lenderId);
     if (!success) {
-      return NextResponse.json({ error: 'Unable to fund loan request. Ensure it is pending.' }, { status: 400 });
+      return NextResponse.json({ error: 'Failed to assign funder' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error funding loan request:', error);
+    console.error('Error assigning funder:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+

@@ -69,8 +69,6 @@ export default function AdminLoanRequestsList() {
     switch (status) {
       case 'pending':
         return styles.statusPending;
-      case 'active':
-        return styles.statusActive;
       case 'funded':
         return styles.statusFunded;
       case 'closed':
@@ -182,7 +180,6 @@ export default function AdminLoanRequestsList() {
               >
                 <option value="all">All Statuses</option>
                 <option value="pending">Pending</option>
-                <option value="active">Active</option>
                 <option value="funded">Funded</option>
                 <option value="closed">Closed</option>
                 <option value="expired">Expired</option>
@@ -235,6 +232,14 @@ export default function AdminLoanRequestsList() {
                       <div className={`${styles.status} ${getStatusColor(request.status)}`}>
                         {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
                       </div>
+                      {(request.funded_by_name && (request.status === 'funded' || request.original_status === 'funded')) && (
+                        <div className={styles.fundedIndicator}>
+                          <span className={styles.fundedLabel}>Funded by</span>
+                          <span className={styles.fundedBy}>
+                            {request.funded_by_name}
+                          </span>
+                        </div>
+                      )}
                       {request.status === 'closed' && request.closed_reason && (
                         <div className={styles.closedIndicator}>
                           <span className={styles.closedLabel}>Closed</span>
@@ -303,16 +308,17 @@ export default function AdminLoanRequestsList() {
                       </div>
                     )}
 
-                    {/* Close reason display */}
-                    {request.status === 'closed' && request.closed_reason && (
+                    {/* Funding information display (current or previously funded) */}
+                    {(request.funded_by_name && (request.status === 'funded' || request.original_status === 'funded')) && (
                       <div className={styles.detailRow}>
-                        <span className={styles.label}>Close Reason:</span>
-                        <span className={styles.value} title={request.closed_reason}>
-                          {request.closed_reason.length > 60
-                            ? `${request.closed_reason.substring(0, 60)}...`
-                            : request.closed_reason
-                          }
-                        </span>
+                        <span className={styles.label}>Funded By:</span>
+                        <span className={styles.value}>{request.funded_by_name}</span>
+                      </div>
+                    )}
+                    {(request.funded_at && (request.status === 'funded' || request.original_status === 'funded')) && (
+                      <div className={styles.detailRow}>
+                        <span className={styles.label}>Funded On:</span>
+                        <span className={styles.value}>{formatDate(request.funded_at.toString())}</span>
                       </div>
                     )}
                   </div>
@@ -324,7 +330,7 @@ export default function AdminLoanRequestsList() {
                     >
                       View Details
                     </button>
-                    {request.status === 'funded' && (
+                    {(request.status === 'pending' || request.status === 'funded') && (
                       <button
                         onClick={() => request.id && handleCloseRequest(request.id)}
                         className={styles.closeButton}

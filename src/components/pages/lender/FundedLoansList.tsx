@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import styles from '@/styles/pages/lender/fundedLoansList.module.css';
 import clsx from 'clsx';
+import FundedLoanDetails from './FundedLoanDetails';
 
 interface FundedLoan {
   id: number;
@@ -35,6 +36,7 @@ export default function FundedLoansList() {
   const [fundedLoans, setFundedLoans] = useState<FundedLoan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedLoan, setSelectedLoan] = useState<number | null>(null);
 
   const [theme, setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
 
@@ -226,9 +228,26 @@ export default function FundedLoansList() {
                   )}
                 </div>
               )}
+
+              <div className={styles.loanActions}>
+                <button 
+                  onClick={() => setSelectedLoan(loan.id)}
+                  className={styles.viewButton}
+                >
+                  View Details
+                </button>
+              </div>
             </div>
           ))}
         </div>
+
+        {/* Funded Loan Details Modal */}
+        {selectedLoan && (
+          <FundedLoanDetails 
+            loanId={selectedLoan}
+            onClose={() => setSelectedLoan(null)}
+          />
+        )}
       </div>
     </div>
   );

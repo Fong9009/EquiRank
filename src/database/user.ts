@@ -454,6 +454,36 @@ export async function deleteUserById(userId: number): Promise<boolean> {
     return result.affectedRows > 0;
 }
 
+export async function getUserPasswordHash(userId: number): Promise<string | null> {
+    try {
+        const query = 'SELECT password_hash FROM users WHERE id = ?';
+        const [rows] = await executeQuery(query, [userId]);
+        
+        if (rows && rows.length > 0) {
+            return rows[0].password_hash;
+        }
+        return null;
+    } catch (error) {
+        console.error('Error getting user password hash:', error);
+        return null;
+    }
+}
+
+export async function getUserEmail(userId: number): Promise<string | null> {
+    try {
+        const query = 'SELECT email FROM users WHERE id = ?';
+        const [rows] = await executeQuery(query, [userId]);
+        
+        if (rows && rows.length > 0) {
+            return rows[0].email;
+        }
+        return null;
+    } catch (error) {
+        console.error('Error getting user email:', error);
+        return null;
+    }
+}
+
 export async function updateUserProfile(
     userId: number,
     profileData: {
@@ -491,12 +521,18 @@ export async function updateUserProfile(
         profile_completion_required?: boolean;
     }
 ): Promise<boolean> {
+    // Fields that exist in the users table
+    const allowedUserFields = [
+        'first_name', 'last_name', 'phone', 'address', 'company', 
+        'profile_picture', 'bio', 'theme', 'language', 'timezone', 'notifications'
+    ];
+    
     const fields = [];
     const values = [];
     
-    // Build dynamic query based on provided fields
+    // Build dynamic query based on provided fields that exist in users table
     Object.entries(profileData).forEach(([key, value]) => {
-        if (value !== undefined) {
+        if (value !== undefined && allowedUserFields.includes(key)) {
             fields.push(`${key} = ?`);
             values.push(value);
         }

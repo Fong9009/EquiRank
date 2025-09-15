@@ -473,6 +473,7 @@ export default function RegistrationForm() {
                        onChange={handleInputChange}
                        className={`${styles.input} ${errors.company ? styles.errorInput : ''}`}
                        placeholder="Enter your company name"
+                       maxLength={200}
                        required
                      />
                      {errors.company && <span className={styles.error}>{errors.company}</span>}

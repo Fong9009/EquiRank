@@ -133,9 +133,6 @@ export default function AdminArchivedLoanRequestDetails({ requestId, onClose, on
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
           <h2>Archived Loan Request Details</h2>
-          <button onClick={onClose} className={styles.closeButton}>
-            ×
-          </button>
         </div>
 
         <div className={styles.content}>
@@ -219,23 +216,19 @@ export default function AdminArchivedLoanRequestDetails({ requestId, onClose, on
                   <span className={styles.value}>{request.closed_by_name}</span>
                 </div>
               )}
-              {request.closed_reason && (
-                <div className={styles.infoRow}>
-                  <span className={styles.label}>Reason for Closing:</span>
-                  <span className={styles.value}>{request.closed_reason}</span>
-                </div>
-              )}
             </div>
           </div>
 
           {/* Action Buttons */}
           <div className={styles.actions}>
-            <button 
-              onClick={handleRestore}
-              className={styles.restoreButton}
-            >
-              Restore Request
-            </button>
+            {request.original_status !== 'funded' && (
+              <button 
+                onClick={handleRestore}
+                className={styles.restoreButton}
+              >
+                Restore Request
+              </button>
+            )}
             <button 
               onClick={handleDelete}
               className={styles.deleteButton}

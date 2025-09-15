@@ -16,7 +16,7 @@ export interface LoanRequest {
   } | null;
   loan_purpose: string;
   loan_type: 'equipment' | 'expansion' | 'working_capital' | 'inventory' | 'real_estate' | 'startup' | 'other';
-  status: 'pending' | 'active' | 'funded' | 'closed' | 'expired';
+  status: 'pending' | 'funded' | 'closed' | 'expired';
   original_status?: string; 
   closed_by?: number;
   closed_at?: Date;
@@ -75,20 +75,24 @@ export async function getCompanyId(id: number): Promise<number | null> {
 /**
  * Get a loan request by ID with borrower information
  */
-export async function getLoanRequestById(id: number): Promise<(LoanRequest & { borrower_name: string; borrower_company?: string; website?: string; linkedin?: string }) | null> {
+export async function getLoanRequestById(id: number): Promise<(LoanRequest & { borrower_name: string; borrower_company?: string; website?: string; linkedin?: string; funded_by?: number; funded_at?: Date; funded_by_name?: string }) | null> {
   const query = `
     SELECT lr.*,
            CONCAT(u.first_name, ' ', u.last_name) AS borrower_name,
            u.company AS borrower_company,
-           cv.company_name AS company_name
+           cv.company_name AS company_name,
+           lr.funded_by,
+           lr.funded_at,
+           CONCAT(lender.first_name, ' ', lender.last_name) as funded_by_name
     FROM loan_requests lr
            JOIN users u ON lr.borrower_id = u.id
            LEFT JOIN company_values cv ON lr.company_id = cv.id
+           LEFT JOIN users lender ON lr.funded_by = lender.id
     WHERE lr.id = ?
   `;
   
   try {
-    const result = await executeQuery<LoanRequest & { borrower_name: string; borrower_company?: string; website?: string; linkedin?: string }>(query, [id]);
+    const result = await executeQuery<LoanRequest & { borrower_name: string; borrower_company?: string; website?: string; linkedin?: string; funded_by?: number; funded_at?: Date; funded_by_name?: string }>(query, [id]);
     
     if (result.length === 0) {
       return null;
@@ -129,14 +133,18 @@ export async function getLoanRequestsByBorrower(borrowerId: number): Promise<Loa
     SELECT
       lr.*,
       u.company AS borrower_company,
-      cv.company_name AS company_name
+      cv.company_name AS company_name,
+      lr.funded_by,
+      lr.funded_at,
+      CONCAT(lender.first_name, ' ', lender.last_name) as funded_by_name
     FROM loan_requests lr
            JOIN users u ON lr.borrower_id = u.id
            LEFT JOIN company_values cv ON lr.company_id = cv.id
+           LEFT JOIN users lender ON lr.funded_by = lender.id
     WHERE lr.borrower_id = ?
     ORDER BY lr.created_at DESC
   `;
-  const result = await executeQuery<LoanRequest & { borrower_company?: string }>(query, [borrowerId]);
+  const result = await executeQuery<LoanRequest & { borrower_company?: string; funded_by?: number; funded_at?: Date; funded_by_name?: string }>(query, [borrowerId]);
   
   return result.map(request => {
     // Create social media links from user profile
@@ -170,7 +178,7 @@ export async function getActiveLoanRequests(): Promise<LoanRequestWithBorrower[]
            JOIN users u ON lr.borrower_id = u.id
            LEFT JOIN borrower_profiles bp ON u.id = bp.user_id
            LEFT JOIN company_values cv ON lr.company_id = cv.id
-    WHERE lr.status IN ('pending', 'active')
+    WHERE lr.status = 'pending'
       AND (lr.expires_at IS NULL OR lr.expires_at > NOW())
       AND u.is_active = 1
     ORDER BY lr.created_at DESC
@@ -260,7 +268,7 @@ export async function closeLoanRequest(id: number, adminId: number, reason?: str
   const query = `
     UPDATE loan_requests 
     SET status = 'closed', original_status = ?, closed_by = ?, closed_at = NOW(), closed_reason = ?, updated_at = NOW()
-    WHERE id = ? AND status IN ('pending', 'active', 'funded')
+    WHERE id = ? AND status IN ('pending', 'funded')
   `;
   
   const result = await executeQuery<{ affectedRows: number }>(query, [currentRequest.status, adminId, reason || null, id]);
@@ -327,7 +335,7 @@ export async function getLoanRequestsByType(loanType: LoanRequest['loan_type']):
     FROM loan_requests lr
     JOIN users u ON lr.borrower_id = u.id
     LEFT JOIN borrower_profiles bp ON u.id = bp.user_id
-    WHERE lr.loan_type = ? AND lr.status IN ("pending", "active")
+    WHERE lr.loan_type = ? AND lr.status = "pending"
     ORDER BY lr.created_at DESC
   `;
   const result = await executeQuery<LoanRequest & { website?: string; linkedin?: string }>(query, [loanType]);
@@ -355,14 +363,19 @@ export async function getAllLoanRequests(): Promise<LoanRequestWithBorrower[]> {
            CONCAT(u.first_name, ' ', u.last_name) as borrower_name,
            u.company as borrower_company,
            bp.website,
-           bp.linkedin
+           bp.linkedin,
+           lr.funded_by,
+           lr.funded_at,
+           CONCAT(lender.first_name, ' ', lender.last_name) as funded_by_name
     FROM loan_requests lr
     JOIN users u ON lr.borrower_id = u.id
     LEFT JOIN borrower_profiles bp ON u.id = bp.user_id
+    LEFT JOIN users lender ON lr.funded_by = lender.id
+    WHERE lr.status != 'closed'
     ORDER BY lr.created_at DESC
   `;
   
-  const result = await executeQuery<LoanRequest & { borrower_name: string; borrower_company?: string; website?: string; linkedin?: string }>(query, []);
+  const result = await executeQuery<LoanRequest & { borrower_name: string; borrower_company?: string; website?: string; linkedin?: string; funded_by?: number; funded_at?: Date; funded_by_name?: string }>(query, []);
   
   return result.map(request => {
     const socialMediaLinks = {
@@ -430,7 +443,7 @@ export async function getLoanRequestsByAmountRange(minAmount: number, maxAmount:
     LEFT JOIN borrower_profiles bp ON u.id = bp.user_id
     WHERE lr.amount_requested BETWEEN ? AND ? 
     AND lr.currency = ? 
-    AND lr.status IN ("pending", "active")
+    AND lr.status = "pending"
     ORDER BY lr.amount_requested ASC
   `;
   
@@ -481,13 +494,33 @@ export async function fundLoanRequest(loanRequestId: number, lenderId: number): 
     const query = `
       UPDATE loan_requests 
       SET status = 'funded', funded_by = ?, funded_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
-      WHERE id = ? AND status = 'active'
+      WHERE id = ? AND status = 'pending'
     `;
     
     const result = await executeSingleQuery(query, [lenderId, loanRequestId]);
     return result.affectedRows > 0;
   } catch (error) {
     console.error('Error funding loan request:', error);
+    return false;
+  }
+}
+
+
+/**
+ * Admin override: Assign a lender to a loan request (for historical cleanup or corrections)
+ * Does not change current status; sets funded_by and funded_at if not already set
+ */
+export async function assignFunderToLoanRequest(loanRequestId: number, lenderId: number): Promise<boolean> {
+  try {
+    const query = `
+      UPDATE loan_requests 
+      SET funded_by = ?, funded_at = COALESCE(funded_at, CURRENT_TIMESTAMP), updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `;
+    const result = await executeSingleQuery(query, [lenderId, loanRequestId]);
+    return result.affectedRows > 0;
+  } catch (error) {
+    console.error('Error assigning funder to loan request:', error);
     return false;
   }
 }

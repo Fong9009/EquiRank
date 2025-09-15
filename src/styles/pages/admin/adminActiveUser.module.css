@@ -927,6 +927,9 @@
     font-weight: 400;
     text-align: right;
     flex: 1;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .statusActive,

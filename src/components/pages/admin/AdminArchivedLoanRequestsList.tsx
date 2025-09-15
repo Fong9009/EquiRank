@@ -249,14 +249,6 @@ export default function AdminArchivedLoanRequestsList() {
                     </div>
                     <div className={styles.closedIndicator}>
                       <span className={styles.closedLabel}>Closed</span>
-                      {request.closed_reason && (
-                        <span className={styles.closedReason} title={request.closed_reason}>
-                          • {request.closed_reason.length > 40
-                            ? `${request.closed_reason.substring(0, 40)}...`
-                            : request.closed_reason
-                          }
-                        </span>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -335,12 +327,14 @@ export default function AdminArchivedLoanRequestsList() {
                   >
                     View Details
                   </button>
-                  <button
-                    onClick={() => handleRestore(request.id)}
-                    className={styles.restoreButton}
-                  >
-                    Restore
-                  </button>
+                  {request.original_status !== 'funded' && (
+                    <button
+                      onClick={() => handleRestore(request.id)}
+                      className={styles.restoreButton}
+                    >
+                      Restore
+                    </button>
+                  )}
                   <button
                     onClick={() => handleDelete(request.id)}
                     className={styles.deleteButton}

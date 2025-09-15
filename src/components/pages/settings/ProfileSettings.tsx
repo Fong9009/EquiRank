@@ -8,6 +8,7 @@ import PasswordReset from '@/components/pages/settings/PasswordReset';
 import EmailChanger from '@/components/pages/settings/EmailChanger';
 import { profileEvents } from '@/lib/profileEvents';
 import CustomConfirmation from "@/components/common/CustomConfirmation";
+import { useEffectiveTheme, type Theme } from '@/lib/theme';
 
 interface ProfileData {
     first_name: string;
@@ -44,7 +45,7 @@ interface ProfileData {
 }
 
 interface DisplayData {
-    theme: 'light' | 'dark';
+    theme: 'light' | 'dark' | 'auto';
 }
 
 export default function ProfileSettings() {
@@ -88,14 +89,18 @@ export default function ProfileSettings() {
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
     const [activeTab, setActiveTab] = useState<'profile' | 'display' | 'security'>('profile');
     const [displayData, setDisplayData] = useState<DisplayData>({
-        theme: 'light'
+        theme: 'auto'
     });
 
     const [showConfirmation, setShowConfirmation] = useState(false);
-    const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
+    const [userTheme, setUserTheme] = useState<Theme>('auto');
     const [profileCompletionPercentage, setProfileCompletionPercentage] = useState(0);
-    const windowBackground = theme === "light" ? styles.lightPage : styles.darkPage;
-    const titleText = theme === "light" ? styles.lightText : styles.darkText;
+    
+    // Use the effective theme hook to handle 'auto' theme
+    const effectiveTheme = useEffectiveTheme(userTheme);
+    
+    const windowBackground = effectiveTheme === "light" ? styles.lightPage : styles.darkPage;
+    const titleText = effectiveTheme === "light" ? styles.lightText : styles.darkText;
 
     // Calculate profile completion via API
     const calculateProfileCompletionAPI = async (userType: string, profileData: ProfileData) => {
@@ -233,9 +238,9 @@ export default function ProfileSettings() {
             .then(res => res.json())
             .then(data => {
                 if (data.theme) {
-                    setTheme(data.theme.theme);
+                    setUserTheme(data.theme.theme);
                 } else {
-                    setTheme("auto");
+                    setUserTheme("auto");
                 }
             });
     }, [session]);
@@ -247,7 +252,7 @@ export default function ProfileSettings() {
             if (res.ok) {
                 const data = await res.json();
                 setDisplayData({
-                    theme: data.theme.theme || 'dark',
+                    theme: data.theme.theme || 'auto',
                 });
             }
         } catch (err) {
@@ -436,6 +441,19 @@ export default function ProfileSettings() {
                                 <div className={styles.formRow}>
                                     <input
                                         type="radio"
+                                        id="theme-auto"
+                                        name="theme"
+                                        value="auto"
+                                        checked={displayData.theme === 'auto'}
+                                        onChange={(e) => handleDisplayChange('theme', e.target.value)}
+                                        className={styles.radioInput}
+                                    />
+                                    <label htmlFor="theme-auto" className={styles.radioLabel}>
+                                        <div style={{ marginRight: '6px', width: '18px', height: '18px', display: 'inline-block', background: 'linear-gradient(45deg, #f6c23e 50%, #6c63ff 50%)', borderRadius: '50%' }} />
+                                        Auto (System)
+                                    </label>
+                                    <input
+                                        type="radio"
                                         id="theme-light"
                                         name="theme"
                                         value="light"
@@ -578,18 +596,6 @@ export default function ProfileSettings() {
                                     />
                                 </div>
 
-                                <div className={styles.formGroup}>
-                                    <label htmlFor="website">Website</label>
-                                    <input
-                                        type="url"
-                                        id="website"
-                                        value={profileData.website}
-                                        onChange={(e) => handleProfileChange('website', e.target.value)}
-                                        className={styles.input}
-                                        placeholder="https://yourwebsite.com"
-                                    />
-                                </div>
-
                                 <div className={styles.formRow}>
                                     <div className={styles.formGroup}>
                                         <label htmlFor="linkedin">LinkedIn</label>
@@ -643,6 +649,18 @@ export default function ProfileSettings() {
                                             className={styles.textarea}
                                             rows={3}
                                             placeholder="Describe your company's capabilities and expertise..."
+                                        />
+                                    </div>
+
+                                    <div className={styles.formGroup}>
+                                        <label htmlFor="website">Website</label>
+                                        <input
+                                            type="url"
+                                            id="website"
+                                            value={profileData.website}
+                                            onChange={(e) => handleProfileChange('website', e.target.value)}
+                                            className={styles.input}
+                                            placeholder="https://yourwebsite.com"
                                         />
                                     </div>
 

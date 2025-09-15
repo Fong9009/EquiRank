@@ -32,8 +32,12 @@ export async function GET(
         return NextResponse.json({ error: 'Access denied' }, { status: 403 });
       }
     } else if (session.user.userType === 'lender') {
-      // Lenders can only view active/pending requests
-      if (!['pending', 'active'].includes(loanRequest.status)) {
+      // Lenders can view pending requests or their own funded requests
+      if (loanRequest.status === 'pending') {
+        // Allow viewing pending requests for funding consideration
+      } else if (loanRequest.status === 'funded' && loanRequest.funded_by === parseInt(session.user.id)) {
+        // Allow lenders to view their own funded requests
+      } else {
         return NextResponse.json({ error: 'Loan request not available for funding' }, { status: 403 });
       }
     } else if (session.user.userType !== 'admin') {

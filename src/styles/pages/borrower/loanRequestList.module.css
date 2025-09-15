@@ -166,6 +166,7 @@
   max-width: 200px;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  white-space: pre-wrap;
   line-height: 1.4;
 }
 

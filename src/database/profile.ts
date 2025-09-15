@@ -37,6 +37,7 @@ export interface LenderProfile {
     website?: string;
     linkedin?: string;
     preferences?: any;
+    tolerance_bands?: any; // JSON object with ratio ranges and minima
     created_at: Date;
     updated_at: Date;
 }
@@ -163,11 +164,22 @@ export async function createAdminProfile(userId: number, profileData: Partial<Ad
 
 // Update borrower profile
 export async function updateBorrowerProfile(userId: number, profileData: Partial<BorrowerProfile>): Promise<boolean> {
-    const fields = [];
-    const values = [];
+    const allowed: Array<keyof BorrowerProfile> = [
+        'industry','location','capabilities','years_in_business','employee_count','revenue_range',
+        'company_description','qa_rating','company_logo',
+        'website','linkedin','preferences','profile_completion_percentage','profile_completed_at','profile_completion_required'
+    ];
+    const fields: string[] = [];
+    const values: any[] = [];
     
-    Object.entries(profileData).forEach(([key, value]) => {
-        if (value !== undefined && key !== 'id' && key !== 'user_id' && key !== 'created_at' && key !== 'updated_at') {
+    Object.entries(profileData).forEach(([key, rawValue]) => {
+        if (!(allowed as string[]).includes(key)) return;
+        let value: any = rawValue;
+        // Normalize empty strings to NULL for enum/number fields
+        if ((key === 'revenue_range' || key === 'years_in_business' || key === 'employee_count') && (value === '' as any)) {
+            value = null;
+        }
+        if (value !== undefined) {
             fields.push(`${key} = ?`);
             values.push(value);
         }
@@ -196,11 +208,15 @@ export async function updateBorrowerProfile(userId: number, profileData: Partial
 
 // Update lender profile
 export async function updateLenderProfile(userId: number, profileData: Partial<LenderProfile>): Promise<boolean> {
-    const fields = [];
-    const values = [];
+    const allowed: Array<keyof LenderProfile> = [
+        'institution_type','risk_appetite','target_industries','target_markets','min_loan_amount','max_loan_amount',
+        'website','linkedin','preferences'
+    ];
+    const fields: string[] = [];
+    const values: any[] = [];
     
     Object.entries(profileData).forEach(([key, value]) => {
-        if (value !== undefined && key !== 'id' && key !== 'user_id' && key !== 'created_at' && key !== 'updated_at') {
+        if (value !== undefined && (allowed as string[]).includes(key)) {
             fields.push(`${key} = ?`);
             values.push(value);
         }
@@ -229,11 +245,14 @@ export async function updateLenderProfile(userId: number, profileData: Partial<L
 
 // Update admin profile
 export async function updateAdminProfile(userId: number, profileData: Partial<AdminProfile>): Promise<boolean> {
-    const fields = [];
-    const values = [];
+    const allowed: Array<keyof AdminProfile> = [
+        'admin_level','website','linkedin','preferences'
+    ];
+    const fields: string[] = [];
+    const values: any[] = [];
     
     Object.entries(profileData).forEach(([key, value]) => {
-        if (value !== undefined && key !== 'id' && key !== 'user_id' && key !== 'created_at' && key !== 'updated_at') {
+        if (value !== undefined && (allowed as string[]).includes(key)) {
             fields.push(`${key} = ?`);
             values.push(value);
         }
@@ -269,6 +288,7 @@ export function calculateProfileCompletion(userType: string, profileData: any): 
     
     let completedFields = 0;
     let totalFields = 0;
+    const missingFields: string[] = [];
     
     // Basic required fields (always required)
     const basicFields = ['first_name', 'last_name', 'email', 'company', 'phone', 'address'];
@@ -276,15 +296,19 @@ export function calculateProfileCompletion(userType: string, profileData: any): 
         totalFields++;
         if (profileData[field] && profileData[field].toString().trim() !== '') {
             completedFields++;
+        } else {
+            missingFields.push(field);
         }
     });
     
     // Common profile fields (optional but counted for completion)
-    const commonFields = ['website', 'linkedin', 'preferences'];
+    const commonFields = ['website', 'linkedin'];
     commonFields.forEach(field => {
         totalFields++;
         if (profileData[field] && profileData[field].toString().trim() !== '') {
             completedFields++;
+        } else {
+            missingFields.push(field);
         }
     });
     
@@ -294,6 +318,8 @@ export function calculateProfileCompletion(userType: string, profileData: any): 
             totalFields++;
             if (profileData[field] && profileData[field].toString().trim() !== '') {
                 completedFields++;
+            } else {
+                missingFields.push(field);
             }
         });
     } else if (userType === 'admin') {
@@ -303,11 +329,14 @@ export function calculateProfileCompletion(userType: string, profileData: any): 
             totalFields++;
             if (profileData[field] && profileData[field].toString().trim() !== '') {
                 completedFields++;
+            } else {
+                missingFields.push(field);
             }
         });
     }
     
-    return Math.round((completedFields / totalFields) * 100);
+    const percentage = Math.round((completedFields / totalFields) * 100);
+    return percentage;
 }
 
 // Get profile completion percentage for a user

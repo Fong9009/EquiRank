@@ -6,6 +6,7 @@ import { useEffect, useState, Suspense } from 'react';
 import LenderHomepage from "@/components/pages/lender/LenderHomepage";
 import ProfileSettings from "@/components/pages/settings/ProfileSettings";
 import LoanRequestsList from "@/components/pages/lender/LoanRequestsList";
+import FundedLoansList from "@/components/pages/lender/FundedLoansList";
 
 function LenderDashboardContent() {
     const { data: session, status } = useSession();
@@ -34,7 +35,7 @@ function LenderDashboardContent() {
     useEffect(() => {
         // Check if there's a tab parameter in the URL
         const tabParam = searchParams.get('tab');
-        if (tabParam && ['home', 'loan-requests', 'settings'].includes(tabParam)) {
+        if (tabParam && ['home', 'loan-requests', 'funded-loans', 'settings'].includes(tabParam)) {
             setActiveTab(tabParam);
         }
     }, [searchParams]);
@@ -55,6 +56,8 @@ function LenderDashboardContent() {
                 return <LenderHomepage/>;
             case "loan-requests":
                 return <LoanRequestsList/>;
+            case "funded-loans":
+                return <FundedLoansList/>;
             case "settings":
                 return <ProfileSettings/>;
             default:

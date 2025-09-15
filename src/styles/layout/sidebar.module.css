@@ -132,6 +132,18 @@
 .toggleCircle.closedCircle {
     left: 10px;
 }
+
+.mobileBackdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+}
+
 .navSectionTitle {
     font-size: 20px;
     font-weight: 600;
@@ -148,10 +160,16 @@
     .sidebar {
         width: 250px;
         padding: 15px;
+        z-index: 1000;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
     }
     
     .sidebar.closed {
         transform: translateX(-250px);
+    }
+    
+    .mobileBackdrop {
+        display: block;
     }
     
     .sidebarTitle {
@@ -176,6 +194,8 @@
     .sidebar {
         width: 220px;
         padding: 10px;
+        z-index: 1000;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
     }
     
     .sidebar.closed {

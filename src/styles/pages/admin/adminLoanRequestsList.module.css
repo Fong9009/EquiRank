@@ -317,6 +317,34 @@
   display: block;
 }
 
+.fundedIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  background: rgba(34, 197, 94, 0.1);
+  border-radius: 0.5rem;
+  margin-top: 0.5rem;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.fundedLabel {
+  color: #22c55e;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.7rem;
+}
+
+.fundedBy {
+  color: #22c55e;
+  font-weight: 500;
+  font-size: 0.8rem;
+  max-width: 200px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
 
 
 .emptyState {
