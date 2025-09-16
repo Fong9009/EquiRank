@@ -111,7 +111,6 @@ export async function GET(
             };
         });
 
-        console.log("Test", dataWithDescriptions)
         return NextResponse.json(dataWithDescriptions);
 
     } catch (error) {

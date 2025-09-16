@@ -468,18 +468,20 @@ export async function getLoanRequestsByAmountRange(minAmount: number, maxAmount:
  */
 export async function getFundedLoansByLender(lenderId: number): Promise<LoanRequestWithBorrower[]> {
   const query = `
-    SELECT 
+    SELECT
       lr.*,
       u.first_name as borrower_name,
       u.company as borrower_company,
       lr.funded_by,
       lr.funded_at,
-      lender.first_name as funded_by_name
+      lender.first_name as funded_by_name,
+      cv.company_name
     FROM loan_requests lr
-    JOIN users u ON lr.borrower_id = u.id
-    LEFT JOIN users lender ON lr.funded_by = lender.id
-    WHERE lr.funded_by = ? 
-    AND lr.status = 'funded'
+           JOIN users u ON lr.borrower_id = u.id
+           LEFT JOIN users lender ON lr.funded_by = lender.id
+           LEFT JOIN company_values cv ON lr.company_id = cv.id
+    WHERE lr.funded_by = ?
+      AND lr.status = 'funded'
     ORDER BY lr.funded_at DESC
   `;
   
