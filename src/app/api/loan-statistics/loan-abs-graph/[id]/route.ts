@@ -34,7 +34,11 @@ export async function GET(
 
         let absBenchmark;
         try {
-            absBenchmark = JSON.parse(absRatiosRaw.abs_benchmark);
+            if (typeof absRatiosRaw.abs_benchmark === 'string') {
+                absBenchmark = JSON.parse(absRatiosRaw.abs_benchmark);
+            } else {
+                absBenchmark = absRatiosRaw.abs_benchmark;
+            }
         } catch (error) {
             return NextResponse.json({ error: 'Invalid ABS benchmark data format' }, { status: 400 });
         }

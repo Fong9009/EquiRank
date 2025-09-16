@@ -51,7 +51,11 @@ export async function GET(
 
         let parsedFinancialSummary;
         try {
-            parsedFinancialSummary = JSON.parse(financialData.financial_summary);
+            if (typeof financialData.financial_summary === 'string') {
+                parsedFinancialSummary = JSON.parse(financialData.financial_summary);
+            } else {
+                parsedFinancialSummary = financialData.financial_summary;
+            }
         } catch (error) {
             return NextResponse.json({ error: 'Invalid financial data format' }, { status: 400 });
         }
