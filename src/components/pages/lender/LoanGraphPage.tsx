@@ -50,19 +50,15 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
                     fetch(`/api/loan-statistics/loan-financial-summary/${loanId}`),
                 ]);
 
-                if (!covenantRes.ok) throw new Error("Failed to fetch covenant data");
-                if (!absRes.ok) throw new Error("Failed to fetch ABS data");
-                if (!financeSumRes.ok) throw new Error("Failed to fetch financial asset data");
+                // Parse data or use empty defaults if failed
+                const covenantData = covenantRes.ok ? await covenantRes.json() : null;
+                const absData = absRes.ok ? await absRes.json() : null;
+                const financeSumData = financeSumRes.ok ? await financeSumRes.json() : null;
 
-                const [covenantData, absData, financeSumData] = await Promise.all([
-                    covenantRes.json(),
-                    absRes.json(),
-                    financeSumRes.json(),
-                ]);
-
-                setDataWithDescriptions(covenantData);
-                setAbsStatistics(absData);
-                setFinancialSummaryData(financeSumData);
+                // Set data with fallbacks - your components should handle null/empty data
+                setDataWithDescriptions(covenantData || []);
+                setAbsStatistics(absData || []);
+                setFinancialSummaryData(financeSumData || {})
             } catch (err) {
                 console.error("Data fetching error:", err);
                 // Handle error state appropriately
@@ -96,7 +92,9 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
 
     //Pie Chart Functions (Assets Pie)
     const getDataForYear = (year: string): any => {
-        return financialSummaryData.find((item: { year: string; }) => item.year === year);
+        return Array.isArray(financialSummaryData)
+            ? financialSummaryData.find((item: { year: string; }) => item.year === year)
+            : null;
     };
 
     const formatDataForChart = (year: string) => {
@@ -303,41 +301,47 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
                             </div>
                         </div>
                     </div>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <BarChart
-                            data={financialSummaryData}
-                            margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
-                        >
-                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                            <XAxis
-                                dataKey="year"
-                                tick={{ fontSize: 12 }}
-                                axisLine={{ stroke: '#e0e0e0' }}
-                            />
-                            <YAxis
-                                tickFormatter={formatYAxis}
-                                tick={{ fontSize: 12 }}
-                                axisLine={{ stroke: '#e0e0e0' }}
-                            />
-                            <Tooltip
-                                formatter={formatTooltip}
-                                labelStyle={{ color: 'black', fontWeight: 'bold' }}
-                                contentStyle={{
-                                    backgroundColor: 'white',
-                                    border: '1px solid #ccc',
-                                    borderRadius: '8px',
-                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                                }}
-                            />
-                            <Bar
-                                dataKey="totalAssets"
-                                fill="#297bae"
-                                radius={[4, 4, 0, 0]}
-                                stroke="#297bae"
-                                strokeWidth={1}
-                            />
-                        </BarChart>
-                    </ResponsiveContainer>
+                    {Array.isArray(financialSummaryData) && financialSummaryData.length > 0 ? (
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart
+                                data={financialSummaryData}
+                                margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                                <XAxis
+                                    dataKey="year"
+                                    tick={{ fontSize: 12 }}
+                                    axisLine={{ stroke: '#e0e0e0' }}
+                                />
+                                <YAxis
+                                    tickFormatter={formatYAxis}
+                                    tick={{ fontSize: 12 }}
+                                    axisLine={{ stroke: '#e0e0e0' }}
+                                />
+                                <Tooltip
+                                    formatter={formatTooltip}
+                                    labelStyle={{ color: 'black', fontWeight: 'bold' }}
+                                    contentStyle={{
+                                        backgroundColor: 'white',
+                                        border: '1px solid #ccc',
+                                        borderRadius: '8px',
+                                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                    }}
+                                />
+                                <Bar
+                                    dataKey="totalAssets"
+                                    fill="#297bae"
+                                    radius={[4, 4, 0, 0]}
+                                    stroke="#297bae"
+                                    strokeWidth={1}
+                                />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    ) : (
+                        <div className={styles.errorContainer}>
+                            <p className={styles.errorText}>Data not available</p>
+                        </div>
+                    )}
                 </div>
                 <div className={styles.barContainer}>
                     <div className={styles.titleContainer}>
@@ -351,41 +355,47 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
                             </div>
                         </div>
                     </div>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <BarChart
-                            data={financialSummaryData}
-                            margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
-                        >
-                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                            <XAxis
-                                dataKey="year"
-                                tick={{ fontSize: 12 }}
-                                axisLine={{ stroke: '#e0e0e0' }}
-                            />
-                            <YAxis
-                                tickFormatter={formatYAxis}
-                                tick={{ fontSize: 12 }}
-                                axisLine={{ stroke: '#e0e0e0' }}
-                            />
-                            <Tooltip
-                                formatter={formatTooltip}
-                                labelStyle={{ color: 'black', fontWeight: 'bold' }}
-                                contentStyle={{
-                                    backgroundColor: 'white',
-                                    border: '1px solid #ccc',
-                                    borderRadius: '8px',
-                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                                }}
-                            />
-                            <Bar
-                                dataKey="totalLiabilities"
-                                fill="#d79656"
-                                radius={[4, 4, 0, 0]}
-                                stroke="#d79656"
-                                strokeWidth={1}
-                            />
-                        </BarChart>
-                    </ResponsiveContainer>
+                    {Array.isArray(financialSummaryData) && financialSummaryData.length > 0 ? (
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart
+                                data={financialSummaryData}
+                                margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                                <XAxis
+                                    dataKey="year"
+                                    tick={{ fontSize: 12 }}
+                                    axisLine={{ stroke: '#e0e0e0' }}
+                                />
+                                <YAxis
+                                    tickFormatter={formatYAxis}
+                                    tick={{ fontSize: 12 }}
+                                    axisLine={{ stroke: '#e0e0e0' }}
+                                />
+                                <Tooltip
+                                    formatter={formatTooltip}
+                                    labelStyle={{ color: 'black', fontWeight: 'bold' }}
+                                    contentStyle={{
+                                        backgroundColor: 'white',
+                                        border: '1px solid #ccc',
+                                        borderRadius: '8px',
+                                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                    }}
+                                />
+                                <Bar
+                                    dataKey="totalLiabilities"
+                                    fill="#d79656"
+                                    radius={[4, 4, 0, 0]}
+                                    stroke="#d79656"
+                                    strokeWidth={1}
+                                />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    ) : (
+                        <div className={styles.errorContainer}>
+                            <p className={styles.errorText}>Data not available</p>
+                        </div>
+                    )}
                 </div>
                 <div className={styles.barContainer}>
                     <div className={styles.titleContainer}>
@@ -398,41 +408,47 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
                             </div>
                         </div>
                     </div>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <BarChart
-                            data={financialSummaryData}
-                            margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
-                        >
-                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                            <XAxis
-                                dataKey="year"
-                                tick={{ fontSize: 12 }}
-                                axisLine={{ stroke: '#e0e0e0' }}
-                            />
-                            <YAxis
-                                tickFormatter={formatYAxis}
-                                tick={{ fontSize: 12 }}
-                                axisLine={{ stroke: '#e0e0e0' }}
-                            />
-                            <Tooltip
-                                formatter={formatTooltip}
-                                labelStyle={{ color: 'black', fontWeight: 'bold' }}
-                                contentStyle={{
-                                    backgroundColor: 'white',
-                                    border: '1px solid #ccc',
-                                    borderRadius: '8px',
-                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                                }}
-                            />
-                            <Bar
-                                dataKey="equity"
-                                fill="#4CAF50"
-                                radius={[4, 4, 0, 0]}
-                                stroke="#45a049"
-                                strokeWidth={1}
-                            />
-                        </BarChart>
-                    </ResponsiveContainer>
+                    {Array.isArray(financialSummaryData) && financialSummaryData.length > 0 ? (
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart
+                                data={financialSummaryData}
+                                margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                                <XAxis
+                                    dataKey="year"
+                                    tick={{ fontSize: 12 }}
+                                    axisLine={{ stroke: '#e0e0e0' }}
+                                />
+                                <YAxis
+                                    tickFormatter={formatYAxis}
+                                    tick={{ fontSize: 12 }}
+                                    axisLine={{ stroke: '#e0e0e0' }}
+                                />
+                                <Tooltip
+                                    formatter={formatTooltip}
+                                    labelStyle={{ color: 'black', fontWeight: 'bold' }}
+                                    contentStyle={{
+                                        backgroundColor: 'white',
+                                        border: '1px solid #ccc',
+                                        borderRadius: '8px',
+                                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                    }}
+                                />
+                                <Bar
+                                    dataKey="equity"
+                                    fill="#4CAF50"
+                                    radius={[4, 4, 0, 0]}
+                                    stroke="#45a049"
+                                    strokeWidth={1}
+                                />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    ) : (
+                        <div className={styles.errorContainer}>
+                            <p className={styles.errorText}>Data not available</p>
+                        </div>
+                    )}
                 </div>
                 <div className={styles.barContainer}>
                     <div className={styles.titleContainer}>
@@ -446,41 +462,47 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
                             </div>
                         </div>
                     </div>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <BarChart
-                            data={financialSummaryData}
-                            margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
-                        >
-                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                            <XAxis
-                                dataKey="year"
-                                tick={{ fontSize: 12 }}
-                                axisLine={{ stroke: '#e0e0e0' }}
-                            />
-                            <YAxis
-                                tickFormatter={formatYAxis}
-                                tick={{ fontSize: 12 }}
-                                axisLine={{ stroke: '#e0e0e0' }}
-                            />
-                            <Tooltip
-                                formatter={formatTooltip}
-                                labelStyle={{ color: 'black', fontWeight: 'bold' }}
-                                contentStyle={{
-                                    backgroundColor: 'white',
-                                    border: '1px solid #ccc',
-                                    borderRadius: '8px',
-                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                                }}
-                            />
-                            <Bar
-                                dataKey="grossProfit"
-                                fill="#FFD700"
-                                radius={[4, 4, 0, 0]}
-                                stroke="#FFD700"
-                                strokeWidth={1}
-                            />
-                        </BarChart>
-                    </ResponsiveContainer>
+                    {Array.isArray(financialSummaryData) && financialSummaryData.length > 0 ? (
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart
+                                data={financialSummaryData}
+                                margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                                <XAxis
+                                    dataKey="year"
+                                    tick={{ fontSize: 12 }}
+                                    axisLine={{ stroke: '#e0e0e0' }}
+                                />
+                                <YAxis
+                                    tickFormatter={formatYAxis}
+                                    tick={{ fontSize: 12 }}
+                                    axisLine={{ stroke: '#e0e0e0' }}
+                                />
+                                <Tooltip
+                                    formatter={formatTooltip}
+                                    labelStyle={{ color: 'black', fontWeight: 'bold' }}
+                                    contentStyle={{
+                                        backgroundColor: 'white',
+                                        border: '1px solid #ccc',
+                                        borderRadius: '8px',
+                                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                    }}
+                                />
+                                <Bar
+                                    dataKey="grossProfit"
+                                    fill="#FFD700"
+                                    radius={[4, 4, 0, 0]}
+                                    stroke="#FFD700"
+                                    strokeWidth={1}
+                                />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    ) : (
+                        <div className={styles.errorContainer}>
+                            <p className={styles.errorText}>Data not available</p>
+                        </div>
+                    )}
                 </div>
             </div>
             <div className={styles.graphRow}>
@@ -495,41 +517,47 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
                             </div>
                         </div>
                     </div>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <BarChart
-                            data={financialSummaryData}
-                            margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
-                        >
-                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                            <XAxis
-                                dataKey="year"
-                                tick={{ fontSize: 12 }}
-                                axisLine={{ stroke: '#e0e0e0' }}
-                            />
-                            <YAxis
-                                tickFormatter={formatYAxis}
-                                tick={{ fontSize: 12 }}
-                                axisLine={{ stroke: '#e0e0e0' }}
-                            />
-                            <Tooltip
-                                formatter={formatTooltip}
-                                labelStyle={{ color: 'black', fontWeight: 'bold' }}
-                                contentStyle={{
-                                    backgroundColor: 'white',
-                                    border: '1px solid #ccc',
-                                    borderRadius: '8px',
-                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                                }}
-                            />
-                            <Bar
-                                dataKey="ebitda"
-                                fill="#8329ae"
-                                radius={[4, 4, 0, 0]}
-                                stroke="#8329ae"
-                                strokeWidth={1}
-                            />
-                        </BarChart>
-                    </ResponsiveContainer>
+                    {Array.isArray(financialSummaryData) && financialSummaryData.length > 0 ? (
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart
+                                data={financialSummaryData}
+                                margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                                <XAxis
+                                    dataKey="year"
+                                    tick={{ fontSize: 12 }}
+                                    axisLine={{ stroke: '#e0e0e0' }}
+                                />
+                                <YAxis
+                                    tickFormatter={formatYAxis}
+                                    tick={{ fontSize: 12 }}
+                                    axisLine={{ stroke: '#e0e0e0' }}
+                                />
+                                <Tooltip
+                                    formatter={formatTooltip}
+                                    labelStyle={{ color: 'black', fontWeight: 'bold' }}
+                                    contentStyle={{
+                                        backgroundColor: 'white',
+                                        border: '1px solid #ccc',
+                                        borderRadius: '8px',
+                                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                    }}
+                                />
+                                <Bar
+                                    dataKey="ebitda"
+                                    fill="#8329ae"
+                                    radius={[4, 4, 0, 0]}
+                                    stroke="#8329ae"
+                                    strokeWidth={1}
+                                />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    ) : (
+                        <div className={styles.errorContainer}>
+                            <p className={styles.errorText}>Data not available</p>
+                        </div>
+                    )}
                 </div>
                 <div className={styles.barContainer}>
                     <div className={styles.titleContainer}>
@@ -541,41 +569,47 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
                             </div>
                         </div>
                     </div>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <BarChart
-                            data={financialSummaryData}
-                            margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
-                        >
-                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                            <XAxis
-                                dataKey="year"
-                                tick={{ fontSize: 12 }}
-                                axisLine={{ stroke: '#e0e0e0' }}
-                            />
-                            <YAxis
-                                tickFormatter={formatYAxis}
-                                tick={{ fontSize: 12 }}
-                                axisLine={{ stroke: '#e0e0e0' }}
-                            />
-                            <Tooltip
-                                formatter={formatTooltip}
-                                labelStyle={{ color: 'black', fontWeight: 'bold' }}
-                                contentStyle={{
-                                    backgroundColor: 'white',
-                                    border: '1px solid #ccc',
-                                    borderRadius: '8px',
-                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                                }}
-                            />
-                            <Bar
-                                dataKey="profitLoss"
-                                fill="#B5D99C"
-                                radius={[4, 4, 0, 0]}
-                                stroke="#B5D99C"
-                                strokeWidth={1}
-                            />
-                        </BarChart>
-                    </ResponsiveContainer>
+                    {Array.isArray(financialSummaryData) && financialSummaryData.length > 0 ? (
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart
+                                data={financialSummaryData}
+                                margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                                <XAxis
+                                    dataKey="year"
+                                    tick={{ fontSize: 12 }}
+                                    axisLine={{ stroke: '#e0e0e0' }}
+                                />
+                                <YAxis
+                                    tickFormatter={formatYAxis}
+                                    tick={{ fontSize: 12 }}
+                                    axisLine={{ stroke: '#e0e0e0' }}
+                                />
+                                <Tooltip
+                                    formatter={formatTooltip}
+                                    labelStyle={{ color: 'black', fontWeight: 'bold' }}
+                                    contentStyle={{
+                                        backgroundColor: 'white',
+                                        border: '1px solid #ccc',
+                                        borderRadius: '8px',
+                                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                    }}
+                                />
+                                <Bar
+                                    dataKey="profitLoss"
+                                    fill="#B5D99C"
+                                    radius={[4, 4, 0, 0]}
+                                    stroke="#B5D99C"
+                                    strokeWidth={1}
+                                />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    ) : (
+                        <div className={styles.errorContainer}>
+                            <p className={styles.errorText}>Data not available</p>
+                        </div>
+                    )}
                 </div>
                 <div className={styles.barContainer}>
                     <div className={styles.titleContainer}>
@@ -589,41 +623,47 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
                             </div>
                         </div>
                     </div>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <BarChart
-                            data={financialSummaryData}
-                            margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
-                        >
-                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                            <XAxis
-                                dataKey="year"
-                                tick={{ fontSize: 12 }}
-                                axisLine={{ stroke: '#e0e0e0' }}
-                            />
-                            <YAxis
-                                tickFormatter={formatYAxis}
-                                tick={{ fontSize: 12 }}
-                                axisLine={{ stroke: '#e0e0e0' }}
-                            />
-                            <Tooltip
-                                formatter={formatTooltip}
-                                labelStyle={{ color: 'black', fontWeight: 'bold' }}
-                                contentStyle={{
-                                    backgroundColor: 'white',
-                                    border: '1px solid #ccc',
-                                    borderRadius: '8px',
-                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                                }}
-                            />
-                            <Bar
-                                dataKey="otherExpenses"
-                                fill="#FFFD98"
-                                radius={[4, 4, 0, 0]}
-                                stroke="#FFFD98"
-                                strokeWidth={1}
-                            />
-                        </BarChart>
-                    </ResponsiveContainer>
+                    {Array.isArray(financialSummaryData) && financialSummaryData.length > 0 ? (
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart
+                                data={financialSummaryData}
+                                margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                                <XAxis
+                                    dataKey="year"
+                                    tick={{ fontSize: 12 }}
+                                    axisLine={{ stroke: '#e0e0e0' }}
+                                />
+                                <YAxis
+                                    tickFormatter={formatYAxis}
+                                    tick={{ fontSize: 12 }}
+                                    axisLine={{ stroke: '#e0e0e0' }}
+                                />
+                                <Tooltip
+                                    formatter={formatTooltip}
+                                    labelStyle={{ color: 'black', fontWeight: 'bold' }}
+                                    contentStyle={{
+                                        backgroundColor: 'white',
+                                        border: '1px solid #ccc',
+                                        borderRadius: '8px',
+                                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                    }}
+                                />
+                                <Bar
+                                    dataKey="otherExpenses"
+                                    fill="#03f0fc"
+                                    radius={[4, 4, 0, 0]}
+                                    stroke="#03f0fc"
+                                    strokeWidth={1}
+                                />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    ) : (
+                        <div className={styles.errorContainer}>
+                            <p className={styles.errorText}>Data not available</p>
+                        </div>
+                    )}
                 </div>
                 <div className={styles.barContainer}>
                     <div className={styles.titleContainer}>
@@ -636,41 +676,47 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
                             </div>
                         </div>
                     </div>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <BarChart
-                            data={financialSummaryData}
-                            margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
-                        >
-                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                            <XAxis
-                                dataKey="year"
-                                tick={{ fontSize: 12 }}
-                                axisLine={{ stroke: '#e0e0e0' }}
-                            />
-                            <YAxis
-                                tickFormatter={formatYAxis}
-                                tick={{ fontSize: 12 }}
-                                axisLine={{ stroke: '#e0e0e0' }}
-                            />
-                            <Tooltip
-                                formatter={formatTooltip}
-                                labelStyle={{ color: 'black', fontWeight: 'bold' }}
-                                contentStyle={{
-                                    backgroundColor: 'white',
-                                    border: '1px solid #ccc',
-                                    borderRadius: '8px',
-                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                                }}
-                            />
-                            <Bar
-                                dataKey="depreciation"
-                                fill="#F46036"
-                                radius={[4, 4, 0, 0]}
-                                stroke="#F46036"
-                                strokeWidth={1}
-                            />
-                        </BarChart>
-                    </ResponsiveContainer>
+                    {Array.isArray(financialSummaryData) && financialSummaryData.length > 0 ? (
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart
+                                data={financialSummaryData}
+                                margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                                <XAxis
+                                    dataKey="year"
+                                    tick={{ fontSize: 12 }}
+                                    axisLine={{ stroke: '#e0e0e0' }}
+                                />
+                                <YAxis
+                                    tickFormatter={formatYAxis}
+                                    tick={{ fontSize: 12 }}
+                                    axisLine={{ stroke: '#e0e0e0' }}
+                                />
+                                <Tooltip
+                                    formatter={formatTooltip}
+                                    labelStyle={{ color: 'black', fontWeight: 'bold' }}
+                                    contentStyle={{
+                                        backgroundColor: 'white',
+                                        border: '1px solid #ccc',
+                                        borderRadius: '8px',
+                                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                    }}
+                                />
+                                <Bar
+                                    dataKey="depreciation"
+                                    fill="#F46036"
+                                    radius={[4, 4, 0, 0]}
+                                    stroke="#F46036"
+                                    strokeWidth={1}
+                                />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    ) : (
+                        <div className={styles.errorContainer}>
+                            <p className={styles.errorText}>Data not available</p>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -681,7 +727,7 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
                 <div className={styles.pieContainer}>
                     <h1 className={styles.titleText}>Assets Breakdown - {selectedYear}</h1>
                     <div>
-                        {financialSummaryData.map((item: any) => (
+                        {Array.isArray(financialSummaryData) && financialSummaryData.map((item: any) => (
                             <button
                                 key={item.year}
                                 className={styles.tab}
@@ -739,7 +785,7 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
                 <div className={styles.pieContainer}>
                     <h1 className={styles.titleText}>Liabilities Breakdown - {selectedLiabilityYear}</h1>
                     <div>
-                        {financialSummaryData.map((item: any) => (
+                        {Array.isArray(financialSummaryData) && financialSummaryData.map((item: any) => (
                             <button
                                 key={item.year}
                                 className={styles.tabLiability}

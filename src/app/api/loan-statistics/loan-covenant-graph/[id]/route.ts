@@ -48,8 +48,19 @@ export async function GET(
         if (!covenantObjectRatios) {
             return NextResponse.json({ error: 'Loan request not found' }, { status: 404 });
         }
-        // If covenantRatios is a JSON string
-        const covenantRatios = JSON.parse(covenantObjectRatios);
+        let covenantRatios;
+        try {
+            if (typeof covenantObjectRatios === 'string') {
+                covenantRatios = JSON.parse(covenantObjectRatios);
+            } else if (typeof covenantObjectRatios === 'object') {
+                covenantRatios = covenantObjectRatios;
+            } else {
+                throw new Error('Unexpected covenant ratios format');
+            }
+        } catch (error) {
+            console.error('Error processing covenant ratios:', error);
+            return NextResponse.json({ error: 'Invalid covenant data format' }, { status: 500 });
+        }
 
         const rawMetrics: MetricRaw[] = [
             { value: covenantRatios?.current_ratio, comparison: '>', target: 88, category: 'Liquidity' },
@@ -100,7 +111,6 @@ export async function GET(
             };
         });
 
-        console.log("Test", dataWithDescriptions)
         return NextResponse.json(dataWithDescriptions);
 
     } catch (error) {

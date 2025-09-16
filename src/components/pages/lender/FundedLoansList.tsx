@@ -11,6 +11,7 @@ interface FundedLoan {
   borrower_id: number;
   amount_requested: number;
   currency: string;
+  company_name: string;
   company_description?: string;
   social_media_links?: {
     linkedin?: string;
@@ -167,10 +168,10 @@ export default function FundedLoansList() {
                   <span className={styles.value}>{loan.borrower_name}</span>
                 </div>
                 
-                {loan.borrower_company && (
+                {loan.company_name && (
                   <div className={styles.detailRow}>
                     <span className={styles.label}>Company:</span>
-                    <span className={styles.value}>{loan.borrower_company}</span>
+                    <span className={styles.value}>{loan.company_name}</span>
                   </div>
                 )}
 

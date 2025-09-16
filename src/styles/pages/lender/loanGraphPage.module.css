@@ -17,6 +17,21 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
+.errorContainer {
+    align-items: center;
+    background-color: #272727;
+    border-radius: 10px;
+    display: flex;
+    height: 300px;
+    justify-content: center;
+    width: 100%;
+}
+
+.errorText {
+    font-size: 20px;
+    color: white;
+}
+
 .pieContainer {
     flex: 1;
     max-width: 700px;
