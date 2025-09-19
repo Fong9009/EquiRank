@@ -241,12 +241,14 @@ export default function RecentSearches() {
                             )}
 
                             <div className={styles.loanActions}>
-                                <button
-                                    onClick={() => setSelectedLoan(loan.id)}
-                                    className={styles.viewButton}
-                                >
-                                    View Details
-                                </button>
+                                {loan.status !== 'closed' && (
+                                    <button
+                                        onClick={() => setSelectedLoan(loan.id)}
+                                        className={styles.viewButton}
+                                    >
+                                        View Details
+                                    </button>
+                                )}
                                 <Link href={`/dashboard/lender/loan-analysis/${loan.id}`} passHref>
                                     <button className={styles.analyseButton}>
                                         Analyse
