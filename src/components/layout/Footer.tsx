@@ -30,7 +30,7 @@ export default function Footer() {
                 </div>
             </div>
             <div className={styles.footerBottom}>
-                &copy; 2025 Your Company. All rights reserved.
+                &copy; 2025 Equirank. All rights reserved.
             </div>
         </footer>
     );

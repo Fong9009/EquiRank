@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { getLoanRequestById,deleteLoanRequest, updateLoanRequest } from '@/database/loanRequest';
 
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+
   try {
     const session = await auth();
     
@@ -20,7 +22,7 @@ export async function GET(
     }
 
     const loanRequest = await getLoanRequestById(id);
-    
+    console.log("LOAN_REQUEST", loanRequest);
     if (!loanRequest) {
       return NextResponse.json({ error: 'Loan request not found' }, { status: 404 });
     }
@@ -105,12 +107,13 @@ export async function PUT(
 
     const body = await request.json();
     const {
-      amount_requested,
-      currency,
-      company_description,
-      loan_purpose,
-      loan_type,
-      expires_at
+        amount_requested,
+        currency,
+        company_description,
+        loan_purpose,
+        loan_type,
+        other_loan_type,
+        expires_at
     } = body;
 
     // Validate required fields
@@ -137,13 +140,14 @@ export async function PUT(
       return NextResponse.json({ error: 'Invalid loan type' }, { status: 400 });
     }
 
+    console.log("Test")
     // Update loan request
     const updateData = {
       amount_requested: parseFloat(amount_requested),
       currency,
       company_description,
       loan_purpose,
-      loan_type,
+      loan_type: loan_type === 'other' ? other_loan_type : loan_type,
       expires_at: expires_at ? new Date(expires_at) : undefined
     };
 

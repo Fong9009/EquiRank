@@ -51,7 +51,7 @@ export default function EditLoanRequestModal({ requestId, onClose, onUpdate }: E
           currency: data.currency,
           loan_purpose: data.loan_purpose,
           loan_type: data.loan_type,
-          other_loan_type: '',
+          other_loan_type: data.other_loan_type,
           expires_at: data.expires_at ? new Date(data.expires_at).toISOString().split('T')[0] : ''
         });
       } else {
@@ -226,12 +226,22 @@ export default function EditLoanRequestModal({ requestId, onClose, onUpdate }: E
               Loan Type *
             </label>
             <select
-              id="loan_type"
-              name="loan_type"
-              value={formData.loan_type}
-              onChange={handleInputChange}
-              required
-              className={styles.select}
+                id="loan_type"
+                name="loan_type"
+                value={[
+                  "working_capital",
+                  "equipment",
+                  "expansion",
+                  "inventory",
+                  "real_estate",
+                  "startup",
+                  "other"
+                ].includes(formData.loan_type)
+                    ? formData.loan_type
+                    : "other"}
+                onChange={handleInputChange}
+                required
+                className={styles.select}
             >
               <option value="working_capital">Working Capital</option>
               <option value="equipment">Equipment</option>
@@ -243,35 +253,50 @@ export default function EditLoanRequestModal({ requestId, onClose, onUpdate }: E
             </select>
           </div>
 
-          {formData.loan_type === 'other' && (
-            <div className={styles.formGroup}>
-              <label htmlFor="other_loan_type" className={styles.label}>
-                Please Specify *
-              </label>
-              <div className={styles.inputWithCounter}>
-                <input
-                  type="text"
-                  id="other_loan_type"
-                  name="other_loan_type"
-                  value={formData.other_loan_type}
-                  onChange={handleInputChange}
-                  required
-                  maxLength={50}
-                  className={styles.input}
-                  placeholder="Describe the loan type..."
-                  aria-describedby="other-loan-type-hint"
-                />
-                <span className={`${styles.characterCount} ${
-                  formData.other_loan_type.length >= 45 ? styles.danger :
-                  formData.other_loan_type.length >= 40 ? styles.warning : ''
-                }`}>
-                  {formData.other_loan_type.length}/50
-                </span>
+          {(
+              formData.loan_type === "other" ||
+              ![
+                "working_capital",
+                "equipment",
+                "expansion",
+                "inventory",
+                "real_estate",
+                "startup"
+              ].includes(formData.loan_type)
+          ) && (
+              <div className={styles.formGroup}>
+                <label htmlFor="other_loan_type" className={styles.label}>
+                  Please Specify *
+                </label>
+                <div className={styles.inputWithCounter}>
+                  <input
+                      type="text"
+                      id="other_loan_type"
+                      name="other_loan_type"
+                      value={formData.other_loan_type}
+                      onChange={handleInputChange}
+                      required
+                      maxLength={50}
+                      className={styles.input}
+                      placeholder="Describe the loan type..."
+                      aria-describedby="other-loan-type-hint"
+                  />
+                  <span
+                      className={`${styles.characterCount} ${
+                          formData.other_loan_type.length >= 45
+                              ? styles.danger
+                              : formData.other_loan_type.length >= 40
+                                  ? styles.warning
+                                  : ""
+                      }`}
+                  >
+        {formData.other_loan_type.length}/50
+      </span>
+                </div>
+                <small id="other-loan-type-hint" className={styles.hintText}>
+                  Please provide a brief description of your loan type (max 50 characters)
+                </small>
               </div>
-              <small id="other-loan-type-hint" className={styles.hintText}>
-                Please provide a brief description of your loan type (max 50 characters)
-              </small>
-            </div>
           )}
 
 
