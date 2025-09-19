@@ -385,3 +385,9 @@ export async function getBorrowerID(user_id:number): Promise<{id: number} | null
     const results = await executeQuery(query, [user_id]);
     return results.length > 0 ? results[0] : null;
 }
+
+export async function getLenderID(user_id:number): Promise<{id: number} | null> {
+    const query = `SELECT id FROM lender_profiles WHERE user_id = ?`;
+    const results = await executeQuery(query, [user_id]);
+    return results.length > 0 ? results[0] : null;
+}

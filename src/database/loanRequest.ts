@@ -15,7 +15,7 @@ export interface LoanRequest {
     website?: string;
   } | null;
   loan_purpose: string;
-  loan_type: 'equipment' | 'expansion' | 'working_capital' | 'inventory' | 'real_estate' | 'startup' | 'other';
+  loan_type: string;
   status: 'pending' | 'funded' | 'closed' | 'expired';
   original_status?: string; 
   closed_by?: number;
@@ -75,7 +75,7 @@ export async function getCompanyId(id: number): Promise<number | null> {
 /**
  * Get a loan request by ID with borrower information
  */
-export async function getLoanRequestById(id: number): Promise<(LoanRequest & { borrower_name: string; borrower_company?: string; website?: string; linkedin?: string; funded_by?: number; funded_at?: Date; funded_by_name?: string }) | null> {
+export async function getLoanRequestById(id: number): Promise<(LoanRequest & { borrower_name: string; borrower_company?: string; website?: string; linkedin?: string; funded_by?: number; funded_at?: Date; funded_by_name?: string; other_loan_type?: string; }) | null> {
   const query = `
     SELECT lr.*,
            CONCAT(u.first_name, ' ', u.last_name) AS borrower_name,
@@ -107,13 +107,31 @@ export async function getLoanRequestById(id: number): Promise<(LoanRequest & { b
       instagram: '',
       website: ''
     };
-    
-    const processedRow = {
+
+    const loanTypes = [
+      "working_capital",
+      "equipment",
+      "expansion",
+      "inventory",
+      "real_estate",
+      "startup",
+    ];
+
+    const loanRequestJson = {
       ...row,
+      loan_type:
+          row.loan_type && ! loanTypes.includes(row.loan_type)
+              ? "other"
+              : row.loan_type,
+      other_loan_type:
+          row.loan_type && ! loanTypes.includes(row.loan_type)
+              ? row.loan_type
+              : '',
       social_media_links: socialMediaLinks
     };
+
     
-    return processedRow;
+    return loanRequestJson;
     
   } catch (error) {
     console.error('Error in getLoanRequestById for ID:', id, error);

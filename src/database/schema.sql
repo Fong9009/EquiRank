@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Sep 13, 2025 at 08:22 AM
+-- Generation Time: Sep 19, 2025 at 01:45 AM
 -- Server version: 8.4.3
 -- PHP Version: 8.3.16
 
@@ -59,7 +59,7 @@ CREATE TABLE `borrower_profiles` (
   `industry` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Industry sector for risk assessment',
   `location` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Geographic location for risk assessment',
   `capabilities` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Company capabilities and expertise',
-  `company_description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Description of the company',
+  `company_description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Description of the company',
   `years_in_business` int DEFAULT NULL COMMENT 'Years the company has been in business',
   `employee_count` int DEFAULT NULL COMMENT 'Number of employees',
   `revenue_range` enum('0-50k','50k-100k','100k-500k','500k-1m','1m-5m','5m-10m','10m-50m','50m+') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Annual revenue range',
@@ -78,10 +78,10 @@ CREATE TABLE `borrower_profiles` (
 -- Dumping data for table `borrower_profiles`
 --
 
-INSERT INTO `borrower_profiles` (`id`, `user_id`, `created_at`, `updated_at`, `industry`, `location`, `capabilities`, `years_in_business`, `employee_count`, `revenue_range`, `profile_completion_percentage`, `profile_completed_at`, `profile_completion_required`, `website`, `linkedin`, `preferences`, `qa_rating`, `company_logo`, `qa_rating_updated_at`) VALUES
-(1, 2, '2025-09-08 04:10:30', '2025-09-09 12:29:10', 'Technology', 'San Francisco, CA', 'AI/ML development, Cloud architecture, Mobile app development, Data analytics', 7, 50, '5m-10m', 100, '2025-09-09 12:29:10', 0, 'https://www.completetech.com', 'https://linkedin.com/in/completeborrower', '{\"marketing\": false, \"notifications\": true}', 4.85, 'https://www.completetech.com/logo.png', NULL),
-(2, 4, '2025-09-08 04:10:30', '2025-09-08 04:11:27', NULL, NULL, NULL, NULL, NULL, NULL, 20, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL),
-(4, 6, '2025-09-09 12:21:17', '2025-09-09 12:21:17', 'Technology', 'San Francisco, CA', 'AI/ML development, Cloud architecture, Mobile app development, Data analytics, Product management, Team leadership', 7, 50, '5m-10m', 100, '2025-09-09 12:21:17', 0, 'https://www.completetech.com', 'https://linkedin.com/in/completeborrower', '{\"marketing\": false, \"email_updates\": true, \"notifications\": true}', 4.85, 'https://www.completetech.com/logo.png', NULL);
+INSERT INTO `borrower_profiles` (`id`, `user_id`, `created_at`, `updated_at`, `industry`, `location`, `capabilities`, `company_description`, `years_in_business`, `employee_count`, `revenue_range`, `profile_completion_percentage`, `profile_completed_at`, `profile_completion_required`, `website`, `linkedin`, `preferences`, `qa_rating`, `company_logo`, `qa_rating_updated_at`) VALUES
+(1, 2, '2025-09-08 04:10:30', '2025-09-09 12:29:10', 'Technology', 'San Francisco, CA', 'AI/ML development, Cloud architecture, Mobile app development, Data analytics', NULL, 7, 50, '5m-10m', 100, '2025-09-09 12:29:10', 0, 'https://www.completetech.com', 'https://linkedin.com/in/completeborrower', '{\"marketing\": false, \"notifications\": true}', 4.85, 'https://www.completetech.com/logo.png', NULL),
+(2, 4, '2025-09-08 04:10:30', '2025-09-08 04:11:27', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 20, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(4, 6, '2025-09-09 12:21:17', '2025-09-09 12:21:17', 'Technology', 'San Francisco, CA', 'AI/ML development, Cloud architecture, Mobile app development, Data analytics, Product management, Team leadership', NULL, 7, 50, '5m-10m', 100, '2025-09-09 12:21:17', 0, 'https://www.completetech.com', 'https://linkedin.com/in/completeborrower', '{\"marketing\": false, \"email_updates\": true, \"notifications\": true}', 4.85, 'https://www.completetech.com/logo.png', NULL);
 
 -- --------------------------------------------------------
 
@@ -119,9 +119,9 @@ CREATE TABLE `company_values` (
   `borrower_id` int NOT NULL COMMENT 'foreign key to borrower profile',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `company_name` varchar(100) COLLATE utf8mb3_unicode_ci DEFAULT NULL COMMENT 'Name of company',
-  `industry` varchar(100) COLLATE utf8mb3_unicode_ci DEFAULT NULL COMMENT 'Industry of Company',
-  `revenue_range` enum('0-50k','50k-100k','100k-500k','500k-1m','1m-5m','5m-10m','10m-50m','50m+') COLLATE utf8mb3_unicode_ci DEFAULT NULL COMMENT 'Annual revenue range',
+  `company_name` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL COMMENT 'Name of company',
+  `industry` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL COMMENT 'Industry of Company',
+  `revenue_range` enum('0-50k','50k-100k','100k-500k','500k-1m','1m-5m','5m-10m','10m-50m','50m+') CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL COMMENT 'Annual revenue range',
   `covenant_statistic` json DEFAULT NULL COMMENT 'The Covenant Statistics',
   `abs_benchmark` json DEFAULT NULL,
   `financial_summary` json DEFAULT NULL
@@ -133,7 +133,7 @@ CREATE TABLE `company_values` (
 
 INSERT INTO `company_values` (`id`, `borrower_id`, `created_at`, `updated_at`, `company_name`, `industry`, `revenue_range`, `covenant_statistic`, `abs_benchmark`, `financial_summary`) VALUES
 (1, 1, '2025-09-09 23:26:37', '2025-09-09 23:26:37', 'Tech Builders', 'Household', '50k-100k', '{\"debt_ratio\": 47.52, \"quick_ratio\": 0.96, \"equity_ratio\": 52.48, \"current_ratio\": 1.93, \"dividend_ratio\": 1, \"interest_cover\": 17.2, \"operating_cycle\": 53.92, \"net_profit_margin\": 4.02, \"avg_payment_period\": 28.59, \"creditors_turnover\": 12.77, \"inventory_turnover\": 0.0, \"quasi_equity_ratio\": 63.93, \"gross_profit_margin\": 22.15, \"capitalisation_ratio\": 190.55, \"receivables_turnover\": 8.79, \"avg_collection_period\": 41.57, \"return_on_total_assets\": 8.2, \"inventory_turnover_days\": 40.94}', '[{\"name\": \"Wages and Salaries/Revenue\", \"benchmarkValue\": 14, \"calculatedValue\": 7.44}, {\"name\": \"Total Expenses/Total Income\", \"benchmarkValue\": 94, \"calculatedValue\": 83.61}, {\"name\": \"Total Expenses/Revenue\", \"benchmarkValue\": 96, \"calculatedValue\": 20.5}, {\"name\": \"Operating Profit Before Tax/Total Income\", \"benchmarkValue\": 6, \"calculatedValue\": 16.39}, {\"name\": \"Net Profit/Loss (-) Margin\", \"benchmarkValue\": 6, \"calculatedValue\": 4.02}, {\"name\": \"EBITDA/Net Revenue\", \"benchmarkValue\": 7, \"calculatedValue\": 6.07}, {\"name\": \"Interest Cover\", \"benchmarkValue\": 7.5, \"calculatedValue\": 17.2}, {\"name\": \"EBITDA Margin\", \"benchmarkValue\": 7, \"calculatedValue\": 24.77}, {\"name\": \"Total Other Income/Revenue\", \"benchmarkValue\": 1, \"calculatedValue\": 2.37}, {\"name\": \"Total Other Income/Net Profit/Loss Before Tax\", \"benchmarkValue\": 20, \"calculatedValue\": 58.88}, {\"name\": \"Depreciation and Amortisation/Net Revenue\", \"benchmarkValue\": 1, \"calculatedValue\": 1.81}, {\"name\": \"Interest/Revenue\", \"benchmarkValue\": 1, \"calculatedValue\": 0.25}]', '{\"financialStatements\": {\"2023\": {\"date\": \"2023-06-30\", \"ebitda\": 964131, \"equity\": 3184167, \"interest\": 17661, \"netRevenue\": 15766553, \"profitLoss\": 812712, \"grossProfit\": 3440466, \"otherIncome\": 232860, \"totalAssets\": 5252202, \"depreciation\": 133758, \"currentAssets\": 3729525, \"otherExpenses\": 2709194, \"costOfGoodsSold\": 12326088, \"nonCurrentAssets\": 1522677, \"totalLiabilities\": 2068035, \"currentLiabilities\": 1137720, \"nonCurrentLiabilities\": 930315}, \"2024\": {\"date\": \"2024-06-30\", \"ebitda\": 499261, \"equity\": 2519795, \"interest\": 78, \"netRevenue\": 13736093, \"profitLoss\": 326782, \"grossProfit\": 2612688, \"otherIncome\": 319437, \"totalAssets\": 5014341, \"depreciation\": 172402, \"currentAssets\": 3019410, \"otherExpenses\": 2432864, \"costOfGoodsSold\": 11123405, \"nonCurrentAssets\": 1994932, \"totalLiabilities\": 2494547, \"currentLiabilities\": 966396, \"nonCurrentLiabilities\": 1528151}, \"2025\": {\"date\": \"2025-06-30\", \"ebitda\": 953459, \"equity\": 4286355, \"interest\": 38939, \"netRevenue\": 15699648, \"profitLoss\": 630973, \"grossProfit\": 3477211, \"otherIncome\": 371514, \"totalAssets\": 8167863, \"depreciation\": 283548, \"currentAssets\": 3704382, \"otherExpenses\": 2895266, \"costOfGoodsSold\": 12222437, \"nonCurrentAssets\": 4463481, \"totalLiabilities\": 3881508, \"currentLiabilities\": 1917820, \"nonCurrentLiabilities\": 1963688}}}'),
-(2, 1, '2025-09-10 00:58:48', '2025-09-10 00:58:48', 'Test Company', 'Some industry', '50k-100k', NULL, NULL, NULL);
+(2, 1, '2025-09-10 00:58:48', '2025-09-10 00:58:48', 'Real Estate For You', 'Real Estate', '50k-100k', '{\"debt_ratio\": 36.2, \"quick_ratio\": 3.98, \"equity_ratio\": 63.8, \"current_ratio\": 4.03, \"dividend_ratio\": 1, \"interest_cover\": 147.67, \"operating_cycle\": 4.61, \"net_profit_margin\": 36.53, \"avg_payment_period\": 11.48, \"creditors_turnover\": 31.8, \"inventory_turnover\": 0.0, \"quasi_equity_ratio\": 63.8, \"gross_profit_margin\": 92.28, \"capitalisation_ratio\": 156.73, \"receivables_turnover\": 22.69, \"avg_collection_period\": 16.09, \"return_on_total_assets\": 71.65, \"inventory_turnover_days\": 40.94}', '[{\"name\": \"Wages and Salaries/Revenue\", \"benchmarkValue\": 11, \"calculatedValue\": 26.84}, {\"name\": \"Total Expenses/Total Income\", \"benchmarkValue\": 61, \"calculatedValue\": 62.16}, {\"name\": \"Total Expenses/Revenue\", \"benchmarkValue\": 78, \"calculatedValue\": 60.0}, {\"name\": \"Operating Profit Before Tax/Total Income\", \"benchmarkValue\": 38, \"calculatedValue\": 37.84}, {\"name\": \"Net Profit/Loss (-) Margin\", \"benchmarkValue\": 48, \"calculatedValue\": 36.53}, {\"name\": \"EBITDA/Net Revenue\", \"benchmarkValue\": 43, \"calculatedValue\": 37.12}, {\"name\": \"Interest Cover\", \"benchmarkValue\": 3.9, \"calculatedValue\": 147.67}, {\"name\": \"EBITDA Margin\", \"benchmarkValue\": 34, \"calculatedValue\": 38.45}, {\"name\": \"Total Other Income/Revenue\", \"benchmarkValue\": 26, \"calculatedValue\": 4.25}, {\"name\": \"Total Other Income/Net Profit/Loss Before Tax\", \"benchmarkValue\": 54, \"calculatedValue\": 11.64}, {\"name\": \"Depreciation and Amortisation/Net Revenue\", \"benchmarkValue\": 4, \"calculatedValue\": 0.34}, {\"name\": \"Interest/Revenue\", \"benchmarkValue\": 17, \"calculatedValue\": 0.25}]', '{\"financialStatements\": {\"2023\": {\"date\": \"2023-06-30\", \"ebitda\": 708119, \"equity\": -98553, \"interest\": 34411, \"netRevenue\": 2259265, \"profitLoss\": 667962, \"grossProfit\": 2085889, \"otherIncome\": 100177, \"totalAssets\": 581884, \"depreciation\": 5746, \"currentAssets\": 572973, \"otherExpenses\": 1477946, \"costOfGoodsSold\": 173377, \"nonCurrentAssets\": 8911, \"totalLiabilities\": 680437, \"currentLiabilities\": 240486, \"nonCurrentLiabilities\": 439951}, \"2024\": {\"date\": \"2024-06-30\", \"ebitda\": 1763172, \"equity\": -95810, \"interest\": 30199, \"netRevenue\": 3528074, \"profitLoss\": 1725861, \"grossProfit\": 3339854, \"otherIncome\": 50420, \"totalAssets\": 1536587, \"depreciation\": 7055, \"currentAssets\": 1516511, \"otherExpenses\": 1627102, \"costOfGoodsSold\": 188220, \"nonCurrentAssets\": 20076, \"totalLiabilities\": 1632397, \"currentLiabilities\": 315407, \"nonCurrentLiabilities\": 1316990}, \"2025\": {\"date\": \"2025-06-30\", \"ebitda\": 941508, \"equity\": 830779, \"interest\": 6318, \"netRevenue\": 2536416, \"profitLoss\": 926589, \"grossProfit\": 2340718, \"otherIncome\": 107828, \"totalAssets\": 1302113, \"depreciation\": 7629, \"currentAssets\": 1134824, \"otherExpenses\": 1507039, \"costOfGoodsSold\": 195698, \"nonCurrentAssets\": 66470, \"totalLiabilities\": 471334, \"currentLiabilities\": 281655, \"nonCurrentLiabilities\": 189679}}}');
 
 -- --------------------------------------------------------
 
@@ -143,28 +143,20 @@ INSERT INTO `company_values` (`id`, `borrower_id`, `created_at`, `updated_at`, `
 
 CREATE TABLE `contact_messages` (
   `id` int NOT NULL,
-  `conversation_id` varchar(36) NOT NULL COMMENT 'UUID for conversation threading',
-  `name` varchar(100) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `subject` varchar(255) NOT NULL,
-  `message` text NOT NULL,
-  `message_type` enum('user_message','admin_reply') DEFAULT 'user_message' COMMENT 'Type of message in conversation',
+  `conversation_id` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'UUID for conversation threading',
+  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `subject` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `message` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `message_type` enum('user_message','admin_reply') COLLATE utf8mb4_unicode_ci DEFAULT 'user_message' COMMENT 'Type of message in conversation',
   `parent_message_id` int DEFAULT NULL COMMENT 'Reference to parent message for replies',
-  `status` enum('new','read','replied','closed') DEFAULT 'new',
-  `ip_address` varchar(45) DEFAULT NULL COMMENT 'Store IP for rate limiting',
-  `user_agent` text COMMENT 'Store user agent for security',
+  `status` enum('new','read','replied','closed') COLLATE utf8mb4_unicode_ci DEFAULT 'new',
+  `ip_address` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Store IP for rate limiting',
+  `user_agent` text COLLATE utf8mb4_unicode_ci COMMENT 'Store user agent for security',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `archived` tinyint(1) DEFAULT '0' COMMENT 'Whether the message is archived'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `contact_messages`
---
-
-INSERT INTO `contact_messages` (`id`, `conversation_id`, `name`, `email`, `subject`, `message`, `message_type`, `parent_message_id`, `status`, `ip_address`, `user_agent`, `created_at`, `updated_at`, `archived`) VALUES
-(1, '44e1bb16-2b47-4d8e-8e09-9e691cfaeb8b', 'Chay Fong Hong', 'chayfong9009@gmail.com', 'general', 'rfqerfgqergqergq', 'user_message', NULL, 'new', NULL, NULL, '2025-08-25 05:36:06', '2025-08-25 05:36:58', 1),
-(2, 'd69c86fc-0f56-433a-a72f-a491a7863c09', 'Chay Fong Hong', 'chayfong9009@iojergijerijgrqojigroij.com', 'support', '13iough3oiue4rgoqeirgio34gq3e4r5giuh', 'user_message', NULL, 'new', NULL, NULL, '2025-09-01 05:29:02', '2025-09-01 05:29:02', 0);
 
 -- --------------------------------------------------------
 
@@ -193,7 +185,7 @@ CREATE TABLE `lender_profiles` (
 --
 
 INSERT INTO `lender_profiles` (`id`, `user_id`, `created_at`, `updated_at`, `institution_type`, `risk_appetite`, `target_industries`, `target_markets`, `min_loan_amount`, `max_loan_amount`, `website`, `linkedin`, `preferences`) VALUES
-(1, 3, '2025-09-08 04:10:30', '2025-09-08 04:11:27', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(1, 3, '2025-09-08 04:10:30', '2025-09-19 01:36:26', 'bank', 'conservative', '[]', '[]', 1000.00, 1000000.00, '', 'https://linkedin.com/in/completelender', NULL),
 (2, 5, '2025-09-08 04:10:30', '2025-09-08 04:11:27', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
@@ -211,7 +203,7 @@ CREATE TABLE `loan_requests` (
   `company_description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Description of the company',
   `social_media_links` json DEFAULT NULL COMMENT 'JSON object containing social media links',
   `loan_purpose` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Reason for loan requirement',
-  `loan_type` enum('equipment','expansion','working_capital','inventory','real_estate','startup','other') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Type of loan',
+  `loan_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Type of loan',
   `status` enum('pending','funded','closed','expired') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'pending' COMMENT 'Current status of the loan request',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -232,10 +224,12 @@ CREATE TABLE `loan_requests` (
 --
 
 INSERT INTO `loan_requests` (`id`, `borrower_id`, `company_id`, `amount_requested`, `currency`, `company_description`, `social_media_links`, `loan_purpose`, `loan_type`, `status`, `created_at`, `updated_at`, `expires_at`, `archived`, `archived_by`, `archived_at`, `original_status`, `closed_by`, `closed_at`, `closed_reason`, `funded_by`, `funded_at`) VALUES
-(8, 2, 1, 10000.00, 'USD', 'iuogyvyuvyuvyuvyuvuyv', '{\"twitter\": \"\", \"website\": \"\", \"facebook\": \"\", \"linkedin\": \"\", \"instagram\": \"\"}', 'ygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvyvyuygfovouyvy', 'working_capital', 'pending', '2025-08-29 12:31:55', '2025-09-10 00:02:46', '2025-09-07 10:00:00', 0, NULL, NULL, 'funded', NULL, NULL, NULL, NULL, NULL),
-(10, 2, 1, 5000.00, 'AUD', '314f134g134g134g', NULL, '134g134g134g134g', 'working_capital', 'closed', '2025-09-01 04:57:35', '2025-09-10 00:02:46', '2025-09-07 10:00:00', 0, NULL, NULL, 'funded', 1, '2025-09-01 05:39:50', 'erinougeqroginqeoirgjnioqenriogqoier', NULL, NULL),
-(12, 2, 1, 100.00, 'AUD', NULL, NULL, 'weasea', 'equipment', 'pending', '2025-09-10 01:24:00', '2025-09-10 01:24:00', '2025-09-11 00:00:00', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(15, 2, 1, 213121.00, 'AUD', NULL, NULL, '123132', 'equipment', 'pending', '2025-09-10 02:02:09', '2025-09-10 02:02:09', '2025-09-25 00:00:00', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+(15, 2, 1, 213121.00, 'AUD', NULL, NULL, 'Planning to buy some new computers, printers and servers', 'equipment', 'pending', '2025-09-10 02:02:09', '2025-09-19 01:27:53', '2025-09-25 00:00:00', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(16, 2, 2, 10000.00, 'AUD', NULL, NULL, 'Need extra funding for new real estate signs', 'real_estate', 'funded', '2025-09-16 06:15:38', '2025-09-19 00:40:38', '2025-09-20 00:00:00', 0, NULL, NULL, NULL, NULL, NULL, NULL, 3, '2025-09-16 09:00:02'),
+(17, 2, 2, 20000.00, 'AUD', NULL, NULL, 'Need New Equipment', 'equipment', 'pending', '2025-09-18 12:30:09', '2025-09-19 01:28:15', '2025-09-19 00:00:00', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(18, 2, 1, 10000.00, 'AUD', NULL, NULL, 'Need to buy a new toner for the office', 'equipment', 'pending', '2025-09-18 12:37:01', '2025-09-19 01:28:41', '2025-09-24 00:00:00', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(19, 2, 1, 1002.00, 'AUD', '', NULL, 'Need it for renovations around the place', 'expansion', 'pending', '2025-09-18 12:37:31', '2025-09-19 01:35:14', '2025-09-21 00:00:00', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(22, 2, 2, 2000.00, 'AUD', NULL, NULL, 'I need it for new paint for the office', 'New Wall Paint', 'pending', '2025-09-19 01:38:43', '2025-09-19 01:38:43', '2025-09-21 00:00:00', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -267,7 +261,7 @@ INSERT INTO `migrations` (`id`, `name`, `sql_content`, `executed_at`, `checksum`
 CREATE TABLE `password_reset_tokens` (
   `id` int NOT NULL,
   `user_id` int NOT NULL,
-  `token` varchar(255) NOT NULL COMMENT 'Secure random token for password reset',
+  `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Secure random token for password reset',
   `expires_at` timestamp NOT NULL COMMENT 'Token expiration timestamp',
   `used` tinyint(1) DEFAULT '0' COMMENT 'Whether token has been used',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
@@ -283,29 +277,52 @@ INSERT INTO `password_reset_tokens` (`id`, `user_id`, `token`, `expires_at`, `us
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `recent_searches`
+--
+
+CREATE TABLE `recent_searches` (
+  `id` int NOT NULL,
+  `lender_id` int NOT NULL,
+  `loan_request_id` int NOT NULL,
+  `last_search` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+--
+-- Dumping data for table `recent_searches`
+--
+
+INSERT INTO `recent_searches` (`id`, `lender_id`, `loan_request_id`, `last_search`) VALUES
+(11, 1, 15, '2025-09-18 23:44:52'),
+(12, 1, 17, '2025-09-19 00:08:40'),
+(13, 1, 18, '2025-09-19 00:08:46'),
+(14, 1, 19, '2025-09-19 00:08:52');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 
 CREATE TABLE `users` (
   `id` int NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `password_hash` varchar(255) NOT NULL COMMENT 'bcrypt hashed password (min 60 chars)',
-  `first_name` varchar(100) NOT NULL,
-  `last_name` varchar(100) NOT NULL,
-  `user_type` enum('borrower','lender','admin') NOT NULL,
-  `company` varchar(255) DEFAULT NULL,
-  `phone` varchar(20) DEFAULT NULL,
-  `address` text,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password_hash` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'bcrypt hashed password (min 60 chars)',
+  `first_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `last_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_type` enum('borrower','lender','admin') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `company` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `phone` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address` text COLLATE utf8mb4_unicode_ci,
   `is_active` tinyint(1) DEFAULT '1',
   `is_approved` tinyint(1) DEFAULT '0',
   `is_super_admin` tinyint(1) NOT NULL DEFAULT '0',
   `failed_login_attempts` int DEFAULT '0' COMMENT 'Track failed login attempts',
   `account_locked_until` timestamp NULL DEFAULT NULL COMMENT 'Account lockout until timestamp',
-  `profile_picture` varchar(500) DEFAULT NULL COMMENT 'URL to profile picture',
-  `bio` text COMMENT 'User biography/description',
-  `theme` enum('light','dark','auto') DEFAULT 'auto' COMMENT 'UI theme preference',
-  `language` varchar(10) DEFAULT 'en' COMMENT 'Language preference (ISO 639-1)',
-  `timezone` varchar(50) DEFAULT 'UTC' COMMENT 'Timezone preference',
+  `profile_picture` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'URL to profile picture',
+  `bio` text COLLATE utf8mb4_unicode_ci COMMENT 'User biography/description',
+  `theme` enum('light','dark','auto') COLLATE utf8mb4_unicode_ci DEFAULT 'auto' COMMENT 'UI theme preference',
+  `language` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT 'en' COMMENT 'Language preference (ISO 639-1)',
+  `timezone` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT 'UTC' COMMENT 'Timezone preference',
   `notifications` json DEFAULT NULL COMMENT 'Notification preferences',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -318,7 +335,7 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id`, `email`, `password_hash`, `first_name`, `last_name`, `user_type`, `company`, `phone`, `address`, `is_active`, `is_approved`, `is_super_admin`, `failed_login_attempts`, `account_locked_until`, `profile_picture`, `bio`, `theme`, `language`, `timezone`, `notifications`, `created_at`, `updated_at`) VALUES
 (1, 'admin@equirank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Admin', 'User', 'admin', 'EquiRank Admin', '+1234567890', '123 Admin St, Admin City', 1, 1, 1, 0, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-08-17 06:38:47'),
 (2, 'borrower1@company.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'John', 'Smith', 'borrower', 'Tech Startup Inc', '+1234567891', '456 Business Ave, Tech City', 1, 1, 0, 0, NULL, NULL, NULL, 'dark', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-09-01 13:33:56'),
-(3, 'lender1@bank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Jane', 'Doe', 'lender', 'Investment Bank Ltd', '+1234567892', '789 Finance Blvd, Bank City', 1, 1, 0, 0, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-08-10 15:19:37'),
+(3, 'lender1@bank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Jane', 'Doe', 'lender', 'Investment Bank Ltd', '+1234567892', '789 Finance Blvd, Bank City', 1, 1, 0, 0, NULL, '', 'I am a lender willing to help small businesses grow', 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-09-19 01:36:26'),
 (4, 'borrower2@individual.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Mike', 'Johnson', 'borrower', NULL, '+1234567893', '321 Personal St, Individual City', 1, 1, 0, 0, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-09-08 04:11:54'),
 (5, 'lender2@investor.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Sarah', 'Wilson', 'lender', NULL, '+1234567894', '654 Investor Ave, Investment City', 0, 0, 0, 0, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-09-08 04:11:58'),
 (6, 'complete.borrower@test.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Complete', 'Borrower', 'borrower', 'Complete Tech Solutions Inc', '+1555123456', '456 Innovation Drive, Silicon Valley, CA 94000', 1, 1, 0, 0, NULL, NULL, 'Experienced entrepreneur with 7+ years in the tech industry, specializing in AI/ML solutions.', 'auto', 'en', 'UTC', '{\"sms\": false, \"push\": true, \"email\": true}', '2025-09-09 12:21:17', '2025-09-09 12:21:17');
@@ -421,6 +438,14 @@ ALTER TABLE `password_reset_tokens`
   ADD KEY `idx_password_reset_tokens_used` (`used`);
 
 --
+-- Indexes for table `recent_searches`
+--
+ALTER TABLE `recent_searches`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_lender_key` (`lender_id`),
+  ADD KEY `fk_loan_request_key` (`loan_request_id`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -441,7 +466,7 @@ ALTER TABLE `admin_profiles`
 -- AUTO_INCREMENT for table `borrower_profiles`
 --
 ALTER TABLE `borrower_profiles`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `company_statistics`
@@ -471,7 +496,7 @@ ALTER TABLE `lender_profiles`
 -- AUTO_INCREMENT for table `loan_requests`
 --
 ALTER TABLE `loan_requests`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `migrations`
@@ -486,10 +511,16 @@ ALTER TABLE `password_reset_tokens`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT for table `recent_searches`
+--
+ALTER TABLE `recent_searches`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+
+--
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Constraints for dumped tables
@@ -546,6 +577,13 @@ ALTER TABLE `loan_requests`
 --
 ALTER TABLE `password_reset_tokens`
   ADD CONSTRAINT `fk_password_reset_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `recent_searches`
+--
+ALTER TABLE `recent_searches`
+  ADD CONSTRAINT `fk_lender_key` FOREIGN KEY (`lender_id`) REFERENCES `lender_profiles` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_loan_request_key` FOREIGN KEY (`loan_request_id`) REFERENCES `loan_requests` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

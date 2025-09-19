@@ -1,5 +1,5 @@
 "use client";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import {
     Bar,
     BarChart,
@@ -32,6 +32,7 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
     const [financialSummaryData, setFinancialSummaryData] =  useState<any>();
     const [selectedYear, setSelectedYear] = useState<string>('');
     const [selectedLiabilityYear, setSelectedLiabilityYear] = useState<string>('');
+    const hasRun = useRef(false);
     const COLORS = ['#4CAF50', '#2E7D32'];
     const LIAB_COLORS = ['#47ace3', '#2076b1'];
 
@@ -68,6 +69,40 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
         };
 
         fetchAllData();
+    }, [loanId]);
+
+    useEffect(() => {
+        const updateRecentSearches = async () => {
+            if (!loanId) return;
+
+            if(hasRun.current || !loanId) return;
+            hasRun.current = true;
+
+            try {
+                console.log(loanId);
+                const response = await fetch('/api/lender/recent-searches-set', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        loanId: loanId
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                console.log('Recent searches updated:', result);
+
+            } catch (error) {
+                console.error('Failed to update recent searches:', error);
+            }
+        };
+
+        updateRecentSearches();
     }, [loanId]);
 
     useEffect(() => {

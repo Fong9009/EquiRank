@@ -5,6 +5,7 @@ import {useRouter} from 'next/navigation';
 import Ribbon from '@/components/common/Ribbon';
 import FundedLoansList from '@/components/pages/lender/FundedLoansList';
 import {useEffect, useState} from "react";
+import RecentSearches from "@/components/pages/lender/RecentSearches";
 
 export default function LenderHomepage() {
     const { data: session} = useSession();
@@ -48,10 +49,13 @@ export default function LenderHomepage() {
                 </button>
               </div>
             </div>
-            
             <div className={styles.fundedLoansSection}>
               <h2 className={styles.sectionTitle}>My Funded Loans</h2>
               <FundedLoansList />
+            </div>
+            <div className={styles.fundedLoansSection}>
+                <h2 className={styles.sectionTitle}>Recent Searches</h2>
+                <RecentSearches/>
             </div>
         </div>
     )
