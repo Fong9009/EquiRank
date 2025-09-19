@@ -30,6 +30,19 @@ export interface CompanyValues {
     }
 }
 
+interface GetCompaniesParams {
+    companyName?: string | null;
+    companyOwner?: string | null;
+    revenueRange?: string | null;
+    page: number;
+    limit: number;
+}
+
+interface CompaniesResult {
+    companies: (CompanyValues & { borrower_name: string })[];
+    total: number;
+}
+
 export async function getAllCompaniesById(borrowerId: number): Promise<CompanyValues[]> {
     const query = 'SELECT id, company_name FROM company_values WHERE borrower_id = ?';
     const results: CompanyValues[] = await executeQuery(query, [borrowerId]);
@@ -54,5 +67,81 @@ export async function getCompanyFinanceSummary(id: number): Promise<any> {
     const query = 'SELECT financial_summary FROM company_values WHERE id = ?';
     const results = await executeQuery(query, [id]);
 
+    return results.length > 0 ? results[0] : null;
+}
+
+export async function getAllCompanies(params: GetCompaniesParams): Promise<CompaniesResult> {
+    const { companyName, companyOwner, revenueRange, page, limit } = params;
+    const offset = (page - 1) * limit;
+
+    // Build dynamic WHERE conditions
+    const conditions: string[] = [];
+    const queryParams: any[] = [];
+
+    if (companyName) {
+        conditions.push(`cv.company_name LIKE ?`);
+        queryParams.push(`%${companyName}%`);
+    }
+
+    if (companyOwner) {
+        // For MySQL, we need to be more careful with CONCAT in WHERE clauses
+        conditions.push(`(CONCAT(u.first_name, ' ', u.last_name) LIKE ?)`);
+        queryParams.push(`%${companyOwner}%`);
+    }
+
+    if (revenueRange) {
+        conditions.push(`cv.revenue_range = ?`);
+        queryParams.push(revenueRange);
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+    console.log(whereClause);
+    // Count query for total records
+    const countQuery = `
+        SELECT COUNT(*) as total
+        FROM company_values cv
+        INNER JOIN borrower_profiles bp ON cv.borrower_id = bp.id
+        INNER JOIN users u ON bp.user_id = u.id
+        ${whereClause}
+    `;
+
+    // Data query with pagination
+    const dataQuery = `
+        SELECT 
+            cv.id,
+            cv.company_name,
+            cv.industry,
+            cv.revenue_range,
+            CONCAT(u.first_name, ' ', u.last_name) AS borrower_name
+        FROM company_values cv
+        INNER JOIN borrower_profiles bp ON cv.borrower_id = bp.id
+        INNER JOIN users u ON bp.user_id = u.id
+        ${whereClause}
+        ORDER BY cv.company_name
+        LIMIT ${limit} OFFSET ${offset}
+    `;
+
+    // Execute both queries
+    const [countResult, dataResult] = await Promise.all([
+        executeQuery(countQuery, queryParams),
+        executeQuery(dataQuery, [...queryParams])
+    ]);
+
+    return {
+        companies: dataResult as (CompanyValues & { borrower_name: string })[],
+        total: parseInt(countResult[0].total)
+    };
+}
+
+export async function companyCheck(companyId: number): Promise<any> {
+    const query = 'SELECT * FROM company_values WHERE id = ?';
+    const results = await executeSingleQuery(query, [companyId]);
+    return results.length > 0 ? results[0] : null;
+}
+
+export async function getCompanyName(companyId: number): Promise<any> {
+    const query = 'SELECT company_name FROM company_values WHERE id = ?';
+    const results = await executeSingleQuery(query, [companyId]);
     return results.length > 0 ? results[0] : null;
 }

@@ -1,6 +1,5 @@
 "use client";
-import React, {useEffect, useState, useRef} from "react";
-import {notFound} from "next/navigation";
+import React, {useEffect, useState} from "react";
 import {
     Bar,
     BarChart,
@@ -20,20 +19,26 @@ import {
     XAxis,
     YAxis,
 } from "recharts";
-import styles from "@/styles/pages/lender/loanGraphPage.module.css";
+import styles from "@/styles/pages/lender/companyGraphPage.module.css";
 import LoadingPage from "@/components/common/LoadingPage";
+import { useRouter } from "next/navigation";
 
-interface LoanAnalysisProps {
-    loanId: string;
+interface CompanyAnalysisProps {
+    companyId: string;
 }
 
-export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
+interface CompanyProps {
+    company_name: string;
+}
+
+export default function CompanyGraphPage({ companyId }: CompanyAnalysisProps){
     const [radarWithDescriptions, setDataWithDescriptions] = useState<any[]>([]);
     const [absStatistics, setAbsStatistics] = useState<any[]>([]);
     const [financialSummaryData, setFinancialSummaryData] =  useState<any>();
     const [selectedYear, setSelectedYear] = useState<string>('');
     const [selectedLiabilityYear, setSelectedLiabilityYear] = useState<string>('');
-    const hasRun = useRef(false);
+    const [companyName, setCompanyName] = useState<CompanyProps | null>(null);
+    const router = useRouter();
     const COLORS = ['#4CAF50', '#2E7D32'];
     const LIAB_COLORS = ['#47ace3', '#2076b1'];
 
@@ -41,26 +46,38 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
 
     //Used to Obtain the Covenant Statistics
     useEffect(() => {
-        if (!loanId) return;
-        if (isNaN(Number(loanId))) {
-            notFound();
-        }
+        if (!companyId) return;
+
 
         const fetchAllData = async () => {
+            if (isNaN(Number(companyId))) {
+                router.replace("/404");
+                return;
+            }
+
+            const checkRes = await fetch(`/api/security/company-check/${companyId}`)
+            const data = await checkRes.json();
+            if (!data) {
+                router.replace("/404");
+                return;
+            }
             setIsLoading(true);
             try {
-                const [covenantRes, absRes, financeSumRes] = await Promise.all([
-                    fetch(`/api/loan-statistics/loan-covenant-graph/${loanId}`),
-                    fetch(`/api/loan-statistics/loan-abs-graph/${loanId}`),
-                    fetch(`/api/loan-statistics/loan-financial-summary/${loanId}`),
+                const [nameRes, covenantRes, absRes, financeSumRes] = await Promise.all([
+                    fetch(`/api/company-statistics/company-details/${companyId}`),
+                    fetch(`/api/company-statistics/company-covenant-graph/${companyId}`),
+                    fetch(`/api/company-statistics/company-abs-graph/${companyId}`),
+                    fetch(`/api/company-statistics/company-financial-summary/${companyId}`),
                 ]);
 
                 // Parse data or use empty defaults if failed
+                const nameData = nameRes.ok ? await  nameRes.json() : null;
                 const covenantData = covenantRes.ok ? await covenantRes.json() : null;
                 const absData = absRes.ok ? await absRes.json() : null;
                 const financeSumData = financeSumRes.ok ? await financeSumRes.json() : null;
 
                 // Set data with fallbacks - your components should handle null/empty data
+                setCompanyName(nameData || "");
                 setDataWithDescriptions(covenantData || []);
                 setAbsStatistics(absData || []);
                 setFinancialSummaryData(financeSumData || {})
@@ -73,41 +90,7 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
         };
 
         fetchAllData();
-    }, [loanId]);
-
-    useEffect(() => {
-        const updateRecentSearches = async () => {
-            if (!loanId) return;
-
-            if(hasRun.current || !loanId) return;
-            hasRun.current = true;
-
-            try {
-                console.log(loanId);
-                const response = await fetch('/api/lender/recent-searches-set', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        loanId: loanId
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const result = await response.json();
-                console.log('Recent searches updated:', result);
-
-            } catch (error) {
-                console.error('Failed to update recent searches:', error);
-            }
-        };
-
-        updateRecentSearches();
-    }, [loanId]);
+    }, [companyId]);
 
     useEffect(() => {
         if (financialSummaryData && financialSummaryData.length > 0) {
@@ -240,6 +223,14 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
 
     return(
         <div>
+            <div className={styles.titleRibbon}>
+                <h1 className={styles.titleSection}>
+                    {companyName && companyName.company_name
+                        ? `Company Analysis Of: ${companyName.company_name}`
+                        : "Company Analysis"}
+                </h1>
+
+            </div>
             <div className={styles.ribbon}>
                 <h1 className={styles.titleSection}>Core Investor Graphs</h1>
             </div>

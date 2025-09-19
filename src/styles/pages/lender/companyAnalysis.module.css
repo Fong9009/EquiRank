@@ -1,0 +1,16 @@
+.tabRow {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.tabContainer {
+    margin-top: 10px;
+    margin-left: 50px;
+}
+
+@media (max-width: 768px) {
+    .tabContainer {
+        margin-left: 0px;
+    }
+}
