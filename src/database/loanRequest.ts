@@ -282,15 +282,14 @@ export async function closeLoanRequest(id: number, adminId: number, reason?: str
   // First get the current status to store as original_status
   const currentRequest = await getLoanRequestById(id);
   if (!currentRequest) return false;
-  
   const query = `
     UPDATE loan_requests 
     SET status = 'closed', original_status = ?, closed_by = ?, closed_at = NOW(), closed_reason = ?, updated_at = NOW()
     WHERE id = ? AND status IN ('pending', 'funded')
   `;
   
-  const result = await executeQuery<{ affectedRows: number }>(query, [currentRequest.status, adminId, reason || null, id]);
-  return result[0]?.affectedRows > 0;
+  const result = await executeSingleQuery(query, [currentRequest.status, adminId, reason || null, id]);
+  return result.affectedRows > 0;
 }
 
 /**
@@ -303,8 +302,8 @@ export async function restoreLoanRequest(id: number): Promise<boolean> {
     WHERE id = ? AND status = 'closed'
   `;
   
-  const result = await executeQuery<{ affectedRows: number }>(query, [id]);
-  return result[0]?.affectedRows > 0;
+  const result = await executeSingleQuery(query, [id]);
+  return result.affectedRows > 0;
 }
 
 /**

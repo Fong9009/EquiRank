@@ -41,7 +41,7 @@ export async function POST(
 
     // Close the loan request
     const success = await closeLoanRequest(id, parseInt(session.user.id), reason);
-    
+    console.log("SUCCSESS TEST",success);
     if (success) {
       return NextResponse.json({ 
         success: true, 
