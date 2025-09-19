@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Sep 19, 2025 at 01:45 AM
+-- Generation Time: Sep 19, 2025 at 01:09 PM
 -- Server version: 8.4.3
 -- PHP Version: 8.3.16
 
@@ -224,12 +224,10 @@ CREATE TABLE `loan_requests` (
 --
 
 INSERT INTO `loan_requests` (`id`, `borrower_id`, `company_id`, `amount_requested`, `currency`, `company_description`, `social_media_links`, `loan_purpose`, `loan_type`, `status`, `created_at`, `updated_at`, `expires_at`, `archived`, `archived_by`, `archived_at`, `original_status`, `closed_by`, `closed_at`, `closed_reason`, `funded_by`, `funded_at`) VALUES
-(15, 2, 1, 213121.00, 'AUD', NULL, NULL, 'Planning to buy some new computers, printers and servers', 'equipment', 'pending', '2025-09-10 02:02:09', '2025-09-19 01:27:53', '2025-09-25 00:00:00', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(15, 2, 1, 213121.00, 'AUD', NULL, NULL, 'Planning to buy some new computers, printers and servers', 'equipment', 'closed', '2025-09-10 02:02:09', '2025-09-19 02:40:03', '2025-09-25 00:00:00', 0, NULL, NULL, 'pending', 1, '2025-09-19 02:40:03', 'Test', NULL, NULL),
 (16, 2, 2, 10000.00, 'AUD', NULL, NULL, 'Need extra funding for new real estate signs', 'real_estate', 'funded', '2025-09-16 06:15:38', '2025-09-19 00:40:38', '2025-09-20 00:00:00', 0, NULL, NULL, NULL, NULL, NULL, NULL, 3, '2025-09-16 09:00:02'),
 (17, 2, 2, 20000.00, 'AUD', NULL, NULL, 'Need New Equipment', 'equipment', 'pending', '2025-09-18 12:30:09', '2025-09-19 01:28:15', '2025-09-19 00:00:00', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(18, 2, 1, 10000.00, 'AUD', NULL, NULL, 'Need to buy a new toner for the office', 'equipment', 'pending', '2025-09-18 12:37:01', '2025-09-19 01:28:41', '2025-09-24 00:00:00', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(19, 2, 1, 1002.00, 'AUD', '', NULL, 'Need it for renovations around the place', 'expansion', 'pending', '2025-09-18 12:37:31', '2025-09-19 01:35:14', '2025-09-21 00:00:00', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(22, 2, 2, 2000.00, 'AUD', NULL, NULL, 'I need it for new paint for the office', 'New Wall Paint', 'pending', '2025-09-19 01:38:43', '2025-09-19 01:38:43', '2025-09-21 00:00:00', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+(18, 2, 1, 10000.00, 'AUD', NULL, NULL, 'Need to buy a new toner for the office', 'equipment', 'pending', '2025-09-18 12:37:01', '2025-09-19 02:39:45', '2025-09-24 00:00:00', 0, NULL, NULL, 'pending', NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -292,10 +290,8 @@ CREATE TABLE `recent_searches` (
 --
 
 INSERT INTO `recent_searches` (`id`, `lender_id`, `loan_request_id`, `last_search`) VALUES
-(11, 1, 15, '2025-09-18 23:44:52'),
 (12, 1, 17, '2025-09-19 00:08:40'),
-(13, 1, 18, '2025-09-19 00:08:46'),
-(14, 1, 19, '2025-09-19 00:08:52');
+(13, 1, 18, '2025-09-19 00:08:46');
 
 -- --------------------------------------------------------
 
@@ -334,8 +330,8 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `email`, `password_hash`, `first_name`, `last_name`, `user_type`, `company`, `phone`, `address`, `is_active`, `is_approved`, `is_super_admin`, `failed_login_attempts`, `account_locked_until`, `profile_picture`, `bio`, `theme`, `language`, `timezone`, `notifications`, `created_at`, `updated_at`) VALUES
 (1, 'admin@equirank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Admin', 'User', 'admin', 'EquiRank Admin', '+1234567890', '123 Admin St, Admin City', 1, 1, 1, 0, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-08-17 06:38:47'),
-(2, 'borrower1@company.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'John', 'Smith', 'borrower', 'Tech Startup Inc', '+1234567891', '456 Business Ave, Tech City', 1, 1, 0, 0, NULL, NULL, NULL, 'dark', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-09-01 13:33:56'),
-(3, 'lender1@bank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Jane', 'Doe', 'lender', 'Investment Bank Ltd', '+1234567892', '789 Finance Blvd, Bank City', 1, 1, 0, 0, NULL, '', 'I am a lender willing to help small businesses grow', 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-09-19 01:36:26'),
+(2, 'borrower1@company.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'John', 'Smith', 'borrower', 'Tech Startup Inc', '+1234567891', '456 Business Ave, Tech City', 1, 1, 0, 0, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-09-19 02:54:22'),
+(3, 'lender1@bank.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Jane', 'Doe', 'lender', 'Investment Bank Ltd', '+1234567892', '789 Finance Blvd, Bank City', 1, 1, 0, 0, NULL, '', 'I am a lender willing to help small businesses grow', 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-09-19 02:53:38'),
 (4, 'borrower2@individual.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Mike', 'Johnson', 'borrower', NULL, '+1234567893', '321 Personal St, Individual City', 1, 1, 0, 0, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-09-08 04:11:54'),
 (5, 'lender2@investor.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Sarah', 'Wilson', 'lender', NULL, '+1234567894', '654 Investor Ave, Investment City', 0, 0, 0, 0, NULL, NULL, NULL, 'auto', 'en', 'UTC', NULL, '2025-08-10 11:54:38', '2025-09-08 04:11:58'),
 (6, 'complete.borrower@test.com', '$2b$12$gvpowO.QzOeSMOXl58X17ebpyF5/AZEZbXQf77x5wWkS8y.cOeZBW', 'Complete', 'Borrower', 'borrower', 'Complete Tech Solutions Inc', '+1555123456', '456 Innovation Drive, Silicon Valley, CA 94000', 1, 1, 0, 0, NULL, NULL, 'Experienced entrepreneur with 7+ years in the tech industry, specializing in AI/ML solutions.', 'auto', 'en', 'UTC', '{\"sms\": false, \"push\": true, \"email\": true}', '2025-09-09 12:21:17', '2025-09-09 12:21:17');
@@ -514,7 +510,7 @@ ALTER TABLE `password_reset_tokens`
 -- AUTO_INCREMENT for table `recent_searches`
 --
 ALTER TABLE `recent_searches`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `users`

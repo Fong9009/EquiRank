@@ -74,6 +74,7 @@ export default function Sidebar({ role, activeTab, setActiveTab, isOpen, toggleS
                             { name: 'Home', icon: Home, path: '/dashboard/lender?tab=home', tabKey: 'home' },
                             { name: 'Loan Requests', icon: FileText, path: '/dashboard/lender?tab=loan-requests', tabKey: 'loan-requests' },
                             { name: 'Funded Loans', icon: CheckCircle2, path: '/dashboard/lender?tab=funded-loans', tabKey: 'funded-loans' },
+                            { name: 'View Companies', icon: Briefcase, path: '/dashboard/lender?tab=view-companies', tabKey: 'view-companies' },
                             { name: 'Settings', icon: Settings, path: '/dashboard/lender?tab=settings', tabKey: 'settings' }
                         ]
                     }

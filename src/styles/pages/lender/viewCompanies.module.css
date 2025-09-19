@@ -1,0 +1,243 @@
+
+.lightBackground {
+    background: rgb(28,28,28);
+}
+
+.container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+
+.header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+}
+
+.subtitle {
+    color: #6b7280;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+
+.darkBackground {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.lightBackground {
+    background: rgb(28,28,28);
+}
+
+
+.lightTextColour{
+    color: black;
+}
+.darkTextColour{
+    color: white;
+}
+
+.lightPage {
+    background-color: #eae9e9;
+    min-height: 100vh;
+    transition: background 0.5s ease, color 0.5s ease;
+}
+
+.darkPage {
+    min-height: 100vh;
+    background: #101010;
+}
+
+
+.filters {
+    display: flex;
+    flex-direction: column; /* stack rows */
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.filterRow {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.filterRowButton {
+    display: flex;
+    justify-content: flex-end; /* or center */
+}
+
+.filterGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filterGroup label {
+    color: #ffffff;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.filterSelect,
+.filterInput {
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.filterSelect:focus,
+.filterInput:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.filterSelect option {
+    background: #1f2123;
+    color: #ffffff;
+}
+
+.searchButton {
+    padding: 0.75rem 1.5rem;
+    margin-right: 10px;
+    background: #3b82f6;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.clearButton {
+    padding: 0.75rem 1.5rem;
+    background: #f68f3b;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.searchButton:hover {
+    background: #2563eb;
+}
+
+.requestActions {
+    display: flex;
+    gap: 1rem;
+}
+
+.analyseButton {
+    margin-top: 10px;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
+}
+
+.analyseButton {
+    background: linear-gradient(135deg, #c5bd22, #c3b706);
+    color: white;
+}
+
+.error {
+    text-align: center;
+    padding: 2rem;
+    color: #ef4444;
+}
+
+.error p {
+    margin-bottom: 1rem;
+}
+
+
+.cardGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem;
+}
+
+.card {
+    background: #1f2123;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.companyName {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.companyDetail {
+    font-size: 0.95rem;
+    margin: 0.25rem 0;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 20px 0;
+    font-family: sans-serif;
+}
+
+.pagination button {
+    background-color: #3b82f6; /* Blue */
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.pagination button:hover:not(:disabled) {
+    background-color: #2563eb; /* Darker blue */
+    transform: translateY(-1px);
+}
+
+.pagination button:disabled {
+    background-color: #cbd5e1; /* Gray */
+    cursor: not-allowed;
+}
+
+.pagination span {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #1e293b; /* Dark gray */
+}
