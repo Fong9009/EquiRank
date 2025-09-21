@@ -5,6 +5,8 @@ import Ribbon from "@/components/common/Ribbon";
 import ProfileCompletionCard from "@/components/common/ProfileCompletionCard";
 import {useEffect, useState} from "react";
 import { profileEvents } from '@/lib/profileEvents';
+import MetricCard from "@/components/common/MetricCard";
+import {Archive, Mail, UserCheck, Users} from "lucide-react";
 
 export default function BorrowerHomepage() {
     const { data: session} = useSession();
@@ -12,6 +14,7 @@ export default function BorrowerHomepage() {
     const [profileCompletionPercentage, setProfileCompletionPercentage] = useState(0);
     const [isProfileComplete, setIsProfileComplete] = useState(false);
     const [bannerDismissed, setBannerDismissed] = useState(false);
+    const [borrowerStatistics, setBorrowerStatistics] = useState<number[]>([]);
     
     const windowBackground = theme === "light" ? styles.lightBorrowerHomePage : styles.darkBorrowerHomePage;
     const borrowerTitleText = theme === "light" ? styles.lightBorrowerTitle : styles.darkBorrowerTitle;
@@ -33,6 +36,18 @@ export default function BorrowerHomepage() {
         }
     };
 
+    const loadStatistics = async () => {
+            try {
+                    const response = await fetch("/api/borrower/borrower-statistics")
+                    if (response.ok) {
+                        const data = await response.json();
+                        setBorrowerStatistics(data);
+                    }
+            } catch (error) {
+                console.error('Error loading borrower statistics:', error);
+            }
+    };
+
     useEffect(() => {
         if (!session) return;
         
@@ -49,6 +64,7 @@ export default function BorrowerHomepage() {
         
         // Load profile completion status
         refreshProfileCompletion();
+        loadStatistics();
     }, [session]);
 
     // Listen for profile update events
@@ -78,6 +94,17 @@ export default function BorrowerHomepage() {
                     onDismiss={handleBannerDismiss}
                 />
             )}
+            <div>
+                <h1 className={styles.adminSubTitle}>Here is today's report and statistics</h1>
+                <div className={styles.cardContainer}>
+                    {/*
+                    <MetricCard title={"Total Users"} value={userCount} icon={<Users size={110}/>}/>
+                    <MetricCard title={"Waiting For Approval"} value={approvalCount} icon={<UserCheck size={110}/>}/>
+                    <MetricCard title={"Total Messages"} value={contactCount} icon={<Mail size={110}/>}/>
+                    <MetricCard title={"Archived Messages"} value={archiveCount} icon={<Archive size={110}/>}/>
+                    */}
+                </div>
+            </div>
         </div>
     )
 }

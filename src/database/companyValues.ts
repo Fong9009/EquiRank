@@ -145,3 +145,17 @@ export async function getCompanyName(companyId: number): Promise<any> {
     const results = await executeSingleQuery(query, [companyId]);
     return results.length > 0 ? results[0] : null;
 }
+
+export async function  getBorrowerCompaniesCount(borrowerId: number): Promise<number> {
+    try {
+        // Use alias for predictable property name
+        const query = `SELECT COUNT(*) as company_count FROM company_values WHERE borrower_id = ?`;
+        const result = await executeSingleQuery(query, [borrowerId]);
+
+        // Access the aliased property
+        return Number(result[0]?.company_count) || 0;
+    } catch (error) {
+        console.error('Error obtaining Loan Request Count', error);
+        return 0;
+    }
+}

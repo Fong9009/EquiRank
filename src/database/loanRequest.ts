@@ -544,4 +544,16 @@ export async function assignFunderToLoanRequest(loanRequestId: number, lenderId:
   }
 }
 
+export async function getLoanCountById(userId: number): Promise<number> {
+  try {
+    // Use alias for predictable property name
+    const query = `SELECT COUNT(*) as loan_count FROM loan_requests WHERE borrower_id = ?`;
+    const result = await executeSingleQuery(query, [userId]);
 
+    // Access the aliased property
+    return Number(result[0]?.loan_count) || 0;
+  } catch (error) {
+    console.error('Error obtaining Loan Request Count', error);
+    return 0;
+  }
+}
