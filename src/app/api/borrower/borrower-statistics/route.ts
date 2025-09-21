@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getLoanCountById } from "@/database/loanRequest";
+import {getLoanCountById, getFundedLoanCount, getActiveLoanCount} from "@/database/loanRequest";
 import { auth } from '@/lib/auth';
 import {getBorrowerID} from "@/database/profile";
 import { getBorrowerCompaniesCount} from "@/database/companyValues";
@@ -26,10 +26,17 @@ export async function GET(request: NextRequest) {
 
         // Counts the Loan Requests made by the Borrower
         const loanCount = await getLoanCountById(userId);
+        const activeLoanCount = await getActiveLoanCount(userId);
+        const loanFunded = await getFundedLoanCount(userId);
         const companyCount = await getBorrowerCompaniesCount(borrowerID.id);
-        console.log("LoanCount",loanCount);
-        console.log("Company Count", companyCount);
-        return NextResponse.json(loanCount);
+
+        return NextResponse.json({
+            loanCount,
+            activeLoanCount,
+            loanFunded,
+            companyCount
+        });
+
     } catch (error) {
         console.error('Error fetching users:', error);
         return NextResponse.json(

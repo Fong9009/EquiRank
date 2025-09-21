@@ -546,14 +546,37 @@ export async function assignFunderToLoanRequest(loanRequestId: number, lenderId:
 
 export async function getLoanCountById(userId: number): Promise<number> {
   try {
-    // Use alias for predictable property name
-    const query = `SELECT COUNT(*) as loan_count FROM loan_requests WHERE borrower_id = ?`;
-    const result = await executeSingleQuery(query, [userId]);
+      const query = `SELECT COUNT(*) as loan_count FROM loan_requests WHERE borrower_id = ?`;
+      const result = await executeSingleQuery(query, [userId]);
 
-    // Access the aliased property
-    return Number(result[0]?.loan_count) || 0;
+      return Number(result[0]?.loan_count) || 0;
   } catch (error) {
     console.error('Error obtaining Loan Request Count', error);
     return 0;
+  }
+}
+
+export async function getFundedLoanCount(userId: number): Promise<number> {
+  try {
+      const query = `SELECT COUNT(*) as loan_count FROM loan_requests WHERE borrower_id = ? and funded_by is not null `;
+      const result = await executeSingleQuery(query, [userId]);
+
+      return Number(result[0]?.loan_count) || 0;
+  } catch (error) {
+      console.error('Error obtaining Funded Loan Request Count', error);
+  }
+}
+
+export async function getActiveLoanCount(userId: number): Promise<number> {
+  try {
+      const query = `
+        SELECT COUNT(*) as loan_count 
+        FROM loan_requests 
+        WHERE borrower_id = ? and expires_at >= NOW() and archived = 0 and closed_by is null`;
+      const result = await executeSingleQuery(query, [userId]);
+
+      return Number(result[0]?.loan_count) || 0;
+  } catch (error) {
+    console.error('Error obtaining Active Loan Request Count', error);
   }
 }

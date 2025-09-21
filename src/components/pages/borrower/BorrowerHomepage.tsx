@@ -6,7 +6,7 @@ import ProfileCompletionCard from "@/components/common/ProfileCompletionCard";
 import {useEffect, useState} from "react";
 import { profileEvents } from '@/lib/profileEvents';
 import MetricCard from "@/components/common/MetricCard";
-import {Archive, Mail, UserCheck, Users} from "lucide-react";
+import {Archive, Handshake, ClipboardCheck, ChartNoAxesColumn} from "lucide-react";
 
 export default function BorrowerHomepage() {
     const { data: session} = useSession();
@@ -42,6 +42,7 @@ export default function BorrowerHomepage() {
                     if (response.ok) {
                         const data = await response.json();
                         setBorrowerStatistics(data);
+                        console.log("Borrower statistics:", data);
                     }
             } catch (error) {
                 console.error('Error loading borrower statistics:', error);
@@ -95,14 +96,12 @@ export default function BorrowerHomepage() {
                 />
             )}
             <div>
-                <h1 className={styles.adminSubTitle}>Here is today's report and statistics</h1>
+                <h1 className={styles.subTitle}>Here is today's report and statistics</h1>
                 <div className={styles.cardContainer}>
-                    {/*
-                    <MetricCard title={"Total Users"} value={userCount} icon={<Users size={110}/>}/>
-                    <MetricCard title={"Waiting For Approval"} value={approvalCount} icon={<UserCheck size={110}/>}/>
-                    <MetricCard title={"Total Messages"} value={contactCount} icon={<Mail size={110}/>}/>
-                    <MetricCard title={"Archived Messages"} value={archiveCount} icon={<Archive size={110}/>}/>
-                    */}
+                    <MetricCard title={"Total Loans"} value={borrowerStatistics.loanCount} icon={<ChartNoAxesColumn size={110}/>}/>
+                    <MetricCard title={"Active Loans"} value={borrowerStatistics.activeLoanCount} icon={<ClipboardCheck size={110}/>}/>
+                    <MetricCard title={"Funded Loans"} value={borrowerStatistics.loanFunded} icon={<Handshake size={110}/>}/>
+                    <MetricCard title={"Companies"} value={borrowerStatistics.companyCount} icon={<Archive size={110}/>}/>
                 </div>
             </div>
         </div>
