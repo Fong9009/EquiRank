@@ -9,9 +9,6 @@ import styles from "@/styles/pages/borrower/companyComparisonPage.module.css";
 interface Company {
     id: number;
     company_name: string;
-    industry?: string;
-    revenue_range?: string;
-    borrower_name?: string;
 }
 
 export default function CompanyComparisonPage() {

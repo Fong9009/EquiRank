@@ -10,7 +10,7 @@ interface CompanySearchModalProps {
 }
 
 interface Company {
-    id: string;
+    id: number;
     company_name: string;
 }
 
