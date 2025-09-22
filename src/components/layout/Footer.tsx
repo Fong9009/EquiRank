@@ -25,7 +25,9 @@ export default function Footer() {
                 <div className={styles.footerColumn}>
                     <h3 className={clsx(styles.columnTitle,styles.columnTitleUnderline)}>Support</h3>
                     <p className={styles.columnText}>Phone: +61 (0) 3 1234 5678</p>
-                    <p className={styles.columnText}>Email: contact@equirank.com</p>
+                    <p className={styles.columnText}>
+                        Email: <Link href="mailto:contact@equirank.com">contact@equirank.com</Link>
+                    </p>
                     <Link className={styles.columnLink} href="/contact-us">Contact Us</Link>
                 </div>
             </div>

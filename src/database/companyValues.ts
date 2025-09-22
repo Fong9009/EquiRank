@@ -134,6 +134,46 @@ export async function getAllCompanies(params: GetCompaniesParams): Promise<Compa
     };
 }
 
+export async function getCompanySearch(params: GetCompaniesParams): Promise<CompaniesResult> {
+    const { companyName } = params;
+
+    const conditions: string[] = [];
+    const queryParams: any[] = [];
+
+    if (companyName) {
+        conditions.push(`cv.company_name LIKE ?`);
+        queryParams.push(`%${companyName}%`);
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+    // Data query with pagination
+    const dataQuery = `
+        SELECT 
+            cv.id,
+            cv.company_name,
+            cv.industry,
+            cv.revenue_range,
+            CONCAT(u.first_name, ' ', u.last_name) AS borrower_name
+        FROM company_values cv
+        INNER JOIN borrower_profiles bp ON cv.borrower_id = bp.id
+        INNER JOIN users u ON bp.user_id = u.id
+        ${whereClause}
+        ORDER BY cv.company_name
+        LIMIT 5
+    `;
+
+    // Execute both queries
+    const [dataResult] = await Promise.all([
+        executeQuery(dataQuery, [...queryParams])
+    ]);
+
+
+    return {
+        companies: dataResult as (CompanyValues & { borrower_name: string })[],
+    };
+}
+
 export async function companyCheck(companyId: number): Promise<any> {
     const query = 'SELECT * FROM company_values WHERE id = ?';
     const results = await executeSingleQuery(query, [companyId]);
