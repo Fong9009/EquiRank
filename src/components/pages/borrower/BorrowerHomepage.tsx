@@ -5,6 +5,17 @@ import Ribbon from "@/components/common/Ribbon";
 import ProfileCompletionCard from "@/components/common/ProfileCompletionCard";
 import {useEffect, useState} from "react";
 import { profileEvents } from '@/lib/profileEvents';
+import MetricCard from "@/components/common/MetricCard";
+import {Archive, Handshake, ClipboardCheck, ChartNoAxesColumn} from "lucide-react";
+
+interface BorrowerStatistics {
+    loanCount: number;
+    activeLoanCount: number;
+    loanFunded: number;
+    companyCount: number;
+}
+
+
 
 export default function BorrowerHomepage() {
     const { data: session} = useSession();
@@ -12,6 +23,12 @@ export default function BorrowerHomepage() {
     const [profileCompletionPercentage, setProfileCompletionPercentage] = useState(0);
     const [isProfileComplete, setIsProfileComplete] = useState(false);
     const [bannerDismissed, setBannerDismissed] = useState(false);
+    const [borrowerStatistics, setBorrowerStatistics] = useState<BorrowerStatistics>({
+        loanCount: 0,
+        activeLoanCount: 0,
+        loanFunded: 0,
+        companyCount: 0,
+    });
     
     const windowBackground = theme === "light" ? styles.lightBorrowerHomePage : styles.darkBorrowerHomePage;
     const borrowerTitleText = theme === "light" ? styles.lightBorrowerTitle : styles.darkBorrowerTitle;
@@ -33,6 +50,19 @@ export default function BorrowerHomepage() {
         }
     };
 
+    const loadStatistics = async () => {
+            try {
+                    const response = await fetch("/api/borrower/borrower-statistics")
+                    if (response.ok) {
+                        const data = await response.json();
+                        setBorrowerStatistics(data);
+                        console.log("Borrower statistics:", data);
+                    }
+            } catch (error) {
+                console.error('Error loading borrower statistics:', error);
+            }
+    };
+
     useEffect(() => {
         if (!session) return;
         
@@ -49,6 +79,7 @@ export default function BorrowerHomepage() {
         
         // Load profile completion status
         refreshProfileCompletion();
+        loadStatistics();
     }, [session]);
 
     // Listen for profile update events
@@ -78,6 +109,15 @@ export default function BorrowerHomepage() {
                     onDismiss={handleBannerDismiss}
                 />
             )}
+            <div>
+                <h1 className={styles.subTitle}>Here is today's report and statistics</h1>
+                <div className={styles.cardContainer}>
+                    <MetricCard title={"Total Loans"} value={borrowerStatistics.loanCount} icon={<ChartNoAxesColumn size={110}/>}/>
+                    <MetricCard title={"Active Loans"} value={borrowerStatistics.activeLoanCount} icon={<ClipboardCheck size={110}/>}/>
+                    <MetricCard title={"Funded Loans"} value={borrowerStatistics.loanFunded} icon={<Handshake size={110}/>}/>
+                    <MetricCard title={"Companies"} value={borrowerStatistics.companyCount} icon={<Archive size={110}/>}/>
+                </div>
+            </div>
         </div>
     )
 }

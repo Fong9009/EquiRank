@@ -1,0 +1,104 @@
+.modalOverlay {
+    width: 100%;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+
+.modalContent {
+    background-color: #1f2123;
+    border-radius: 12px;
+    padding: 24px;
+    width: 50%;
+    max-width: 100%;
+}
+
+.modalTitle {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 12px 16px;               /* more padding like Google */
+    border: 1px solid #dfe1e5;        /* lighter, subtle gray */
+    border-radius: 24px;               /* fully rounded */
+    box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28); /* subtle floating shadow */
+    font-size: 16px;
+    outline: none;
+    transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.searchInput:focus {
+    border-color: #4285f4;            /* Google blue */
+    box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28), 0 0 0 3px rgba(66, 133, 244, 0.3); /* glow */
+}
+
+.searchWrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+.searchWrapper::before {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: #9aa0a6;
+    pointer-events: none;
+}
+
+.loadingText {
+    font-size: 14px;
+    color: #374151;
+}
+
+.resultsList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.resultItem {
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.resultItem:hover {
+    background-color: #292c2e;
+}
+
+.closeButton {
+    margin-top: 16px;
+    padding: 8px 16px;
+    background-color: #da2525;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.closeButton:hover {
+    background-color: #9ca3af;
+}
+
+@media (max-width: 768px) {
+    .modalContent {
+        width: 80%;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1080px) {
+    .modalContent {
+        width: 80%;
+    }
+}

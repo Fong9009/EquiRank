@@ -17,6 +17,67 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
+.graphRow,
+.companyRow {
+    display: flex;
+    gap: 20px; /* space between charts */
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.graphRow {
+    justify-content: center;
+}
+
+.companyRow {
+    justify-content: flex-start;
+}
+
+.socialLink {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.socialLink:hover {
+    text-decoration: underline;
+}
+
+.darkBackground {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.lightBackground {
+    background: rgb(28,28,28);
+}
+
+
+.lightTextColour{
+    color: black;
+}
+.darkTextColour{
+    color: white;
+}
+
+.lightPage {
+    background-color: #eae9e9;
+    min-height: 100vh;
+    transition: background 0.5s ease, color 0.5s ease;
+}
+
+.darkPage {
+    min-height: 100vh;
+    background: #101010;
+}
+
+.label {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-right: 6px;
+}
+
 .errorContainer {
     align-items: center;
     background-color: #272727;
@@ -48,6 +109,8 @@
     flex-wrap: wrap;
     justify-content: center;
     margin-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .titleText {

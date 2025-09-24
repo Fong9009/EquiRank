@@ -7,6 +7,9 @@ export interface CompanyValues {
     updated_at: Date;
     company_name?: string;
     industry?: string;
+    company_description?: string;
+    company_instagram?: string;
+    company_facebook?: string;
     revenue_range?:string;
     covenant_statistic?: {
         debt_ratio?: number;
@@ -40,7 +43,7 @@ interface GetCompaniesParams {
 
 interface CompaniesResult {
     companies: (CompanyValues & { borrower_name: string })[];
-    total: number;
+    total?: number;
 }
 
 export async function getAllCompaniesById(borrowerId: number): Promise<CompanyValues[]> {
@@ -96,7 +99,6 @@ export async function getAllCompanies(params: GetCompaniesParams): Promise<Compa
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
-    console.log(whereClause);
     // Count query for total records
     const countQuery = `
         SELECT COUNT(*) as total
@@ -134,6 +136,46 @@ export async function getAllCompanies(params: GetCompaniesParams): Promise<Compa
     };
 }
 
+export async function getCompanySearch(params: GetCompaniesParams): Promise<CompaniesResult> {
+    const { companyName } = params;
+
+    const conditions: string[] = [];
+    const queryParams: any[] = [];
+
+    if (companyName) {
+        conditions.push(`cv.company_name LIKE ?`);
+        queryParams.push(`%${companyName}%`);
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+    // Data query with pagination
+    const dataQuery = `
+        SELECT 
+            cv.id,
+            cv.company_name,
+            cv.industry,
+            cv.revenue_range,
+            CONCAT(u.first_name, ' ', u.last_name) AS borrower_name
+        FROM company_values cv
+        INNER JOIN borrower_profiles bp ON cv.borrower_id = bp.id
+        INNER JOIN users u ON bp.user_id = u.id
+        ${whereClause}
+        ORDER BY cv.company_name
+        LIMIT 5
+    `;
+
+    // Execute both queries
+    const [dataResult] = await Promise.all([
+        executeQuery(dataQuery, [...queryParams])
+    ]);
+
+
+    return {
+        companies: dataResult as (CompanyValues & { borrower_name: string })[],
+    };
+}
+
 export async function companyCheck(companyId: number): Promise<any> {
     const query = 'SELECT * FROM company_values WHERE id = ?';
     const results = await executeSingleQuery(query, [companyId]);
@@ -144,4 +186,47 @@ export async function getCompanyName(companyId: number): Promise<any> {
     const query = 'SELECT company_name FROM company_values WHERE id = ?';
     const results = await executeSingleQuery(query, [companyId]);
     return results.length > 0 ? results[0] : null;
+}
+
+export async function  getBorrowerCompaniesCount(borrowerId: number): Promise<number> {
+    try {
+        // Use alias for predictable property name
+        const query = `SELECT COUNT(*) as company_count FROM company_values WHERE borrower_id = ?`;
+        const result = await executeSingleQuery(query, [borrowerId]);
+
+        // Access the aliased property
+        return Number(result[0]?.company_count) || 0;
+    } catch (error) {
+        console.error('Error obtaining Loan Request Count', error);
+        return 0;
+    }
+}
+
+export async function getCompanyDetails(companyId: number): Promise<any> {
+    try {
+        const query = `
+        SELECT company_name,industry, company_description, company_instagram, company_facebook, revenue_range 
+        FROM company_values 
+        WHERE id = ?`;
+        const results = await executeSingleQuery(query, [companyId]);
+        return results.length > 0 ? results[0] : null;
+    } catch (error) {
+        console.error('Error in obtaining Company Details', error);
+        return null;
+    }
+}
+
+export async function getBorrowerProfileId(companyId: number): Promise<number | null> {
+    try {
+        const query = `
+        SELECT borrower_id 
+        FROM company_values 
+        WHERE id = ?`;
+        const results = await executeSingleQuery(query, [companyId]);
+
+        return results.length > 0 ? results[0].borrower_id : null;
+    } catch (error) {
+        console.error('Error obtaining Company Details', error);
+        return null;
+    }
 }

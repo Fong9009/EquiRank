@@ -221,6 +221,25 @@ export async function getTheme(id: number): Promise<User | null> {
     return results.length > 0 ? results[0] : null;
 }
 
+export async function getUserFullname(userId: number): Promise<string | null> {
+    try {
+        const query = `
+            SELECT CONCAT(first_name, ' ', last_name) AS fullname
+            FROM users
+            WHERE id = ?`;
+
+        const result = await executeQuery(query, [userId]);
+
+        if (result.length > 0) {
+            return result[0].fullname;
+        }
+        return null;
+    } catch (error) {
+        console.error('Error: Could not obtain Borrower name', error);
+        return null;
+    }
+}
+
 // END OF SELECT QUERIES
 
 export async function updateUser(

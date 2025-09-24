@@ -1,0 +1,32 @@
+.chartContainer {
+    margin-bottom: 32px;
+    max-width: 700px;
+    height: 300px; /* fixed height for Recharts */
+    padding: 16px;
+    background-color: #1b1b1b;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.ribbon {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-left: 10px;
+}
+
+.titleCompanySection {
+    font-family: 'MyCustomFont', sans-serif;
+    font-size: 40px;
+}
+
+.titleSection {
+    font-family: 'MyCustomFont', sans-serif;
+    font-size: 30px;
+}
+
+.divider {
+    border: none;
+    height: 1px;
+    background-color: white;
+    margin: 16px 0; /* optional spacing */
+}

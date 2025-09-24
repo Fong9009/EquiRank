@@ -22,24 +22,59 @@ import {
 } from "recharts";
 import styles from "@/styles/pages/lender/loanGraphPage.module.css";
 import LoadingPage from "@/components/common/LoadingPage";
+import {Theme, useEffectiveTheme} from "@/lib/theme";
+import {useSession} from "next-auth/react";
 
 interface LoanAnalysisProps {
     loanId: string;
 }
 
 export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
+    const { data: session } = useSession();
     const [radarWithDescriptions, setDataWithDescriptions] = useState<any[]>([]);
     const [absStatistics, setAbsStatistics] = useState<any[]>([]);
     const [financialSummaryData, setFinancialSummaryData] =  useState<any>();
+    const [loanDetails,setLoanDetails] = useState<any>();
     const [selectedYear, setSelectedYear] = useState<string>('');
     const [selectedLiabilityYear, setSelectedLiabilityYear] = useState<string>('');
     const hasRun = useRef(false);
     const COLORS = ['#4CAF50', '#2E7D32'];
     const LIAB_COLORS = ['#47ace3', '#2076b1'];
+    const [userTheme, setUserTheme] = useState<Theme>('auto');
 
     const [isLoading, setIsLoading] = useState(true);
 
-    //Used to Obtain the Covenant Statistics
+    const effectiveTheme = useEffectiveTheme(userTheme);
+
+    const windowBackground = effectiveTheme === "light" ? styles.lightPage : styles.darkPage;
+    const cardBackground = effectiveTheme === "light" ? styles.lightBackground : styles.darkBackground;
+    const textColour = effectiveTheme === "light" ? styles.lightTextColour : styles.darkTextColour;
+
+    useEffect(() => {
+        if (!session) return;
+        const controller = new AbortController();
+
+        const loadTheme = async () => {
+            try {
+                const res = await fetch("/api/users/theme", { signal: controller.signal });
+                const data = await res.json();
+                setUserTheme(data.theme ? data.theme.theme : 'auto');
+            } catch (err: any) {
+                if (err?.name !== 'AbortError') {
+                    console.error('Error loading theme:', err);
+                }
+            }
+        };
+
+        loadTheme();
+
+        return () => {
+            controller.abort();
+        };
+    }, [session]);
+
+
+    //Used to Obtain the Statistics
     useEffect(() => {
         if (!loanId) return;
         if (isNaN(Number(loanId))) {
@@ -49,24 +84,25 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
         const fetchAllData = async () => {
             setIsLoading(true);
             try {
-                const [covenantRes, absRes, financeSumRes] = await Promise.all([
+                const [loanRes,covenantRes, absRes, financeSumRes] = await Promise.all([
+                    fetch(`/api/loan-statistics/loan-details/${loanId}`),
                     fetch(`/api/loan-statistics/loan-covenant-graph/${loanId}`),
                     fetch(`/api/loan-statistics/loan-abs-graph/${loanId}`),
                     fetch(`/api/loan-statistics/loan-financial-summary/${loanId}`),
                 ]);
 
                 // Parse data or use empty defaults if failed
+                const loanData = loanRes.ok ? await  loanRes.json() : null;
                 const covenantData = covenantRes.ok ? await covenantRes.json() : null;
                 const absData = absRes.ok ? await absRes.json() : null;
                 const financeSumData = financeSumRes.ok ? await financeSumRes.json() : null;
 
-                // Set data with fallbacks - your components should handle null/empty data
+                setLoanDetails(loanData || {});
                 setDataWithDescriptions(covenantData || []);
                 setAbsStatistics(absData || []);
                 setFinancialSummaryData(financeSumData || {})
             } catch (err) {
                 console.error("Data fetching error:", err);
-                // Handle error state appropriately
             } finally {
                 setIsLoading(false);
             }
@@ -239,10 +275,60 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
     }
 
     return(
-        <div>
+        <div className={windowBackground}>
+
+            <div className={styles.ribbon}>
+                <h1 className={styles.titleSection}>Company Details of {loanDetails.company_name ?? "N/A"}</h1>
+            </div>
+
+            <div>
+                <div className={styles.graphRow}>
+                    <div className={styles.container}>
+                        <h2 className={styles.titleSection}>Loan Details</h2>
+                        <div>
+                            <p className={styles.highlight}>
+                                <span className={styles.label}>Amount Requested:</span>
+                                ${loanDetails.amount_requested ?? "N/A"} {loanDetails.currency ?? ""}
+                            </p>
+                            <p>
+                                <span className={styles.label}>Loan Type:</span>
+                                {loanDetails.loan_type ?? "N/A"}
+                            </p>
+                            <p>
+                                <span className={styles.label}>Loan Purpose:</span>
+                                {loanDetails.loan_purpose ?? "N/A"}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className={styles.container}>
+                        <h2 className={styles.titleSection}>Company Details</h2>
+                        <div>
+                            <p>
+                                <span className={styles.label}>Company Name:</span>
+                                {loanDetails.company_name ?? "N/A"}
+                            </p>
+                            <p>
+                                <span className={styles.label}>Company Borrower:</span>
+                                {loanDetails.borrowerName ?? "N/A"}
+                            </p>
+                            <p>
+                                <span className={styles.label}>Industry:</span>
+                                {loanDetails.industry ?? "N/A"}
+                            </p>
+                            <p>
+                                <span className={styles.label}>Revenue Range:</span>
+                                {loanDetails.revenue_range ?? "N/A"}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div className={styles.ribbon}>
                 <h1 className={styles.titleSection}>Core Investor Graphs</h1>
             </div>
+
             <div className={styles.graphRow}>
                 <div className={styles.container}>
                     <h1 className={styles.titleText}>High Level Investor View</h1>
