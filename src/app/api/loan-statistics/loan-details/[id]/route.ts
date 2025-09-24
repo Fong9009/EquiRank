@@ -55,7 +55,7 @@ export async function GET(
             return NextResponse.json({ error: 'No Borrower Name Found' }, { status: 400 });
         }
 
-        const { company_name, industry, revenue_range } = companyData;
+        const { company_name, industry, company_description, company_instagram, company_facebook, revenue_range } = companyData;
 
         const {amount_requested, currency, loan_purpose, loan_type} = loanDetails;
 
@@ -67,6 +67,9 @@ export async function GET(
             loan_type: loan_type.charAt(0).toUpperCase() + loan_type.slice(1),
             company_name,
             industry,
+            company_description,
+            company_instagram,
+            company_facebook,
             revenue_range,
         };
 

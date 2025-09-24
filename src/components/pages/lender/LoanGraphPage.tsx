@@ -285,7 +285,7 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
                 <div className={styles.graphRow}>
                     <div className={styles.container}>
                         <h2 className={styles.titleSection}>Loan Details</h2>
-                        <div className="card-content">
+                        <div>
                             <p className={styles.highlight}>
                                 <span className={styles.label}>Amount Requested:</span>
                                 ${loanDetails.amount_requested ?? "N/A"} {loanDetails.currency ?? ""}
@@ -303,7 +303,7 @@ export default function LoanGraphPage({ loanId }: LoanAnalysisProps){
 
                     <div className={styles.container}>
                         <h2 className={styles.titleSection}>Company Details</h2>
-                        <div className="card-content">
+                        <div>
                             <p>
                                 <span className={styles.label}>Company Name:</span>
                                 {loanDetails.company_name ?? "N/A"}

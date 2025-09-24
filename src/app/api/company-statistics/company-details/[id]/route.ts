@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import {getCompanyName} from "@/database/companyValues";
+import {getCompanyDetails, getBorrowerProfileId} from "@/database/companyValues";
+import {getUserIdBorrower} from "@/database/profile";
+import {getUserFullname} from "@/database/user";
 
 export async function GET(
     request: NextRequest,
@@ -19,13 +21,47 @@ export async function GET(
             return NextResponse.json({ error: 'Invalid Company ID' }, { status: 400 });
         }
 
-        const companyData = await getCompanyName(id);
+        //Getting Company Details
+        const companyData = await getCompanyDetails(id);
 
-        if(companyData) {
-            return NextResponse.json(companyData);
-        } else {
-            return NextResponse.json({ error: 'No Company Name Found' }, { status: 400 });
+        if(!companyData) {
+            return NextResponse.json({ error: 'No Company Details Found' }, { status: 400 });
         }
+
+        //Obtain Borrower Name
+        const borrowerProfileId = await getBorrowerProfileId(id);
+
+        if (!borrowerProfileId) {
+            return NextResponse.json({ error: 'Borrower ID not found' }, { status: 400 });
+        }
+
+        const userId = await getUserIdBorrower(borrowerProfileId);
+
+        if (!userId) {
+            return NextResponse.json({ error: 'User ID Could not be found' }, { status: 400 });
+        }
+
+        const borrowerName = await getUserFullname(userId);
+
+        if(!borrowerName){
+            return NextResponse.json({ error: 'No Borrower Name Found' }, { status: 400 });
+        }
+
+
+        const { company_name, industry, company_description, company_instagram, company_facebook, revenue_range } = companyData;
+
+
+        const responseData = {
+            borrowerName,
+            company_name,
+            industry,
+            company_description,
+            company_instagram,
+            company_facebook,
+            revenue_range,
+        };
+
+        return NextResponse.json(responseData, { status: 200 });
 
     } catch (error) {
         console.error('Error fetching loan request:', error);

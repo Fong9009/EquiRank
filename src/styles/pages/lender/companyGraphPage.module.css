@@ -17,6 +17,32 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
+.graphRow,
+.companyRow {
+    display: flex;
+    gap: 20px; /* space between charts */
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.graphRow {
+    justify-content: center;
+}
+
+.companyRow {
+    justify-content: flex-start;
+}
+
+.socialLink {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.socialLink:hover {
+    text-decoration: underline;
+}
 
 .darkBackground {
     background: rgba(255, 255, 255, 0.08);
@@ -43,6 +69,13 @@
 .darkPage {
     min-height: 100vh;
     background: #101010;
+}
+
+.label {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-right: 6px;
 }
 
 .errorContainer {

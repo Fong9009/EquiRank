@@ -380,6 +380,20 @@ export async function getProfileCompletionPercentage(userId: number, userType: s
 }
 
 //Get IDS
+export async function getUserIdBorrower(borrowerId: number): Promise<number | null> {
+    try {
+        const query = `
+        SELECT user_id
+        FROM borrower_profiles WHERE id = ?`;
+        const result = await executeSingleQuery(query, [borrowerId]);
+
+        return result.length > 0 ? result[0].user_id : null;
+    } catch (error) {
+        console.error('Error getting user id borrower:', error);
+        return null;
+    }
+}
+
 export async function getBorrowerID(user_id:number): Promise<{id: number} | null> {
     const query = `SELECT id FROM borrower_profiles WHERE user_id = ?`;
     const results = await executeQuery(query, [user_id]);

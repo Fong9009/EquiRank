@@ -163,6 +163,11 @@
     color: white;
 }
 
+.analyseButton:hover {
+    background: linear-gradient(135deg, #a19b1b, #9d9505);
+    transform: scale(1.05);
+}
+
 .error {
     text-align: center;
     padding: 2rem;

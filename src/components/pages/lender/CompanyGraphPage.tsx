@@ -30,10 +30,6 @@ interface CompanyAnalysisProps {
     companyId: string;
 }
 
-interface CompanyProps {
-    company_name: string;
-}
-
 export default function CompanyGraphPage({ companyId }: CompanyAnalysisProps){
     const { data: session } = useSession();
     const [radarWithDescriptions, setDataWithDescriptions] = useState<any[]>([]);
@@ -41,7 +37,7 @@ export default function CompanyGraphPage({ companyId }: CompanyAnalysisProps){
     const [financialSummaryData, setFinancialSummaryData] =  useState<any>();
     const [selectedYear, setSelectedYear] = useState<string>('');
     const [selectedLiabilityYear, setSelectedLiabilityYear] = useState<string>('');
-    const [companyName, setCompanyName] = useState<CompanyProps | null>(null);
+    const [companyDetails, setCompanyDetails] = useState<any>();
     const router = useRouter();
     const COLORS = ['#4CAF50', '#2E7D32'];
     const LIAB_COLORS = ['#47ace3', '#2076b1'];
@@ -94,7 +90,7 @@ export default function CompanyGraphPage({ companyId }: CompanyAnalysisProps){
             }
             setIsLoading(true);
             try {
-                const [nameRes, covenantRes, absRes, financeSumRes] = await Promise.all([
+                const [detailsRes, covenantRes, absRes, financeSumRes] = await Promise.all([
                     fetch(`/api/company-statistics/company-details/${companyId}`),
                     fetch(`/api/company-statistics/company-covenant-graph/${companyId}`),
                     fetch(`/api/company-statistics/company-abs-graph/${companyId}`),
@@ -102,13 +98,13 @@ export default function CompanyGraphPage({ companyId }: CompanyAnalysisProps){
                 ]);
 
                 // Parse data or use empty defaults if failed
-                const nameData = nameRes.ok ? await  nameRes.json() : null;
+                const detailData = detailsRes.ok ? await  detailsRes.json() : null;
                 const covenantData = covenantRes.ok ? await covenantRes.json() : null;
                 const absData = absRes.ok ? await absRes.json() : null;
                 const financeSumData = financeSumRes.ok ? await financeSumRes.json() : null;
 
                 // Set data with fallbacks - your components should handle null/empty data
-                setCompanyName(nameData || "");
+                setCompanyDetails(detailData || "");
                 setDataWithDescriptions(covenantData || []);
                 setAbsStatistics(absData || []);
                 setFinancialSummaryData(financeSumData || {})
@@ -254,13 +250,63 @@ export default function CompanyGraphPage({ companyId }: CompanyAnalysisProps){
 
     return(
         <div className={windowBackground}>
-            <div className={styles.titleRibbon}>
-                <h1 className={clsx(styles.titleSection, textColour)}>
-                    {companyName && companyName.company_name
-                        ? `Company Analysis Of: ${companyName.company_name}`
-                        : "Company Analysis"}
-                </h1>
+            <div className={styles.ribbon}>
+                <h1 className={styles.titleSection}>Company Details of {companyDetails.company_name ?? "N/A"}</h1>
+            </div>
 
+            <div>
+                <div className={styles.graphRow}>
+                    <div className={styles.container}>
+                        <h2 className={styles.titleSection}>Company Details</h2>
+                        <div>
+                            <p>
+                                <span className={styles.label}>Company Name: </span>
+                                {companyDetails.company_name ?? "N/A"}
+                            </p>
+                            <p>
+                                <span className={styles.label}>Company Borrower: </span>
+                                {companyDetails.borrowerName ?? "N/A"}
+                            </p>
+                            <p>
+                                <span className={styles.label}>Industry: </span>
+                                {companyDetails.industry ?? "N/A"}
+                            </p>
+                            <p>
+                                <span className={styles.label}>Revenue Range: </span>
+                                {companyDetails.revenue_range ?? "N/A"}
+                            </p>
+                        </div>
+                    </div>
+                    <div className={styles.container}>
+                        <h2 className={styles.titleSection}>Company Socials</h2>
+                        <div>
+                            <p>
+                                <span className={styles.label}>Company Description: </span>
+                                {companyDetails.company_description ?? "N/A"}
+                            </p>
+                            <p>
+                                <span className={styles.label}>Company Instagram: </span>
+                                {companyDetails.company_instagram ? (
+                                    <a className={styles.socialLink} href={companyDetails.company_instagram} target="_blank" rel="noopener noreferrer">
+                                        {companyDetails.company_instagram ?? "N/A"}
+                                    </a>
+                                ) : (
+                                    "N/A"
+                                )}
+                            </p>
+                            <p>
+                                <span className={styles.label}>Company Facebook: </span>
+                                {companyDetails.company_facebook ? (
+                                    <a className={styles.socialLink} href={companyDetails.company_facebook} target="_blank" rel="noopener noreferrer">
+                                        {companyDetails.company_facebook ?? "N/A"}
+                                    </a>
+                                ) : (
+                                    "N/A"
+                                )}
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div className={styles.ribbon}>
                 <h1 className={styles.titleSection}>Core Investor Graphs</h1>

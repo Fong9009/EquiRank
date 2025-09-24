@@ -7,6 +7,9 @@ export interface CompanyValues {
     updated_at: Date;
     company_name?: string;
     industry?: string;
+    company_description?: string;
+    company_instagram?: string;
+    company_facebook?: string;
     revenue_range?:string;
     covenant_statistic?: {
         debt_ratio?: number;
@@ -202,13 +205,28 @@ export async function  getBorrowerCompaniesCount(borrowerId: number): Promise<nu
 export async function getCompanyDetails(companyId: number): Promise<any> {
     try {
         const query = `
-        SELECT company_name,industry, revenue_range 
+        SELECT company_name,industry, company_description, company_instagram, company_facebook, revenue_range 
         FROM company_values 
         WHERE id = ?`;
         const results = await executeSingleQuery(query, [companyId]);
         return results.length > 0 ? results[0] : null;
     } catch (error) {
         console.error('Error in obtaining Company Details', error);
+        return null;
+    }
+}
+
+export async function getBorrowerProfileId(companyId: number): Promise<number | null> {
+    try {
+        const query = `
+        SELECT borrower_id 
+        FROM company_values 
+        WHERE id = ?`;
+        const results = await executeSingleQuery(query, [companyId]);
+
+        return results.length > 0 ? results[0].borrower_id : null;
+    } catch (error) {
+        console.error('Error obtaining Company Details', error);
         return null;
     }
 }
