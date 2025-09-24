@@ -1,3 +1,30 @@
+.darkBackground {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.lightBackground {
+    background: rgb(28,28,28);
+}
+
+
+.lightTextColour{
+    color: black;
+}
+.darkTextColour{
+    color: white;
+}
+
+.lightPage {
+    background-color: #eae9e9;
+    min-height: 100vh;
+    transition: background 0.5s ease, color 0.5s ease;
+}
+
+.darkPage {
+    min-height: 100vh;
+    background: #101010;
+}
+
 .pageContainer {
     padding: 24px;
 }
@@ -12,6 +39,15 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
+}
+
+.chartContainer {
+    flex: 1;
+    max-width: 700px;
+    padding: 2rem;
+    background-color: #1b1b1b;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 .card {
@@ -79,17 +115,16 @@
     color: #000000;
     border-color: #000000;
 }
-.chartContainer {
-    flex: 1;
-    max-width: 700px;
-    padding: 2rem;
-    background-color: #1b1b1b;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
 
-@media (min-width: 768px) {
+@media (min-width: 769px) {
     .grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+
+@media (max-width: 768px) {
+    .pageGrid {
+        grid-template-columns: 1fr;
     }
 }

@@ -564,6 +564,7 @@ export async function getFundedLoanCount(userId: number): Promise<number> {
       return Number(result[0]?.loan_count) || 0;
   } catch (error) {
       console.error('Error obtaining Funded Loan Request Count', error);
+      return 0;
   }
 }
 
@@ -578,5 +579,45 @@ export async function getActiveLoanCount(userId: number): Promise<number> {
       return Number(result[0]?.loan_count) || 0;
   } catch (error) {
     console.error('Error obtaining Active Loan Request Count', error);
+    return 0;
+  }
+}
+
+//Borrower ID in this case is the user ID
+export async function getBorrowerId(userId: number): Promise<number | null> {
+  try {
+      const query = `
+        SELECT borrower_id 
+        FROM loan_requests
+        WHERE id = ?`;
+      const result = await executeSingleQuery(query, [userId]);
+
+      if(!result){
+        return null;
+      }
+
+      return result[0].borrower_id;
+  } catch (error) {
+    console.error('Error Could not obtain Borrower', error);
+    return null;
+  }
+}
+
+export async function getLoanDetails(loanId: number): Promise<any> {
+  try {
+    const query = `
+      SELECT amount_requested, currency, loan_purpose, loan_type
+      FROM loan_requests
+      WHERE id = ?`;
+    const result = await executeSingleQuery(query, [loanId]);
+
+    if(!result){
+      return null;
+    }
+
+    return result[0];
+  } catch (error) {
+    console.error('Error obtaining Loan Details', error);
+    return null;
   }
 }

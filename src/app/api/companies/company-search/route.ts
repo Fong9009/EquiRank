@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import {getAllCompanies, getCompanySearch} from '@/database/companyValues';
+import {getCompanySearch} from '@/database/companyValues';
 
 export async function GET(request: NextRequest) {
     try {
@@ -19,7 +19,9 @@ export async function GET(request: NextRequest) {
         const companyName = searchParams.get('companyName');
 
         const result = await getCompanySearch({
-            companyName
+            companyName,
+            page: 1,
+            limit: 5,
         });
 
         return NextResponse.json({

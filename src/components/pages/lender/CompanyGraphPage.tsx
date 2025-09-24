@@ -21,7 +21,10 @@ import {
 } from "recharts";
 import styles from "@/styles/pages/lender/companyGraphPage.module.css";
 import LoadingPage from "@/components/common/LoadingPage";
+import clsx from "clsx";
 import { useRouter } from "next/navigation";
+import {Theme, useEffectiveTheme} from "@/lib/theme";
+import {useSession} from "next-auth/react";
 
 interface CompanyAnalysisProps {
     companyId: string;
@@ -32,6 +35,7 @@ interface CompanyProps {
 }
 
 export default function CompanyGraphPage({ companyId }: CompanyAnalysisProps){
+    const { data: session } = useSession();
     const [radarWithDescriptions, setDataWithDescriptions] = useState<any[]>([]);
     const [absStatistics, setAbsStatistics] = useState<any[]>([]);
     const [financialSummaryData, setFinancialSummaryData] =  useState<any>();
@@ -41,14 +45,41 @@ export default function CompanyGraphPage({ companyId }: CompanyAnalysisProps){
     const router = useRouter();
     const COLORS = ['#4CAF50', '#2E7D32'];
     const LIAB_COLORS = ['#47ace3', '#2076b1'];
-
     const [isLoading, setIsLoading] = useState(true);
+    const [userTheme, setUserTheme] = useState<Theme>('auto');
+    const effectiveTheme = useEffectiveTheme(userTheme);
+
+    const windowBackground = effectiveTheme === "light" ? styles.lightPage : styles.darkPage;
+    const cardBackground = effectiveTheme === "light" ? styles.lightBackground : styles.darkBackground;
+    const textColour = effectiveTheme === "light" ? styles.lightTextColour : styles.darkTextColour;
+
+
+    useEffect(() => {
+        if (!session) return;
+        const controller = new AbortController();
+
+        const loadTheme = async () => {
+            try {
+                const res = await fetch("/api/users/theme", { signal: controller.signal });
+                const data = await res.json();
+                setUserTheme(data.theme ? data.theme.theme : 'auto');
+            } catch (err: any) {
+                if (err?.name !== 'AbortError') {
+                    console.error('Error loading theme:', err);
+                }
+            }
+        };
+
+        loadTheme();
+
+        return () => {
+            controller.abort();
+        };
+    }, [session]);
 
     //Used to Obtain the Covenant Statistics
     useEffect(() => {
         if (!companyId) return;
-
-
         const fetchAllData = async () => {
             if (isNaN(Number(companyId))) {
                 router.replace("/404");
@@ -222,9 +253,9 @@ export default function CompanyGraphPage({ companyId }: CompanyAnalysisProps){
     }
 
     return(
-        <div>
+        <div className={windowBackground}>
             <div className={styles.titleRibbon}>
-                <h1 className={styles.titleSection}>
+                <h1 className={clsx(styles.titleSection, textColour)}>
                     {companyName && companyName.company_name
                         ? `Company Analysis Of: ${companyName.company_name}`
                         : "Company Analysis"}

@@ -8,13 +8,27 @@ import { profileEvents } from '@/lib/profileEvents';
 import MetricCard from "@/components/common/MetricCard";
 import {Archive, Handshake, ClipboardCheck, ChartNoAxesColumn} from "lucide-react";
 
+interface BorrowerStatistics {
+    loanCount: number;
+    activeLoanCount: number;
+    loanFunded: number;
+    companyCount: number;
+}
+
+
+
 export default function BorrowerHomepage() {
     const { data: session} = useSession();
     const [theme,setTheme] = useState<'light' | 'dark' | 'auto'>('auto');
     const [profileCompletionPercentage, setProfileCompletionPercentage] = useState(0);
     const [isProfileComplete, setIsProfileComplete] = useState(false);
     const [bannerDismissed, setBannerDismissed] = useState(false);
-    const [borrowerStatistics, setBorrowerStatistics] = useState<number[]>([]);
+    const [borrowerStatistics, setBorrowerStatistics] = useState<BorrowerStatistics>({
+        loanCount: 0,
+        activeLoanCount: 0,
+        loanFunded: 0,
+        companyCount: 0,
+    });
     
     const windowBackground = theme === "light" ? styles.lightBorrowerHomePage : styles.darkBorrowerHomePage;
     const borrowerTitleText = theme === "light" ? styles.lightBorrowerTitle : styles.darkBorrowerTitle;

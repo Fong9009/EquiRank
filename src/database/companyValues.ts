@@ -40,7 +40,7 @@ interface GetCompaniesParams {
 
 interface CompaniesResult {
     companies: (CompanyValues & { borrower_name: string })[];
-    total: number;
+    total?: number;
 }
 
 export async function getAllCompaniesById(borrowerId: number): Promise<CompanyValues[]> {
@@ -96,7 +96,6 @@ export async function getAllCompanies(params: GetCompaniesParams): Promise<Compa
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
-    console.log(whereClause);
     // Count query for total records
     const countQuery = `
         SELECT COUNT(*) as total
@@ -197,5 +196,19 @@ export async function  getBorrowerCompaniesCount(borrowerId: number): Promise<nu
     } catch (error) {
         console.error('Error obtaining Loan Request Count', error);
         return 0;
+    }
+}
+
+export async function getCompanyDetails(companyId: number): Promise<any> {
+    try {
+        const query = `
+        SELECT company_name,industry, revenue_range 
+        FROM company_values 
+        WHERE id = ?`;
+        const results = await executeSingleQuery(query, [companyId]);
+        return results.length > 0 ? results[0] : null;
+    } catch (error) {
+        console.error('Error in obtaining Company Details', error);
+        return null;
     }
 }

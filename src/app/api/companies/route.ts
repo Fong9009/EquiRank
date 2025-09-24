@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
             limit
         });
 
-        const totalPages = Math.ceil(result.total / limit);
+        const totalPages = Math.ceil((result.total ?? 0) / limit);
         const hasNextPage = page < totalPages;
         const hasPrevPage = page > 1;
 

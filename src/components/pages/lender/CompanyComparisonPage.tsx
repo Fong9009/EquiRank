@@ -1,20 +1,58 @@
 "use client";
 
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import { Plus } from "lucide-react";
 import CompanySearchModal from "@/components/common/CompanySearchModal";
 import CompanyCard from "@/components/common/CompanyCard";
 import styles from "@/styles/pages/borrower/companyComparisonPage.module.css";
+import clsx from "clsx";
+import {Theme, useEffectiveTheme} from "@/lib/theme";
+import {useSession} from "next-auth/react";
 
 interface Company {
     id: number;
     company_name: string;
 }
 
-export default function CompanyComparisonPage() {
+interface CompanyAnalysisProps {
+    companyId: string;
+}
+
+
+export default function CompanyComparisonPage({companyId}: CompanyAnalysisProps) {
+    const { data: session } = useSession();
     const [companies, setCompanies] = useState<Company[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const MAX_COMPANIES = 4;
+    const [userTheme, setUserTheme] = useState<Theme>('auto');
+    const effectiveTheme = useEffectiveTheme(userTheme);
+    const MAX_COMPANIES = 2;
+
+    const windowBackground = effectiveTheme === "light" ? styles.lightPage : styles.darkPage;
+    const cardBackground = effectiveTheme === "light" ? styles.lightBackground : styles.darkBackground;
+    const textColour = effectiveTheme === "light" ? styles.lightTextColour : styles.darkTextColour;
+
+    useEffect(() => {
+        if (!session) return;
+        const controller = new AbortController();
+
+        const loadTheme = async () => {
+            try {
+                const res = await fetch("/api/users/theme", { signal: controller.signal });
+                const data = await res.json();
+                setUserTheme(data.theme ? data.theme.theme : 'auto');
+            } catch (err: any) {
+                if (err?.name !== 'AbortError') {
+                    console.error('Error loading theme:', err);
+                }
+            }
+        };
+
+        loadTheme();
+
+        return () => {
+            controller.abort();
+        };
+    }, [session]);
 
     // Add a new company (from modal)
     const addCompany = (newCompany: Company) => {
@@ -30,8 +68,8 @@ export default function CompanyComparisonPage() {
     };
 
     return (
-        <div className={styles.pageContainer}>
-            <h1 className={styles.pageTitle}>Company Comparison</h1>
+        <div className={clsx(styles.pageContainer, windowBackground)}>
+            <h1 className={clsx(styles.pageTitle, textColour)}>Company Comparison</h1>
 
             <div className={styles.pageGrid}>
                 {companies.map(company => (
