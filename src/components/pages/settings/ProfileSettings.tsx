@@ -40,8 +40,6 @@ interface ProfileData {
     min_loan_amount?: number;
     max_loan_amount?: number;
     
-    // Admin-specific fields
-    admin_level?: string;
 }
 
 interface DisplayData {
@@ -80,8 +78,7 @@ export default function ProfileSettings() {
         min_loan_amount: undefined,
         max_loan_amount: undefined,
         
-        // Admin-specific fields
-        admin_level: ''
+        // Admin-specific fields (none currently exposed)
     });
 
     const [isLoading, setIsLoading] = useState(false);
@@ -163,8 +160,7 @@ export default function ProfileSettings() {
                     min_loan_amount: userData.min_loan_amount || undefined,
                     max_loan_amount: userData.max_loan_amount || undefined,
                     
-                    // Admin-specific fields
-                    admin_level: userData.admin_level || ''
+                    // Admin-specific fields (none currently exposed)
                 };
                 setProfileData(updatedProfileData);
                 
@@ -204,8 +200,7 @@ export default function ProfileSettings() {
                 min_loan_amount: undefined,
                 max_loan_amount: undefined,
                 
-                // Admin-specific fields
-                admin_level: ''
+                // Admin-specific fields (none currently exposed)
             };
             setProfileData(fallbackProfileData);
             
@@ -823,47 +818,29 @@ export default function ProfileSettings() {
                                 </div>
                             )}
 
-                            {/* Admin-specific fields */}
-                            {session?.user && (session.user as any).userType === 'admin' && (
-                                <div className={styles.section}>
-                                    <h3>Admin Information</h3>
-                                    <div className={styles.formGroup}>
-                                        <label htmlFor="admin_level">Admin Level</label>
-                                        <select
-                                            id="admin_level"
-                                            value={profileData.admin_level || ''}
-                                            onChange={(e) => handleProfileChange('admin_level', e.target.value)}
-                                            className={styles.input}
-                                        >
-                                            <option value="">Select admin level</option>
-                                            <option value="super_admin">Super Admin</option>
-                                            <option value="admin">Admin</option>
-                                            <option value="moderator">Moderator</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            )}
+                            {/* Admin-specific fields: none (admin_level removed) */}
                         </div>
 
-                        {/* Profile Completion Progress Indicator */}
-                        <div className={styles.progressSection}>
-                            <div className={styles.progressHeader}>
-                                <h3>Profile Completion</h3>
-                                <span className={styles.progressPercentage}>{profileCompletionPercentage}%</span>
+                        {/* Profile Completion Progress Indicator: only for borrowers */}
+                        {session?.user && (session.user as any).userType === 'borrower' && (
+                            <div className={styles.progressSection}>
+                                <div className={styles.progressHeader}>
+                                    <h3>Profile Completion</h3>
+                                    <span className={styles.progressPercentage}>{profileCompletionPercentage}%</span>
+                                </div>
+                                <div className={styles.progressBar}>
+                                    <div 
+                                        className={styles.progressFill}
+                                        style={{ width: `${profileCompletionPercentage}%` }}
+                                    />
+                                </div>
+                                <p className={styles.progressMessage}>
+                                    {profileCompletionPercentage === 100 
+                                        ? 'Your profile is complete! 🎉' 
+                                        : `Complete ${100 - profileCompletionPercentage}% more to finish your profile`}
+                                </p>
                             </div>
-                            <div className={styles.progressBar}>
-                                <div 
-                                    className={styles.progressFill}
-                                    style={{ width: `${profileCompletionPercentage}%` }}
-                                />
-                            </div>
-                            <p className={styles.progressMessage}>
-                                {profileCompletionPercentage === 100 
-                                    ? 'Your profile is complete! 🎉' 
-                                    : `Complete ${100 - profileCompletionPercentage}% more to finish your profile`
-                                }
-                            </p>
-                        </div>
+                        )}
 
                         <div className={styles.formActions}>
                             <button

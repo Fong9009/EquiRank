@@ -352,3 +352,22 @@
 .viewButton:active {
   transform: translateY(0);
 }
+
+.analyseButton {
+  background: linear-gradient(135deg, #c5bd22, #c3b706);
+  color: white;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 5px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 0.75rem;
+}
+
+.analyseButton:hover {
+  background: linear-gradient(135deg, #d4c92a, #bfae05);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(197, 189, 34, 0.3);
+}

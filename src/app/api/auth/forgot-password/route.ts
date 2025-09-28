@@ -2,15 +2,44 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUserByEmail } from '@/database/user';
 import { sendPasswordResetEmail } from '@/lib/email';
 import crypto from 'crypto';
-import {deleteToken, insertToken} from "@/database/password";
+import { deleteToken, insertToken } from '@/database/password';
+import { validateEmail } from '@/lib/security';
+import { checkRateLimit, STRICT_RATE_LIMIT } from '@/lib/rateLimiter';
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit to prevent token spraying
+    const { allowed, remaining, resetTime } = checkRateLimit(request, STRICT_RATE_LIMIT);
+    if (!allowed) {
+      return new NextResponse(
+        JSON.stringify({ error: 'Too many requests from this IP, please try again later.' }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-RateLimit-Limit': STRICT_RATE_LIMIT.max.toString(),
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': new Date(resetTime).toISOString(),
+            'Retry-After': Math.max(0, Math.ceil((resetTime - Date.now()) / 1000)).toString(),
+          },
+        }
+      );
+    }
+
     const { email } = await request.json();
 
     if (!email) {
       return NextResponse.json(
         { error: 'Email is required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate email format
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
+      return NextResponse.json(
+        { error: 'Invalid email format' },
         { status: 400 }
       );
     }
@@ -59,9 +88,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json(
-      { message: 'If an account with that email exists, a password reset link has been sent.' },
-      { status: 200 }
+    return new NextResponse(
+      JSON.stringify({ message: 'If an account with that email exists, a password reset link has been sent.' }),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-RateLimit-Limit': STRICT_RATE_LIMIT.max.toString(),
+          'X-RateLimit-Remaining': Math.max(0, remaining - 1).toString(),
+          'X-RateLimit-Reset': new Date(resetTime).toISOString(),
+        },
+      }
     );
 
   } catch (error) {

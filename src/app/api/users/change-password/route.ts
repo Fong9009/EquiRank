@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { updateUserPassword, getUserPasswordHash } from '@/database/user'; // your DB function
 import { auth } from '@/lib/auth'; // your auth/session helper
-import { verifyPassword } from '@/lib/security';
-import bcrypt from 'bcryptjs';
+import { verifyPassword, validatePassword, hashPassword } from '@/lib/security';
 
 export async function POST(req: NextRequest) {
     try {
@@ -33,7 +32,13 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Current password is incorrect' }, { status: 400 });
         }
 
-        const hashedPassword = await bcrypt.hash(newPassword, 12);
+        // Validate new password strength
+        const validation = validatePassword(newPassword);
+        if (!validation.isValid) {
+            return NextResponse.json({ error: 'Invalid password', details: validation.errors }, { status: 400 });
+        }
+
+        const hashedPassword = await hashPassword(newPassword);
 
         const success = await updateUserPassword(hashedPassword, parseInt(session.user.id));
         if (success) {

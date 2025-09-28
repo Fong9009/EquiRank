@@ -21,19 +21,27 @@ export function middleware(request: NextRequest) {
   response.headers.set('X-DNS-Prefetch-Control', 'off');
   response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
 
-  // Content Security Policy
+  // Content Security Policy (tighten in production)
   const nonce = generateNonce();
-  response.headers.set(
-      'Content-Security-Policy',
-      `default-src 'self'; ` +
-      `script-src 'self' 'unsafe-eval' https://www.google.com https://www.gstatic.com; ` +
-      `script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com; ` +
-      `connect-src 'self' https://www.google.com https://www.gstatic.com; ` +
-      `style-src 'self' 'unsafe-inline'; ` +
-      `frame-src https://www.google.com https://www.gstatic.com; ` +
-      `img-src 'self' data: https:; ` +
-      `font-src 'self' data:;`
-  );
+  const isProd = process.env.NODE_ENV === 'production';
+  const scriptSrcBase = isProd
+    ? `script-src 'self' 'nonce-${nonce}' https://www.google.com https://www.gstatic.com; `
+    : `script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.google.com https://www.gstatic.com; `;
+  const scriptElemSrcBase = isProd
+    ? `script-src-elem 'self' 'nonce-${nonce}' https://www.google.com https://www.gstatic.com; `
+    : `script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com; `;
+
+  const csp =
+    `default-src 'self'; ` +
+    scriptSrcBase +
+    scriptElemSrcBase +
+    `connect-src 'self' https://www.google.com https://www.gstatic.com; ` +
+    `style-src 'self' 'unsafe-inline'; ` +
+    `frame-src https://www.google.com https://www.gstatic.com; ` +
+    `img-src 'self' data: https:; ` +
+    `font-src 'self' data:;`;
+
+  response.headers.set('Content-Security-Policy', csp);
   response.headers.set('X-Nonce', nonce);
 
   // CORS headers

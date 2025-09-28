@@ -1,10 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {markToken, verifyToken} from '@/database/password';
+import { markToken, verifyToken } from '@/database/password';
 import { updateUserPassword, clearFailedLoginAttempt } from '@/database/user';
-import bcrypt from 'bcrypt';
+import { validatePassword, hashPassword } from '@/lib/security';
+import { checkRateLimit, STRICT_RATE_LIMIT } from '@/lib/rateLimiter';
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit 
+    const { allowed, remaining, resetTime } = checkRateLimit(request, STRICT_RATE_LIMIT);
+    if (!allowed) {
+      return new NextResponse(
+        JSON.stringify({ error: 'Too many requests from this IP, please try again later.' }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-RateLimit-Limit': STRICT_RATE_LIMIT.max.toString(),
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': new Date(resetTime).toISOString(),
+            'Retry-After': Math.max(0, Math.ceil((resetTime - Date.now()) / 1000)).toString(),
+          },
+        }
+      );
+    }
+
     const { token, newPassword } = await request.json();
 
     if (!token || !newPassword) {
@@ -15,9 +34,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate password strength
-    if (newPassword.length < 8) {
+    const validation = validatePassword(newPassword);
+    if (!validation.isValid) {
       return NextResponse.json(
-        { error: 'Password must be at least 12 characters long' },
+        { error: 'Invalid password', details: validation.errors },
         { status: 400 }
       );
     }
@@ -51,8 +71,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Hash the new password
-    const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+    const hashedPassword = await hashPassword(newPassword);
 
     await updateUserPassword(hashedPassword, resetToken.user_id);
     await markToken(resetToken.id);
@@ -60,9 +79,17 @@ export async function POST(request: NextRequest) {
     // Clear failed login attempts and unlock account if it was locked
     await clearFailedLoginAttempt(resetToken.user_id);
 
-    return NextResponse.json(
-      { message: 'Password has been reset successfully. You can now login with your new password.' },
-      { status: 200 }
+    return new NextResponse(
+      JSON.stringify({ message: 'Password has been reset successfully. You can now login with your new password.' }),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-RateLimit-Limit': STRICT_RATE_LIMIT.max.toString(),
+          'X-RateLimit-Remaining': Math.max(0, remaining - 1).toString(),
+          'X-RateLimit-Reset': new Date(resetTime).toISOString(),
+        },
+      }
     );
   } catch (error) {
     console.error('Reset password error:', error);

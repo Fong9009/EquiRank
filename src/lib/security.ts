@@ -132,8 +132,8 @@ export const RATE_LIMIT_CONFIG = {
 
 // Session security
 export const SESSION_CONFIG = {
-  maxAge: 30 * 24 * 60 * 60, // 30 days
-  updateAge: 24 * 60 * 60, // 24 hours
+  maxAge: 48 * 60 * 60, // 48 hours
+  updateAge: 24 * 60 * 60, // rotate token daily without extending absolute expiry
   secure: process.env.NODE_ENV === 'production',
   httpOnly: true,
   sameSite: 'lax' as const,

@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import styles from '@/styles/pages/lender/fundedLoansList.module.css';
 import clsx from 'clsx';
 import FundedLoanDetails from './FundedLoanDetails';
+import Link from 'next/link';
 
 interface FundedLoan {
   id: number;
@@ -237,6 +238,11 @@ export default function FundedLoansList() {
                 >
                   View Details
                 </button>
+                <Link href={`/dashboard/lender/loan-analysis/${loan.id}`} passHref>
+                  <button className={styles.analyseButton}>
+                    Analyse
+                  </button>
+                </Link>
               </div>
             </div>
           ))}
