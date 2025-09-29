@@ -178,6 +178,18 @@
     margin-bottom: 1rem;
 }
 
+.noResults {
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+.socialLink {
+    color: #007bff;
+    text-decoration: none;
+}
+.socialLink:hover {
+    text-decoration: underline;
+}
 
 .cardGrid {
     display: grid;
