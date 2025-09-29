@@ -78,7 +78,7 @@ export default function CompanyCard({ company, onRemove }: CompanyCardProps) {
 
 
     return (
-        <div className={styles.card}>
+        <div>
             <button onClick={() => onRemove(company.id)} className={styles.removeButton}>
                 X
             </button>
@@ -171,8 +171,16 @@ export default function CompanyCard({ company, onRemove }: CompanyCardProps) {
                         </BarChart>
                     </ResponsiveContainer>
                     <hr className="divider"/>
-                    <div className={styles.ribbon}>
-                        <h1 className={styles.titleSection}>Total Assets</h1>
+                    <div className={styles.titleContainer}>
+                        <h1 className={styles.titleText}>Total Assets</h1>
+                        <div className={styles.tooltipWrapper}>
+                            <span className={styles.questionMark}>?</span>
+                            <div className={styles.tooltip}>
+                                Total Assets represent the sum of all assets owned by the company,
+                                including current assets (cash, inventory, receivables) and
+                                non-current assets (property, equipment, investments).
+                            </div>
+                        </div>
                     </div>
                     {Array.isArray(financialSummaryData) && financialSummaryData.length > 0 ? (
                         <ResponsiveContainer width="100%" height={300}>
@@ -216,8 +224,16 @@ export default function CompanyCard({ company, onRemove }: CompanyCardProps) {
                         </div>
                     )}
                     <hr className="divider"/>
-                    <div className={styles.ribbon}>
-                        <h1 className={styles.titleSection}>Total Liabilities</h1>
+                    <div className={styles.titleContainer}>
+                        <h1 className={styles.titleText}>Total Liabilities</h1>
+                        <div className={styles.tooltipWrapper}>
+                            <span className={styles.questionMark}>?</span>
+                            <div className={styles.tooltip}>
+                                Total Liabilities are what the business owes to outsiders such as banks, suppliers
+                                ,lenders or anyone it needs to pay back. There are current(Due within 12 months)
+                                and non current liabilities(Long term debts due after 12 months).
+                            </div>
+                        </div>
                     </div>
                     {Array.isArray(financialSummaryData) && financialSummaryData.length > 0 ? (
                         <ResponsiveContainer width="100%" height={300}>
@@ -261,8 +277,15 @@ export default function CompanyCard({ company, onRemove }: CompanyCardProps) {
                         </div>
                     )}
                     <hr className="divider"/>
-                    <div className={styles.ribbon}>
-                        <h1 className={styles.titleSection}>Equity of Company</h1>
+                    <div className={styles.titleContainer}>
+                        <h1 className={styles.titleText}>Equity of Company</h1>
+                        <div className={styles.tooltipWrapper}>
+                            <span className={styles.questionMark}>?</span>
+                            <div className={styles.tooltip}>
+                                This is the owners claim on the business after all debts are paid off
+                                Equity = Assets = Liabilities, it is the net worth of the company and shows
+                            </div>
+                        </div>
                     </div>
                     {Array.isArray(financialSummaryData) && financialSummaryData.length > 0 ? (
                         <ResponsiveContainer width="100%" height={300}>
@@ -306,8 +329,16 @@ export default function CompanyCard({ company, onRemove }: CompanyCardProps) {
                         </div>
                     )}
                     <hr className="divider"/>
-                    <div className={styles.ribbon}>
-                        <h1 className={styles.titleSection}>Gross Profit</h1>
+                    <div className={styles.titleContainer}>
+                        <h1 className={styles.titleText}>Gross Profit</h1>
+                        <div className={styles.tooltipWrapper}>
+                            <span className={styles.questionMark}>?</span>
+                            <div className={styles.tooltip}>
+                                This is the profit a company makes after removing the direct costs of producing
+                                and selling the goods or services it has. It is to demonstrate efficiency of the companies
+                                production.
+                            </div>
+                        </div>
                     </div>
                     {Array.isArray(financialSummaryData) && financialSummaryData.length > 0 ? (
                         <ResponsiveContainer width="100%" height={300}>
@@ -351,8 +382,15 @@ export default function CompanyCard({ company, onRemove }: CompanyCardProps) {
                         </div>
                     )}
                     <hr className="divider"/>
-                    <div className={styles.ribbon}>
-                        <h1 className={styles.titleSection}>EBITDA</h1>
+                    <div className={styles.titleContainer}>
+                        <h1 className={styles.titleText}>EBITDA</h1>
+                        <div className={styles.tooltipWrapper}>
+                            <span className={styles.questionMark}>?</span>
+                            <div className={styles.tooltip}>
+                                This is earnings before interest, taxes, depreciation and Amotisation, It is the companies
+                                Operating performance from it's core operations without being affected by other values
+                            </div>
+                        </div>
                     </div>
                     {Array.isArray(financialSummaryData) && financialSummaryData.length > 0 ? (
                         <ResponsiveContainer width="100%" height={300}>
@@ -396,8 +434,14 @@ export default function CompanyCard({ company, onRemove }: CompanyCardProps) {
                         </div>
                     )}
                     <hr className="divider"/>
-                    <div className={styles.ribbon}>
-                        <h1 className={styles.titleSection}>Profit/Loss</h1>
+                    <div className={styles.titleContainer}>
+                        <h1 className={styles.titleText}>Profit/Loss</h1>
+                        <div className={styles.tooltipWrapper}>
+                            <span className={styles.questionMark}>?</span>
+                            <div className={styles.tooltip}>
+                                This is the final result after subtracting all expenses from the company revenue
+                            </div>
+                        </div>
                     </div>
                     {Array.isArray(financialSummaryData) && financialSummaryData.length > 0 ? (
                         <ResponsiveContainer width="100%" height={300}>
@@ -441,8 +485,16 @@ export default function CompanyCard({ company, onRemove }: CompanyCardProps) {
                         </div>
                     )}
                     <hr className="divider"/>
-                    <div className={styles.ribbon}>
-                        <h1 className={styles.titleSection}>Other Expenses</h1>
+                    <div className={styles.titleContainer}>
+                        <h1 className={styles.titleText}>Other Expenses</h1>
+                        <div className={styles.tooltipWrapper}>
+                            <span className={styles.questionMark}>?</span>
+                            <div className={styles.tooltip}>
+                                These are costs that a company incurs that are not included in the cost of Goods Sold or
+                                The interest/ depreciation they only cover the operating and administrative costs that the
+                                Business needs to run.
+                            </div>
+                        </div>
                     </div>
                     {Array.isArray(financialSummaryData) && financialSummaryData.length > 0 ? (
                         <ResponsiveContainer width="100%" height={300}>
@@ -486,8 +538,15 @@ export default function CompanyCard({ company, onRemove }: CompanyCardProps) {
                         </div>
                     )}
                     <hr className="divider"/>
-                    <div className={styles.ribbon}>
-                        <h1 className={styles.titleSection}>Depreciation</h1>
+                    <div className={styles.titleContainer}>
+                        <h1 className={styles.titleText}>Depreciation</h1>
+                        <div className={styles.tooltipWrapper}>
+                            <span className={styles.questionMark}>?</span>
+                            <div className={styles.tooltip}>
+                                The cost of a long term asset like machinery over time in it's useful life, Instead of
+                                recording the full purchase it allows a business to expense a portion each year.
+                            </div>
+                        </div>
                     </div>
                     {Array.isArray(financialSummaryData) && financialSummaryData.length > 0 ? (
                         <ResponsiveContainer width="100%" height={300}>

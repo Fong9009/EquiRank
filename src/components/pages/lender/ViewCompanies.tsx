@@ -1,6 +1,6 @@
 "use client";
 import styles from "@/styles/pages/lender/viewCompanies.module.css";
-import {useEffect, useState, useCallback} from "react";
+import React, {useEffect, useState, useCallback} from "react";
 import {type Theme, useEffectiveTheme} from "@/lib/theme";
 import {useSession} from "next-auth/react";
 import Link from "next/link";
@@ -10,6 +10,8 @@ interface CompanyRequests {
     id: number;
     company_name?: string;
     industry?: string;
+    company_instagram?: string;
+    company_facebook?: string;
     revenue_range?: string;
     borrower_name?: string;
 }
@@ -44,6 +46,7 @@ export default function ViewCompanies() {
     const [filters, setFilters] = useState({
         companyName: '',
         companyOwner: '',
+        companyPurpose: '',
         revenueRange: 'all',
     });
 
@@ -94,6 +97,9 @@ export default function ViewCompanies() {
             if (customFilters.companyOwner.trim()) {
                 queryParams.append('companyOwner', customFilters.companyOwner.trim());
             }
+            if (customFilters.companyPurpose.trim()) {
+                queryParams.append('companyPurpose', customFilters.companyPurpose.trim());
+            }
 
             queryParams.append('page', page.toString());
             queryParams.append('limit', itemsPerPage.toString());
@@ -130,7 +136,7 @@ export default function ViewCompanies() {
 
     useEffect(() => {
         if (session?.user) {
-            const emptyFilters = { companyName: '', companyOwner: '', revenueRange: 'all' };
+            const emptyFilters = { companyName: '', companyOwner: '', companyPurpose: '', revenueRange: 'all' };
             fetchCompanies(1, emptyFilters);
         }
     }, [session, fetchCompanies]);
@@ -151,6 +157,7 @@ export default function ViewCompanies() {
         const clearedFilters = {
             companyName: '',
             companyOwner: '',
+            companyPurpose: '',
             revenueRange: 'all',
         };
         setFilters(clearedFilters);
@@ -222,6 +229,18 @@ export default function ViewCompanies() {
                         </div>
 
                         <div className={styles.filterGroup}>
+                            <label htmlFor="company-purpose">Company Purpose:</label>
+                            <input
+                                type="text"
+                                id="company-purpose"
+                                value={filters.companyPurpose}
+                                onChange={(e) => handleFilterChange('companyPurpose', e.target.value)}
+                                onKeyDown={handleFilterKeyDown}
+                                className={styles.filterInput}
+                            />
+                        </div>
+
+                        <div className={styles.filterGroup}>
                             <label htmlFor="company-revenue-filter">Revenue Range</label>
                             <select
                                 id="company-revenue-filter"
@@ -263,7 +282,7 @@ export default function ViewCompanies() {
                 </div>
                 <div className={styles.cardGrid}>
                     {companyRequests.length === 0 ? (
-                        <p className={styles.noResults}>No Companies Available</p>
+                        <p className={clsx(styles.noResults,textColour)}>No Companies Available</p>
                     ) : (
                         companyRequests.map((company, index) => (
                             <div key={index} className={styles.card}>
@@ -276,6 +295,26 @@ export default function ViewCompanies() {
                                 </p>
                                 <p className={styles.companyDetail}>
                                     <strong>Company Owner:</strong> {company.borrower_name || "N/A"}
+                                </p>
+                                <p>
+                                    <span><strong>Company Instagram:</strong> </span>
+                                    {company.company_instagram ? (
+                                        <a className={styles.socialLink} href={company.company_instagram} target="_blank" rel="noopener noreferrer">
+                                            {company.company_instagram ?? "N/A"}
+                                        </a>
+                                    ) : (
+                                        "N/A"
+                                    )}
+                                </p>
+                                <p>
+                                    <span><strong>Company Facebook:</strong> </span>
+                                    {company.company_facebook ? (
+                                        <a className={styles.socialLink} href={company.company_facebook} target="_blank" rel="noopener noreferrer">
+                                            {company.company_facebook ?? "N/A"}
+                                        </a>
+                                    ) : (
+                                        "N/A"
+                                    )}
                                 </p>
                                 <div className={styles.requestActions}>
                                     <Link href={`/dashboard/lender/company-analysis/${company.id}`} passHref>

@@ -36,6 +36,7 @@ export interface CompanyValues {
 interface GetCompaniesParams {
     companyName?: string | null;
     companyOwner?: string | null;
+    companyPurpose?: string | null;
     revenueRange?: string | null;
     page: number;
     limit: number;
@@ -74,9 +75,9 @@ export async function getCompanyFinanceSummary(id: number): Promise<any> {
 }
 
 export async function getAllCompanies(params: GetCompaniesParams): Promise<CompaniesResult> {
-    const { companyName, companyOwner, revenueRange, page, limit } = params;
+    const { companyName, companyOwner, companyPurpose, revenueRange, page, limit } = params;
     const offset = (page - 1) * limit;
-
+    console.log(companyPurpose);
     // Build dynamic WHERE conditions
     const conditions: string[] = [];
     const queryParams: any[] = [];
@@ -90,6 +91,11 @@ export async function getAllCompanies(params: GetCompaniesParams): Promise<Compa
         // For MySQL, we need to be more careful with CONCAT in WHERE clauses
         conditions.push(`(CONCAT(u.first_name, ' ', u.last_name) LIKE ?)`);
         queryParams.push(`%${companyOwner}%`);
+    }
+
+    if (companyPurpose) {
+        conditions.push(`cv.company_description LIKE ?`);
+        queryParams.push(`%${companyPurpose}%`);
     }
 
     if (revenueRange) {
@@ -114,6 +120,9 @@ export async function getAllCompanies(params: GetCompaniesParams): Promise<Compa
             cv.id,
             cv.company_name,
             cv.industry,
+            cv.company_description,
+            cv.company_instagram,
+            cv.company_facebook,
             cv.revenue_range,
             CONCAT(u.first_name, ' ', u.last_name) AS borrower_name
         FROM company_values cv

@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const companyName = searchParams.get('companyName');
         const companyOwner = searchParams.get('companyOwner');
+        const companyPurpose = searchParams.get('companyPurpose');
         const revenueRange = searchParams.get('revenueRange');
         const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
         const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '10'))); // Cap at 100
@@ -25,6 +26,7 @@ export async function GET(request: NextRequest) {
         const result = await getAllCompanies({
             companyName,
             companyOwner,
+            companyPurpose,
             revenueRange: revenueRange === 'all' ? null : revenueRange,
             page,
             limit
