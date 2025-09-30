@@ -9,6 +9,7 @@ interface LoanRequestDetails {
   borrower_id: number;
   amount_requested: number;
   currency: string;
+  risk?: { band: 'low' | 'medium' | 'high'; score: number };
   social_media_links?: {
     linkedin?: string;
     twitter?: string;
@@ -40,6 +41,7 @@ export default function LoanRequestDetails({ requestId, onClose, onFund }: LoanR
   const [error, setError] = useState<string | null>(null);
   const [isFunding, setIsFunding] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  
 
   useEffect(() => {
     if (requestId) {
@@ -65,6 +67,8 @@ export default function LoanRequestDetails({ requestId, onClose, onFund }: LoanR
       setIsLoading(false);
     }
   };
+
+  
 
   const handleFund = async () => {
     if (!request || !session?.user) return;
@@ -341,6 +345,16 @@ export default function LoanRequestDetails({ requestId, onClose, onFund }: LoanR
                 <span className={styles.label}>Purpose:</span>
                 <span className={styles.value}>{request.loan_purpose}</span>
               </div>
+              {request.risk && (
+                <div className={styles.infoRow}>
+                  <span className={styles.label}>Risk:</span>
+                  <span className={styles.value}>
+                    <span className={styles.riskBadge} data-band={request.risk.band}>
+                      {request.risk.band.toUpperCase()} RISK • {request.risk.score}
+                    </span>
+                  </span>
+                </div>
+              )}
               <div className={styles.infoRow}>
                 <span className={styles.label}>Requested:</span>
                 <span className={styles.value}>{formatDate(request.created_at)}</span>
@@ -353,6 +367,9 @@ export default function LoanRequestDetails({ requestId, onClose, onFund }: LoanR
               )}
             </div>
           </div>
+
+
+          
 
 
 

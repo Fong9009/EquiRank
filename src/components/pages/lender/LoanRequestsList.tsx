@@ -21,6 +21,7 @@ interface LoanRequest {
   borrower_name: string;
   borrower_company?: string;
   company_name?:string;
+  risk?: { score: number; band: 'low' | 'medium' | 'high'; drivers?: { liquidityScore: number; solvencyScore: number; profitabilityScore: number; efficiencyScore: number } };
 }
 
 export default function LoanRequestsList() {
@@ -34,8 +35,10 @@ export default function LoanRequestsList() {
     status: 'all',
     loanType: 'all',
     minAmount: '',
-    maxAmount: ''
+    maxAmount: '',
+    riskBand: 'all'
   });
+  const [lenderAppetite, setLenderAppetite] = useState<'conservative' | 'moderate' | 'aggressive' | null>(null);
   
   // Use the effective theme hook to handle 'auto' theme
   const effectiveTheme = useEffectiveTheme(userTheme);
@@ -69,6 +72,16 @@ export default function LoanRequestsList() {
     };
 
     loadTheme();
+    const loadProfile = async () => {
+      try {
+        const res = await fetch('/api/users/profile', { signal: controller.signal });
+        if (res.ok) {
+          const p = await res.json();
+          if (p?.risk_appetite) setLenderAppetite(p.risk_appetite);
+        }
+      } catch {}
+    };
+    loadProfile();
     
     return () => {
       controller.abort();
@@ -84,6 +97,7 @@ export default function LoanRequestsList() {
       if (filters.loanType !== 'all') queryParams.append('loanType', filters.loanType);
       if (filters.minAmount) queryParams.append('minAmount', filters.minAmount);
       if (filters.maxAmount) queryParams.append('maxAmount', filters.maxAmount);
+      if (filters.riskBand !== 'all') queryParams.append('riskBand', filters.riskBand);
 
       const response = await fetch(`/api/loan-requests/available?${queryParams.toString()}`);
       
@@ -104,6 +118,59 @@ export default function LoanRequestsList() {
   const handleFund = (requestId: number) => {
     // Remove the funded request from the list
     setLoanRequests(prev => prev.filter(req => req.id !== requestId));
+  };
+
+  const appetiteAcceptsBand = (appetite: string | null, band: string | undefined) => {
+    if (!appetite || !band) return false;
+    if (appetite === 'conservative') return band === 'low';
+    if (appetite === 'moderate') return band === 'low' || band === 'medium';
+    if (appetite === 'aggressive') return band === 'low' || band === 'medium' || band === 'high';
+    return false;
+  };
+
+  const riskSummary = (r: NonNullable<LoanRequest['risk']>) => {
+    const ds = r.drivers || { liquidityScore: 0, solvencyScore: 0, profitabilityScore: 0, efficiencyScore: 0 };
+    
+    // Map categories to human-readable names
+    const categoryNames: Record<string, string> = {
+      liquidityScore: 'Cash flow',
+      solvencyScore: 'Debt management',
+      profitabilityScore: 'Profit margins',
+      efficiencyScore: 'Operational efficiency'
+    };
+    
+    // Find strongest and weakest categories
+    const scores = [
+      { key: 'liquidityScore', name: categoryNames.liquidityScore, value: ds.liquidityScore },
+      { key: 'solvencyScore', name: categoryNames.solvencyScore, value: ds.solvencyScore },
+      { key: 'profitabilityScore', name: categoryNames.profitabilityScore, value: ds.profitabilityScore },
+      { key: 'efficiencyScore', name: categoryNames.efficiencyScore, value: ds.efficiencyScore }
+    ].sort((a, b) => b.value - a.value);
+    
+    const strongest = scores[0];
+    const weakest = scores[scores.length - 1];
+    
+    // Generate contextual message based on the scores
+    const getContext = () => {
+      if (r.score >= 75) {
+        return `Strong ${strongest.name.toLowerCase()}, stable ${scores[1].name.toLowerCase()}.`;
+      } else if (r.score >= 50) {
+        return `Good ${strongest.name.toLowerCase()}, but ${weakest.name.toLowerCase()} could improve.`;
+      } else {
+        return `${weakest.name} needs attention. Consider risk carefully.`;
+      }
+    };
+    
+    // Build tooltip content - horizontal format
+    const strongItems = scores.filter(s => s.value >= 70).map(s => s.name).join(', ');
+    const watchItems = scores.filter(s => s.value < 70).map(s => s.name).join(', ');
+    
+    return {
+      title: `${r.band.toUpperCase()} RISK (${r.score}/100)`,
+      strong: strongItems,
+      watch: watchItems,
+      context: getContext()
+    };
   };
 
   const getStatusColor = (status: string) => {
@@ -174,6 +241,21 @@ export default function LoanRequestsList() {
 
           {/* Filters */}
           <div className={clsx(styles.filters, cardBackground)}>
+            <div className={styles.filterGroup}>
+              <label htmlFor="risk-band-filter">Risk:</label>
+              <select
+                id="risk-band-filter"
+                value={filters.riskBand}
+                onChange={(e) => handleFilterChange('riskBand', e.target.value)}
+                className={styles.filterSelect}
+              >
+                <option value="all">All</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+
             <div className={styles.filterGroup}>
               <label htmlFor="status-filter">Status:</label>
               <select
@@ -249,12 +331,40 @@ export default function LoanRequestsList() {
             <div className={styles.requestsGrid}>
               {loanRequests.map((request) => (
                 <div key={request.id} className={clsx(styles.requestCard, cardBackground)}>
+                  {request.risk && appetiteAcceptsBand(lenderAppetite, request.risk.band) && (
+                    <div className={styles.recommendBanner}>
+                      Recommended for your risk appetite ({String(lenderAppetite)}).
+                    </div>
+                  )}
                   <div className={styles.requestHeader}>
                     <div className={styles.amountSection}>
                       <span className={styles.amount}>
                         {formatCurrency(request.amount_requested, request.currency)}
                       </span>
                       <span className={styles.currency}>{request.currency}</span>
+                    {request.risk && (
+                      <div className={styles.riskBadge} data-band={request.risk.band}>
+                        {request.risk.band.toUpperCase()} RISK • {request.risk.score}
+                        <button className={styles.riskHelp} aria-label="Risk details">?
+                          <div className={styles.riskTooltip}>
+                            {(() => {
+                              const summary = riskSummary(request.risk);
+                              return (
+                                <>
+                                  <div className={styles.tooltipTitle}>{summary.title}</div>
+                                  <div className={styles.tooltipBody}>
+                                    {summary.strong && <span className={styles.tooltipStrong}>✓ Strong: {summary.strong}</span>}
+                                    {summary.strong && summary.watch && <span className={styles.tooltipSep}>•</span>}
+                                    {summary.watch && <span className={styles.tooltipWatch}>⚠ Watch: {summary.watch}</span>}
+                                  </div>
+                                  <div className={styles.tooltipContext}>{summary.context}</div>
+                                </>
+                              );
+                            })()}
+                          </div>
+                        </button>
+                      </div>
+                    )}
                     </div>
                     <div className={`${styles.status} ${getStatusColor(request.status)}`}>
                       {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
@@ -293,7 +403,7 @@ export default function LoanRequestsList() {
                       </span>
                     </div>
                     
-                    <div className={styles.detailRow}>
+                    <div className={`${styles.detailRow} ${styles.detailRowPurpose}`}>
                       <span className={styles.label}>Purpose:</span>
                       <span className={styles.value}>
                         {request.loan_purpose.length > 80 

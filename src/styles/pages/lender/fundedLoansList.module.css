@@ -371,3 +371,38 @@
   transform: translateY(-1px);
   box-shadow: 0 8px 25px rgba(197, 189, 34, 0.3);
 }
+
+.riskBadge {
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  margin-top: 0.6rem;
+}
+
+.riskBadge[data-band="low"] {
+  background: rgba(34, 197, 94, 0.18);
+  color: #22c55e;
+  border-color: rgba(34, 197, 94, 0.35);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.08);
+}
+
+.riskBadge[data-band="medium"] {
+  background: rgba(245, 158, 11, 0.18);
+  color: #f59e0b;
+  border-color: rgba(245, 158, 11, 0.35);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.08);
+}
+
+.riskBadge[data-band="high"] {
+  background: rgba(239, 68, 68, 0.18);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.35);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08);
+}
+
+.detailRowPurpose .label { align-self: flex-start; }
+.detailRowPurpose .value { text-align: left; white-space: pre-wrap; }

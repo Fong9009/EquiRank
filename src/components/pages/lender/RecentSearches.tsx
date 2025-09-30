@@ -11,6 +11,7 @@ interface FundedLoan {
     borrower_id: number;
     amount_requested: number;
     currency: string;
+  risk?: { band: 'low' | 'medium' | 'high'; score: number };
     company_name: string;
     company_description?: string;
     social_media_links?: {
@@ -164,6 +165,11 @@ export default function RecentSearches() {
                     {formatCurrency(loan.amount_requested, loan.currency)}
                   </span>
                                     <span className={styles.currency}>{loan.currency}</span>
+                                    {loan.risk && (
+                                        <div className={styles.riskBadge} data-band={loan.risk.band}>
+                                            {loan.risk.band.toUpperCase()} RISK • {loan.risk.score}
+                                        </div>
+                                    )}
                                 </div>
                                 <div className={styles.statusSection}>
                                     <div className={`${styles.status} ${getStatusColor(loan.status)}`}>
@@ -185,7 +191,7 @@ export default function RecentSearches() {
                                     </div>
                                 )}
 
-                                <div className={styles.detailRow}>
+                                <div className={`${styles.detailRow} ${styles.detailRowPurpose}`}>
                                     <span className={styles.label}>Purpose:</span>
                                     <span className={styles.value}>{loan.loan_purpose}</span>
                                 </div>

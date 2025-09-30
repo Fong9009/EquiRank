@@ -1,6 +1,6 @@
 .container {
   padding: 2rem;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -45,6 +45,12 @@
   background-clip: text;
 }
 
+@media (min-width: 1440px) {
+  .title {
+    font-size: 3rem;
+  }
+}
+
 .subtitle {
   color: #a0a0a0;
   font-size: 1.1rem;
@@ -59,6 +65,14 @@
   padding: 1.5rem;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@media (min-width: 1440px) {
+  .filters {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2rem;
+    padding: 2rem;
+  }
 }
 
 .filterGroup {
@@ -111,6 +125,14 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 1.5rem;
+  overflow: visible;
+}
+
+@media (min-width: 1440px) {
+  .requestsGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
 }
 
 .requestCard {
@@ -120,6 +142,15 @@
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+@media (min-width: 1440px) {
+  .requestCard {
+    padding: 2rem;
+  }
 }
 
 .requestCard::before {
@@ -162,6 +193,12 @@
   font-size: 1.75rem;
   font-weight: 700;
   line-height: 1;
+}
+
+@media (min-width: 1440px) {
+  .amount {
+    font-size: 2rem;
+  }
 }
 
 .currency {
@@ -218,6 +255,7 @@
 
 .requestDetails {
   margin-bottom: 1.5rem;
+  flex-grow: 1;
 }
 
 .detailRow {
@@ -352,6 +390,151 @@
 .retryButton:hover {
   background: #2563eb;
   transform: translateY(-1px);
+}
+
+.riskBadge {
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.riskBadge[data-band="low"] {
+  background: rgba(34, 197, 94, 0.18);
+  color: #22c55e;
+  border-color: rgba(34, 197, 94, 0.35);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.08);
+}
+
+.riskBadge[data-band="medium"] {
+  background: rgba(245, 158, 11, 0.18);
+  color: #f59e0b;
+  border-color: rgba(245, 158, 11, 0.35);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.08);
+}
+
+.riskBadge[data-band="high"] {
+  background: rgba(239, 68, 68, 0.18);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.35);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08);
+}
+
+.amountSection .riskBadge {
+  margin-top: 0.8rem;
+}
+
+.riskHelp {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+  font-weight: 800;
+  font-size: 11px;
+  cursor: default;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
+}
+
+.riskHelp:hover {
+  opacity: 1;
+}
+
+.riskTooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  transform: translateY(-4px);
+  width: max-content;
+  max-width: 350px;
+  background: rgba(0,0,0,0.92);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity .2s ease, transform .2s ease;
+  pointer-events: none;
+  z-index: 5;
+  text-align: left;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.riskHelp:hover .riskTooltip {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.tooltipTitle {
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.tooltipBody {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.tooltipStrong {
+  color: #22c55e;
+  font-weight: 500;
+}
+
+.tooltipWatch {
+  color: #f59e0b;
+  font-weight: 500;
+}
+
+.tooltipSep {
+  color: rgba(255,255,255,0.3);
+  font-weight: 700;
+}
+
+.tooltipContext {
+  color: rgba(255,255,255,0.85);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.recommendBanner {
+  margin: -1.5rem -1.5rem 1rem -1.5rem;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(34,197,94,0.25);
+  background: linear-gradient(90deg, rgba(34,197,94,0.12), rgba(34,197,94,0.05));
+  color: #22c55e;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.detailRowPurpose .label {
+  align-self: flex-start;
+}
+
+.detailRowPurpose .value {
+  text-align: left;
+  white-space: pre-wrap;
 }
 
 /* Responsive design */

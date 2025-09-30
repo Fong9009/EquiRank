@@ -241,6 +241,9 @@
   word-wrap: break-word;
 }
 
+.detailRowPurpose .label { align-self: flex-start; }
+.detailRowPurpose .value { text-align: left; white-space: pre-wrap; }
+
 .requestActions {
   display: flex;
   gap: 1rem;

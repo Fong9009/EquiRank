@@ -205,11 +205,24 @@ export async function  getBorrowerCompaniesCount(borrowerId: number): Promise<nu
 export async function getCompanyDetails(companyId: number): Promise<any> {
     try {
         const query = `
-        SELECT company_name,industry, company_description, company_instagram, company_facebook, revenue_range 
+        SELECT company_name,industry, company_description, company_instagram, company_facebook, revenue_range, risk_score, risk_band 
         FROM company_values 
         WHERE id = ?`;
-        const results = await executeSingleQuery(query, [companyId]);
-        return results.length > 0 ? results[0] : null;
+        try {
+            const results = await executeSingleQuery(query, [companyId]);
+            return results.length > 0 ? results[0] : null;
+        } catch (e: any) {
+            const msg = e?.sqlMessage || e?.message || '';
+            if (/Unknown column 'risk_score'|Unknown column 'risk_band'/i.test(msg)) {
+                const fallback = `
+                SELECT company_name,industry, company_description, company_instagram, company_facebook, revenue_range 
+                FROM company_values 
+                WHERE id = ?`;
+                const results = await executeSingleQuery(fallback, [companyId]);
+                return results.length > 0 ? results[0] : null;
+            }
+            throw e;
+        }
     } catch (error) {
         console.error('Error in obtaining Company Details', error);
         return null;

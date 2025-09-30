@@ -7,6 +7,8 @@ import {useEffect, useState} from "react";
 import { profileEvents } from '@/lib/profileEvents';
 import MetricCard from "@/components/common/MetricCard";
 import {Archive, Handshake, ClipboardCheck, ChartNoAxesColumn} from "lucide-react";
+import useSWR from 'swr';
+import { useSearchParams } from 'next/navigation';
 
 interface BorrowerStatistics {
     loanCount: number;
@@ -33,6 +35,11 @@ export default function BorrowerHomepage() {
     const windowBackground = theme === "light" ? styles.lightBorrowerHomePage : styles.darkBorrowerHomePage;
     const borrowerTitleText = theme === "light" ? styles.lightBorrowerTitle : styles.darkBorrowerTitle;
     const divider = theme === "light" ? styles.lightDivider : styles.darkDivider;
+
+    const fetcher = (url: string) => fetch(url).then(res => res.json());
+    const params = useSearchParams();
+    const companyId = params?.get('companyId');
+    const { data: risk } = useSWR(companyId ? `/api/company-statistics/company-risk/${companyId}` : null, fetcher);
 
     // Function to refresh profile completion
     const refreshProfileCompletion = async () => {
@@ -117,6 +124,12 @@ export default function BorrowerHomepage() {
                     <MetricCard title={"Funded Loans"} value={borrowerStatistics.loanFunded} icon={<Handshake size={110}/>}/>
                     <MetricCard title={"Companies"} value={borrowerStatistics.companyCount} icon={<Archive size={110}/>}/>
                 </div>
+                {companyId && risk && (
+                    <div style={{ marginTop: 16 }}>
+                        <span style={{ fontWeight: 600 }}>Company Risk:</span>{' '}
+                        <span>{String(risk.band).toUpperCase()} ({risk.score})</span>
+                    </div>
+                )}
             </div>
         </div>
     )
