@@ -281,7 +281,7 @@ export default function LoanRequestList() {
                     </span>
                   </div>
 
-                  <div className={styles.detailRow}>
+                  <div className={`${styles.detailRow} ${styles.detailRowPurpose}`}>
                     <span className={styles.label}>Purpose:</span>
                     <span className={styles.value}>
                       {request.loan_purpose.length > 100
@@ -358,20 +358,20 @@ export default function LoanRequestList() {
                     View Details
                   </button>
                   {request.status === 'pending' && (
-                    <>
-                      <button
-                        className={styles.editButton}
-                        onClick={() => handleEditRequest(request.id)}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className={styles.deleteButton}
-                        onClick={() => handleDeleteRequest(request.id)}
-                      >
-                        Delete
-                      </button>
-                    </>
+                    <button
+                      className={styles.editButton}
+                      onClick={() => handleEditRequest(request.id)}
+                    >
+                      Edit
+                    </button>
+                  )}
+                  {['pending', 'closed'].includes(request.status) && (
+                    <button
+                      className={styles.deleteButton}
+                      onClick={() => handleDeleteRequest(request.id)}
+                    >
+                      Delete
+                    </button>
                   )}
                 </div>
               </div>

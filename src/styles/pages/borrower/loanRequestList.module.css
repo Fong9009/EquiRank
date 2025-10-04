@@ -170,6 +170,9 @@
   line-height: 1.4;
 }
 
+.detailRowPurpose .label { align-self: flex-start; }
+.detailRowPurpose .value { text-align: left; }
+
 .requestActions {
   display: flex;
   gap: 0.75rem;

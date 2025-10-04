@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { getLoanRequestById,deleteLoanRequest, updateLoanRequest } from '@/database/loanRequest';
+import { computeCompanyRisk } from '@/lib/risk';
 
 
 export async function GET(
@@ -47,7 +48,13 @@ export async function GET(
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
-    return NextResponse.json(loanRequest);
+    let risk: any = null;
+    const companyId = (loanRequest as any).company_id as number | undefined;
+    if (companyId) {
+      try { risk = await computeCompanyRisk(companyId); } catch {}
+    }
+
+    return NextResponse.json({ ...loanRequest, risk });
 
   } catch (error) {
     console.error('Error fetching loan request:', error);
@@ -191,13 +198,13 @@ export async function DELETE(
       return NextResponse.json({ error: 'Loan request not found' }, { status: 404 });
     }
 
-    // Access control: only borrowers can delete their own pending requests
+    // Access control: only borrowers can delete their own pending or closed requests
     if (session.user.userType === 'borrower') {
       if (existingRequest.borrower_id !== parseInt(session.user.id)) {
         return NextResponse.json({ error: 'Access denied' }, { status: 403 });
       }
-      if (existingRequest.status !== 'pending') {
-        return NextResponse.json({ error: 'Only pending requests can be deleted' }, { status: 400 });
+      if (!['pending', 'closed'].includes(existingRequest.status)) {
+        return NextResponse.json({ error: 'Only pending or closed requests can be deleted' }, { status: 400 });
       }
     } else if (session.user.userType !== 'admin') {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });

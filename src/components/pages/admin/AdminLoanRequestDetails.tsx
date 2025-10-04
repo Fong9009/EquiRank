@@ -221,7 +221,7 @@ export default function AdminLoanRequestDetails({ requestId, onClose }: AdminLoa
 
           {/* Action Buttons */}
           <div className={styles.actions}>
-            {(request.status === 'pending' || request.status === 'funded') ? (
+            {request.status === 'pending' ? (
               <button 
                 onClick={() => setShowCloseModal(true)}
                 className={styles.closeRequestButton}

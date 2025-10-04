@@ -6,6 +6,7 @@ import Ribbon from '@/components/common/Ribbon';
 import FundedLoansList from '@/components/pages/lender/FundedLoansList';
 import {useEffect, useState} from "react";
 import RecentSearches from "@/components/pages/lender/RecentSearches";
+import useSWR from 'swr';
 
 export default function LenderHomepage() {
     const { data: session} = useSession();
@@ -15,6 +16,9 @@ export default function LenderHomepage() {
     const windowBackground = theme === "light" ? styles.lightLenderHomePage : styles.darkLenderHomePage;
     const lenderTitleText = theme === "light" ? styles.lightLenderTitle : styles.darkLenderTitle;
     const divider = theme === "light" ? styles.lightDivider : styles.darkDivider;
+
+    const fetcher = (url: string) => fetch(url).then(res => res.json());
+    const { data: available } = useSWR('/api/loan-requests/available', fetcher);
 
     useEffect(() => {
         if (!session) return;

@@ -62,7 +62,8 @@ export default function Sidebar({ role, activeTab, setActiveTab, isOpen, toggleS
                 {
                     title: 'System',
                     items: [
-                        { name: 'File Cleanup', icon: Trash2, path: '/dashboard/admin?tab=file-cleanup', tabKey: 'file-cleanup' }
+                        { name: 'File Cleanup', icon: Trash2, path: '/dashboard/admin?tab=file-cleanup', tabKey: 'file-cleanup' },
+                        ...(isSuperAdmin ? [{ name: 'Risk Settings', icon: Settings, path: '/dashboard/admin/risk-settings', tabKey: 'risk-settings' }] : [])
                     ]
                 }
             ]

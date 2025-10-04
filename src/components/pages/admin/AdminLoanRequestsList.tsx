@@ -286,7 +286,7 @@ export default function AdminLoanRequestsList() {
                       </span>
                     </div>
                     
-                    <div className={styles.detailRow}>
+                    <div className={`${styles.detailRow} ${styles.detailRowPurpose}`}>
                       <span className={styles.label}>Purpose:</span>
                       <span className={styles.value}>
                         {request.loan_purpose.length > 80 

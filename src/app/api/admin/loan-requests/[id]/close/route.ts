@@ -32,10 +32,17 @@ export async function POST(
       return NextResponse.json({ error: 'Loan request not found' }, { status: 404 });
     }
 
-    // Check if the request can be closed (pending, active, or funded requests)
-    if (!['pending', 'funded'].includes(loanRequest.status)) {
+    // Disallow closing funded requests to let lender track their loans
+    if (loanRequest.status === 'funded') {
       return NextResponse.json({ 
-        error: 'Only pending or funded loan requests can be closed' 
+        error: 'Funded loan requests cannot be closed by admin to allow lender tracking' 
+      }, { status: 400 });
+    }
+    
+    // Allow closing only pending requests
+    if (!['pending'].includes(loanRequest.status)) {
+      return NextResponse.json({ 
+        error: 'Only pending loan requests can be closed' 
       }, { status: 400 });
     }
 
