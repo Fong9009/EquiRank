@@ -23,7 +23,6 @@ export async function GET(
     }
 
     const loanRequest = await getLoanRequestById(id);
-    console.log("LOAN_REQUEST", loanRequest);
     if (!loanRequest) {
       return NextResponse.json({ error: 'Loan request not found' }, { status: 404 });
     }
