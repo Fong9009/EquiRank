@@ -4,6 +4,7 @@ import PasswordInput from '@/components/common/PasswordInput';
 import styles from '@/styles/pages/admin/addAdmin.module.css';
 import clsx from 'clsx';
 import {useSession} from "next-auth/react";
+import CustomConfirmation from "@/components/common/CustomConfirmation";
 
 export default function AddAdmin() {
   const { data: session } = useSession();
@@ -22,6 +23,15 @@ export default function AddAdmin() {
   const textColour = theme === "light" ? styles.lightTextColour : styles.darkTextColour;
   const backgroundColour = theme === "light" ? styles.lightBackground : styles.darkBackground;
 
+  // Custom confirmation dialog state
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [confirmationData, setConfirmationData] = useState<{
+    action: 'approve';
+    userName: string;
+    userId: number;
+    message: string;
+    title: string;
+  } | null>(null);
 
 
   useEffect(() => {
@@ -60,14 +70,29 @@ export default function AddAdmin() {
     }
   };
 
-  const onSubmit = async (e: React.FormEvent) => {
+  const handleConfirmation = async () => {
+    if (!confirmationData) return;
+    setShowConfirmation(false);
+    setConfirmationData(null);
+    await createAdmin(); // Call without event parameter
+  };
+
+  const showApprovalConfirmation = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Add confirmation dialog before creating admin
-    if (!confirm('Are you sure you want to create this admin account?')) {
-      return;
-    }
-    
+
+    setConfirmationData({
+      action: 'approve',
+      userName: `${form.firstName} ${form.lastName}`,
+      userId: 0, // or remove if not needed
+      title: 'Create Admin',
+      message: `Are you sure you want to create an admin account for ${form.firstName} ${form.lastName}?`
+    });
+    setShowConfirmation(true);
+  };
+
+  const createAdmin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+
     setSubmitting(true);
     setMessage(null);
     try {
@@ -109,7 +134,7 @@ export default function AddAdmin() {
           </div>
         )}
 
-        <form onSubmit={onSubmit} className={styles.form}>
+        <form onSubmit={showApprovalConfirmation} className={styles.form}>
           {/* Row 1: First / Last Name */}
           <div className={styles.row}>
             <div className={styles.inputGroup}>
@@ -130,7 +155,17 @@ export default function AddAdmin() {
             </div>
             <div className={styles.inputGroup}>
               <label className={styles.label}>Phone Number</label>
-              <input className={styles.input} name="phone" value={form.phone} onChange={onChange} required />
+              <input
+                  className={styles.input}
+                  name="phone"
+                  type="tel"
+                  value={form.phone}
+                  onChange={onChange}
+                  maxLength={10}
+                  pattern="[0-9]{10}"
+                  title="Phone number must be exactly 10 digits"
+                  required
+              />
             </div>
           </div>
 
@@ -163,6 +198,19 @@ export default function AddAdmin() {
           </div>
         </form>
       </div>
+      {showConfirmation && confirmationData && (
+          <CustomConfirmation
+              isOpen={showConfirmation}
+              onClose={() => setShowConfirmation(false)}
+              onConfirm={handleConfirmation}
+              title={confirmationData.title}
+              message={confirmationData.message}
+              userName={confirmationData.userName}
+              action={confirmationData.action = 'approve'}
+              confirmText={confirmationData.action = 'approve'}
+              cancelText="Cancel"
+          />
+      )}
     </div>
   );
 }

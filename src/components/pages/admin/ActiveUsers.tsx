@@ -1013,9 +1013,9 @@ export default function ActiveUsers() {
 
             {/* View User Modal */}
             {showViewModal && (
-                <div className={styles.modalOverlay}>
+                <div className={styles.modalOverlay} onClick={closeViewModal}>
                     <div className={styles.viewModal}>
-                        <div className={styles.viewContent}>
+                        <div className={styles.viewContent} onClick={(e) => e.stopPropagation()}>
                             <div className={styles.viewHeader}>
                                 <div className={styles.viewTitleSection}>
                                     <h4 className={styles.viewTitle}>User Profile</h4>
@@ -1027,12 +1027,6 @@ export default function ActiveUsers() {
                                         return viewedUser ? `${viewedUser.first_name} ${viewedUser.last_name}` : 'Unknown User';
                                     })()}
                                 </div>
-                                <button 
-                                    onClick={closeViewModal}
-                                    className={styles.closeButton}
-                                >
-                                    ×
-                                </button>
                             </div>
                             
                             <div className={styles.userProfileInfo}>

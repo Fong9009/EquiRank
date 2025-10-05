@@ -33,6 +33,7 @@ export default function ArchivedUsers() {
   //Colour Mode Editing
   const textColour = theme === "light" ? styles.lightTextColour : styles.darkTextColour;
   const backgroundColour = theme === "light" ? styles.lightBackground : styles.darkBackground;
+  const loadColor = theme === "light" ? styles.lightLoadColour : styles.darkLoadColour;
   
   // Custom confirmation states
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -189,8 +190,13 @@ export default function ArchivedUsers() {
     return filtered;
   };
 
-  if (loading) return <div className={styles.loading}>Loading Archived Users...</div>;
-
+  if (loading) {
+    return (
+        <div className={styles.container}>
+          <div className={loadColor}>Loading Archived Users...</div>
+        </div>
+    );
+  }
   return (
     <div className={styles.container}>
       <div className={styles.header}>

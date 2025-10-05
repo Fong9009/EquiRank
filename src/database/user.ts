@@ -76,9 +76,9 @@ export async function createAdminUser(
     address?: string
 ): Promise<number> {
     const query = `
-    INSERT INTO users (email, password_hash, first_name, last_name, user_type, company, phone, address, is_approved)
-    VALUES (?, ?, ?, ?, 'admin', 'company', ?, ?, ?, true)
-  `;
+        INSERT INTO users (email, password_hash, first_name, last_name, user_type, company, phone, address, is_approved)
+        VALUES (?, ?, ?, ?, 'admin', ?, ?, ?, true)
+    `;
     const result = await executeSingleQuery(query, [
         email,
         passwordHash,
@@ -90,7 +90,6 @@ export async function createAdminUser(
     ]);
     return result.insertId;
 }
-
 export async function getUserByEmail(email: string): Promise<User | null> {
     const query = `
     SELECT * FROM users 

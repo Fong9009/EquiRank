@@ -56,6 +56,8 @@ export default function ViewCompanies() {
     const windowBackground = effectiveTheme === "light" ? styles.lightPage : styles.darkPage;
     const cardBackground = effectiveTheme === "light" ? styles.lightBackground : styles.darkBackground;
     const textColour = effectiveTheme === "light" ? styles.lightTextColour : styles.darkTextColour;
+    const loadColor = effectiveTheme === "light" ? styles.lightLoadColour : styles.darkLoadColour;
+
     useEffect(() => {
         if (!session) return;
         const controller = new AbortController();
@@ -178,7 +180,11 @@ export default function ViewCompanies() {
     }
 
     if (isLoading) {
-        return <div className={styles.loading}>Loading  Companies...</div>;
+        return (
+            <div className={styles.loadContainer}>
+                <div className={loadColor}>Loading Companies...</div>
+            </div>
+        );
     }
 
     if (error) {
