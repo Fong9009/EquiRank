@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     }
 
     const passwordHash = await hashPassword(password);
-    const adminId = await createAdminUser(email, passwordHash, firstName, lastName, 'company', undefined, phone);
+    const adminId = await createAdminUser(email, passwordHash, firstName, lastName, 'company', phone);
 
     return NextResponse.json({ message: 'Admin user created', userId: adminId }, { status: 201 });
   } catch (error) {
