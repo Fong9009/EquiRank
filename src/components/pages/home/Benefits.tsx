@@ -53,7 +53,6 @@ export default function Benefits() {
                             <ul className={dotList}>
                                 <li>Annual Turnover</li>
                                 <li>Industry Type</li>
-                                <li>Number of Employees</li>
                             </ul>
                     </>}
                 />
@@ -73,11 +72,6 @@ export default function Benefits() {
                             With data Driven Statistics, you will be able to make a more informed decision on your
                             investments. It is only a guide, not an advisor on your investments but a great way to broaden your vision.
                         </p>
-                        <ul className={dotList}>
-                            <li>Provides warnings about Companies</li>
-                            <li>Provides insight on their business operations</li>
-                            <li>Provides the Health of the Business</li>
-                        </ul>
                     </>}
                 />
 
@@ -100,7 +94,6 @@ export default function Benefits() {
                             <ul className={dotList}>
                                 <li>See the earnings of the company</li>
                                 <li>See the debt of the company</li>
-                                <li>You have the control of what to search</li>
                             </ul>
                         </>}
                 />
@@ -122,7 +115,6 @@ export default function Benefits() {
                             <ul className={dotList}>
                                 <li>See the health of your company</li>
                                 <li>See what your company is worth</li>
-                                <li>Mark Areas of Improvement</li>
                             </ul>
                         </>}
                 />
