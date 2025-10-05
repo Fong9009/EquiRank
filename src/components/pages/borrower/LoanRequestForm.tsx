@@ -183,16 +183,21 @@ export default function LoanRequestForm() {
                     Amount Requested *
                   </label>
                   <input
-                    type="number"
-                    id="amount_requested"
-                    name="amount_requested"
-                    value={formData.amount_requested}
-                    onChange={handleInputChange}
-                    required
-                    min="0"
-                    step="0.01"
-                    className={styles.input}
-                    placeholder="Enter amount"
+                      type="number"
+                      id="amount_requested"
+                      name="amount_requested"
+                      value={formData.amount_requested}
+                      onChange={(e) => {
+                        if (e.target.value.length <= 12) {
+                          handleInputChange(e);
+                        }
+                      }}
+                      required
+                      min="0"
+                      step="0.01"
+                      className={styles.input}
+                      placeholder="Enter amount"
+                      maxLength={12}
                   />
                 </div>
 

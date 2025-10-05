@@ -9,6 +9,7 @@ interface LoanRequestDetail {
   amount_requested: number;
   currency: string;
   company_description?: string;
+  company_name?: string;
   social_media_links?: {
     linkedin?: string;
     twitter?: string;
@@ -161,10 +162,10 @@ export default function LoanRequestDetailModal({ requestId, onClose }: LoanReque
           {(request.borrower_company || request.company_description) && (
             <div className={styles.section}>
               <h3>Company Information</h3>
-              {request.borrower_company && (
+              {request.company_name && (
                 <div className={styles.infoRow}>
                   <span className={styles.label}>Company:</span>
-                  <span className={styles.value}>{request.borrower_company}</span>
+                  <span className={styles.value}>{request.company_name}</span>
                 </div>
               )}
               {request.company_description && (
