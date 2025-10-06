@@ -25,10 +25,10 @@ export function middleware(request: NextRequest) {
   const nonce = generateNonce();
   const isProd = process.env.NODE_ENV === 'production';
   const scriptSrcBase = isProd
-    ? `script-src 'self' 'nonce-${nonce}' https://www.google.com https://www.gstatic.com; `
+    ? `script-src 'nonce-${nonce}' 'strict-dynamic' 'self' https://www.google.com https://www.gstatic.com; `
     : `script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.google.com https://www.gstatic.com; `;
   const scriptElemSrcBase = isProd
-    ? `script-src-elem 'self' 'nonce-${nonce}' https://www.google.com https://www.gstatic.com; `
+    ? `script-src-elem 'nonce-${nonce}' 'strict-dynamic' 'self' https://www.google.com https://www.gstatic.com; `
     : `script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com; `;
 
   const csp =
