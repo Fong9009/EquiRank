@@ -62,10 +62,9 @@ function getDbConfig(): DatabaseConfig {
             queueLimit: parseInt(process.env.DB_QUEUE_LIMIT || '0'),
         };
 
-        // Add SSL configuration for production: enforce TLS unless explicitly disabled
+        // Add SSL configuration for production
         if (process.env.NODE_ENV === 'production') {
-            const sslEnabled = process.env.DB_SSL_ENABLED !== 'false';
-            if (sslEnabled) {
+            if (process.env.DB_SSL_ENABLED === 'true') {
                 _dbConfig.ssl = {
                     rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false',
                     ca: process.env.DB_SSL_CA,
