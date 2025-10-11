@@ -56,7 +56,7 @@ export const sendEmail = async (emailContent: EmailContent): Promise<boolean> =>
     
     // Use Resend domain for production, custom domain for development
     const fromEmail = process.env.NODE_ENV === 'production' && process.env.RESEND_API_KEY
-      ? process.env.SMTP_FROM || 'noreply@equirank.com'
+      ? process.env.SMTP_FROM || 'onboarding@resend.dev'
       : process.env.SMTP_FROM || process.env.SMTP_USER || 'noreply@equirank.com';
     
     const mailOptions = {
