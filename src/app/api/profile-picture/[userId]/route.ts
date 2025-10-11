@@ -27,8 +27,7 @@ export async function GET(
         }
 
         const profilePictureUrl = rows[0].profile_picture;
-        
-        // If it's a local file path, serve it from filesystem
+        // If it's a local file path, serve it from filesystem (development)
         if (profilePictureUrl.startsWith('/uploads/profile-pictures/')) {
             try {
                 const filepath = join(process.cwd(), 'public', profilePictureUrl);
@@ -54,7 +53,7 @@ export async function GET(
                 return NextResponse.json({ error: 'Profile picture file not found' }, { status: 404 });
             }
         } else {
-            // If it's an external URL, redirect to it
+            // If it's an external URL (Cloudflare Images), redirect to it
             return NextResponse.redirect(profilePictureUrl);
         }
 

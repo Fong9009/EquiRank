@@ -21,6 +21,21 @@ interface EmailContent {
 
 // Create transporter for sending emails
 const createTransporter = () => {
+  // Use Resend for production (Railway), SMTP for development
+  if (process.env.NODE_ENV === 'production' && process.env.RESEND_API_KEY) {
+    const config: EmailConfig = {
+      host: 'smtp.resend.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: 'resend',
+        pass: process.env.RESEND_API_KEY
+      }
+    };
+    return nodemailer.createTransport(config);
+  }
+
+  // Fallback to SMTP for development
   const config: EmailConfig = {
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: parseInt(process.env.SMTP_PORT || '587'),
@@ -39,8 +54,13 @@ export const sendEmail = async (emailContent: EmailContent): Promise<boolean> =>
   try {
     const transporter = createTransporter();
     
+    // Use Resend domain for production, custom domain for development
+    const fromEmail = process.env.NODE_ENV === 'production' && process.env.RESEND_API_KEY
+      ? process.env.SMTP_FROM || 'noreply@equirank.com'
+      : process.env.SMTP_FROM || process.env.SMTP_USER || 'noreply@equirank.com';
+    
     const mailOptions = {
-      from: process.env.SMTP_FROM || process.env.SMTP_USER || 'noreply@equirank.com',
+      from: fromEmail,
       to: emailContent.to,
       subject: emailContent.subject,
       html: emailContent.html,

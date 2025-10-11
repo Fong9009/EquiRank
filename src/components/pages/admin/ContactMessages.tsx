@@ -556,7 +556,7 @@ export default function ContactMessages() {
                         {new Date(lastMessage.created_at).toLocaleDateString()}
                       </span>
                       <span className={styles.messageCount}>
-                        {thread.filter(msg => msg.message_type === 'user_message' && msg.status !== 'new').length} message{thread.filter(msg => msg.message_type === 'user_message' && msg.status !== 'new').length !== 1 ? 's' : ''}
+                        {thread.filter(msg => msg.message_type === 'user_message').length} message{thread.filter(msg => msg.message_type === 'user_message').length !== 1 ? 's' : ''}
                         {thread.filter(msg => msg.message_type === 'admin_reply').length > 0 && (
                           <span className={styles.replyCount}>
                             {' \u2022 '}
