@@ -107,7 +107,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     maxAge: SESSION_CONFIG.maxAge,
   },
   secret: process.env.NEXTAUTH_SECRET,
-  trustHost: true, // required for Vercel/Railway/proxy deployments
+  trustHost: true, 
   debug: process.env.NODE_ENV === 'development',
   // Add error handling to prevent HTML responses
   logger: {
