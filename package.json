@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "rm -rf .next && next build",
+    "build": "node -e \"try { require('fs').rmSync('.next', { recursive: true, force: true }); } catch (_) {}\" && next build",
     "start": "next start",
     "lint": "next lint",
     "db:init": "tsx src/database/cli.ts init",
