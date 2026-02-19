@@ -17,7 +17,10 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   
-  // Webpack optimizations
+  // Next.js 16: acknowledge Turbopack (dev uses it by default)
+  turbopack: {},
+
+  // Webpack optimizations (production build)
   webpack: (config, { dev, isServer }) => {
     if (!dev && !isServer) {
       // Split chunks for better caching
