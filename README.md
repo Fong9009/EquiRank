@@ -1,449 +1,98 @@
-# EquiRank - Financial Marketplace Platform
+# EquiRank — Financial Marketplace Platform
 
-A modern, secure financial marketplace platform built with Next.js 14, React 18, TypeScript, and MySQL. The platform connects borrowers and lenders in a transparent, secure environment with comprehensive admin management capabilities.
+---
 
-## 🚀 Tech Stack
+## About the project
 
-### Frontend
-- **Next.js 14** - Full-stack React framework with App Router
-- **React 18** - Modern React with hooks and concurrent features
-- **TypeScript** - Type-safe JavaScript development
-- **CSS Modules** - Scoped styling with custom design system
-- **Glass Morphism UI** - Modern, translucent design aesthetic
+This project was built for **FIT3048 Industry Experience** at Monash University, working with a real client to deliver a production-style financial marketplace.
 
-### Backend & Database
-- **Next.js API Routes** - Serverless API endpoints
-- **MySQL 8.0+** - Relational database with MySQL2 driver
-- **NextAuth.js v5** - Authentication and session management
+EquiRank is a **B2B-style marketplace** where **borrowers** submit loan requests, **lenders** browse and fund them, and **admins** approve users, manage requests, and configure risk settings. The app includes registration with admin approval, JWT-based sessions, profile completion wizards, loan and company analytics with charts, and an admin panel for user/contact/loan management.
 
-### Security & Authentication
-- **bcryptjs** - Secure password hashing (12 salt rounds)
-- **jsonwebtoken** - JWT token generation and verification
-- **NextAuth.js** - Comprehensive authentication solution
-- **Rate Limiting** - API protection against abuse
-- **Security Headers** - XSS, CSRF, and clickjacking protection
+*This repository is intended for portfolio review. To run it locally, please follow the setup below.*
 
-### Design System
-- **Custom Typography** - 'Iceland-Regular' font family
-- **Dark Theme** - Consistent color palette and visual hierarchy
-- **Responsive Design** - Mobile-first approach with breakpoints
-- **Glass Morphism** - Translucent backgrounds with backdrop blur
+---
 
-## 🏗️ Project Structure
+## Highlights
 
-```
-src/
-├── app/                    # Next.js App Router
-│   ├── api/               # API routes
-│   │   ├── auth/          # Authentication endpoints
-│   │   ├── users/         # User management
-│   │   └── admin/         # Admin operations
-│   ├── admin/             # Admin dashboard
-│   ├── about/             # About page
-│   ├── contact-us/        # Contact page
-│   ├── login/             # Login page
-│   ├── register/          # Registration page
-│   └── layout.tsx         # Root layout with providers
-├── components/            # Reusable components
-│   ├── common/            # Shared components
-│   ├── layout/            # Layout components
-│   ├── pages/             # Page-specific components
-│   └── providers/         # Context providers
-├── database/              # Database configuration
-│   ├── db.ts             # Database operations
-│   └── schema.sql        # Database schema
-├── lib/                  # Utility libraries
-│   ├── auth.ts           # NextAuth configuration
-│   ├── security.ts       # Security utilities
-│   └── fileCleanup.ts    # File cleanup utilities
-├── middleware.ts         # Global security middleware
-└── styles/               # CSS Modules
-    ├── components/       # Component styles
-    ├── layout/          # Layout styles
-    └── pages/           # Page styles
-├── scripts/              # Utility scripts
-    └── cleanup.js       # File cleanup CLI tool
-```
+- **Full-stack** — Next.js 16 (App Router), React 19, TypeScript, MySQL; API routes and server-side logic
+- **Authentication & authorization** — NextAuth.js v5 (credentials + JWT), role-based access (borrower / lender / admin), approval workflow
+- **Database** — MySQL with schema, migrations CLI, connection pooling, and optional backups
+- **Security** — bcrypt password hashing, rate limiting, security headers, parameterized queries
+- **UX** — Responsive layout, dark theme, charts (Recharts), carousels (Swiper), profile wizards
+- **Admin tooling** — User approval, contact messages, loan request management, risk settings, file cleanup
 
-## 🧹 File Cleanup System
+---
 
-### Overview
-The platform includes an automated file cleanup system that manages orphaned profile picture files to prevent storage waste and maintain system cleanliness. This system automatically identifies and removes profile pictures from deleted users or invalid uploads.
+## Tech stack
 
-### Features
-- **Automatic Cleanup**: Removes orphaned files when users are deleted or profile pictures are changed
-- **Image Optimization**: Automatically compresses and resizes images to 400x400 resolution in WebP format
-- **Real-time Monitoring**: Tracks file usage and storage consumption in admin dashboard
-- **Admin Dashboard**: Web interface for monitoring and manual cleanup operations
-- **CLI Tools**: Command-line scripts for server maintenance and batch operations
-- **Safety Checks**: Only removes confirmed orphaned files with comprehensive validation
+| Area                | Technologies                                                                                           |
+| ------------------- | ------------------------------------------------------------------------------------------------------ |
+| **Frontend**  | Next.js 16, React 19, TypeScript, CSS Modules, Tailwind CSS, Lucide React, Recharts, Swiper            |
+| **Backend**   | Next.js API Routes, NextAuth.js v5, MySQL (mysql2), JWT, bcryptjs                                      |
+| **Database**  | MySQL 8+, schema in `src/database/schema.sql`, migrations and CLI (`db:init`, `db:health`, etc.) |
+| **Dev / Ops** | Turbopack (dev), Vercel/Railway-ready (env-based config)                                               |
 
-### How It Works
-1. **File Naming Convention**: Profile pictures follow `profile_{userId}_{timestamp}.webp` pattern
-2. **Image Processing**: All images are automatically resized to 400x400px and compressed to WebP format
-3. **Orphaned Detection**: Files are marked orphaned if user ID doesn't exist in database
-4. **Automatic Triggers**: Cleanup occurs on user deletion and profile picture updates
-5. **Manual Operations**: Admins can perform system-wide cleanup operations
+---
 
-### Usage
+## What’s in the app
 
-#### Web Interface (Admin Dashboard)
-1. Navigate to Admin Dashboard → File Cleanup
-2. View real-time statistics and storage metrics
-3. Perform manual cleanup operations with confirmation dialogs
+- **Borrowers** — Register, complete profile, create and manage loan requests
+- **Lenders** — Browse available loans, view company and covenant analytics, fund loans, recent searches
+- **Admins** — Approve/reject users, manage contact messages, assign funders, configure risk weights, view archived requests, file cleanup
 
-#### Command Line Interface
-```bash
-# View cleanup statistics
-node scripts/cleanup.js --stats
+---
 
-# Preview cleanup (dry run)
-node scripts/cleanup.js --dry-run
+## Getting started (local run)
 
-# Perform cleanup
-node scripts/cleanup.js --cleanup
+**Prerequisites:** Node.js 18+, npm, MySQL 8+
 
-# Get help
-node scripts/cleanup.js --help
-```
+1. **Clone and install**
 
-#### Environment Variables for CLI
-```bash
-DB_HOST=localhost          # Database host
-DB_USER=root              # Database user
-DB_PASSWORD=password      # Database password
-DB_NAME=fit3048_team071   # Database name
-```
-
-### Safety Features
-- **Confirmation Dialogs**: Multiple confirmation steps before file deletion
-- **Validation**: Only removes files with confirmed orphaned status
-- **Error Handling**: Graceful degradation with detailed error reporting
-- **Access Control**: Admin-only access to cleanup operations
-- **Audit Logging**: Comprehensive logging of all cleanup activities
-
-### Integration Points
-- **User Deletion**: Profile pictures automatically cleaned up
-- **Profile Updates**: Old files removed when new ones uploaded
-- **System Maintenance**: Scheduled cleanup operations possible
-- **Error Recovery**: Non-blocking operations with fallback handling
-
-For detailed documentation, see [FILE_CLEANUP.md](./FILE_CLEANUP.md)
-
-## 🔐 Authentication System
-
-### NextAuth.js Integration
-The platform uses **NextAuth.js v5** for secure authentication with the following features:
-
-- **Credentials Provider** - Email/password authentication
-- **JWT Strategy** - Secure session management
-- **Role-based Access Control** - Admin, borrower, and lender roles
-- **Approval Workflow** - Admin approval required for new users
-- **Session Management** - 30-day session duration
-- **Enhanced Security** - bcrypt password hashing, JWT tokens
-
-### Authentication Flow
-1. **Registration** → User submits registration form with validation
-2. **Admin Review** → Admin reviews and approves/rejects users
-3. **Login** → Approved users can sign in with secure authentication
-4. **Session** → JWT-based session management with security headers
-5. **Access Control** → Role-based route protection and middleware
-
-### Demo Accounts
-For testing purposes, the following demo accounts are available:
-
-| Email | Password | Role | Status |
-|-------|----------|------|---------|
-| `admin@equirank.com` | `Test123!` | Admin | Approved |
-| `borrower1@company.com` | `Test123!` | Borrower | Approved |
-| `lender1@bank.com` | `Test123!` | Lender | Approved |
-| `borrower2@individual.com` | `Test123!` | Borrower | Pending |
-| `lender2@investor.com` | `Test123!` | Lender | Pending |
-
-**Note:** All demo accounts use the same password for testing convenience.
-
-### Environment Variables
-```bash
-# NextAuth Configuration
-NEXTAUTH_SECRET=your-super-secret-key-here
-NEXTAUTH_URL=http://localhost:3000
-
-# Database Configuration
-DB_HOST=localhost
-DB_USER=your_mysql_username
-DB_PASSWORD=your_mysql_password
-DB_NAME=equirank
-DB_PORT=3306
-
-# Security Configuration
-JWT_SECRET=your-jwt-secret-key-here
-BCRYPT_SALT_ROUNDS=12
-
-# Environment
-NODE_ENV=development
-```
-
-## 🗄️ Database Schema
-
-### Users Table
-```sql
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    first_name VARCHAR(50) NOT NULL,
-    last_name VARCHAR(50) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    user_type ENUM('borrower', 'lender', 'admin') NOT NULL,
-    entity_type ENUM('company', 'individual') NOT NULL,
-    company VARCHAR(100),
-    phone VARCHAR(20),
-    address TEXT,
-    is_approved BOOLEAN DEFAULT FALSE,
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-```
-
-### Contact Messages Table
-```sql
-CREATE TABLE contact_messages (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    subject VARCHAR(255) NOT NULL,
-    message TEXT NOT NULL,
-    status ENUM('new', 'read', 'replied') DEFAULT 'new',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-```
-
-## 🌐 API Endpoints
-
-### Authentication
-- `POST /api/auth/[...nextauth]` - NextAuth.js endpoints
-
-### User Management
-- `POST /api/users` - Create new user with password hashing
-- `GET /api/users/[type]` - Get users by type (borrower/lender)
-
-### Admin Operations
-- `GET /api/admin/pending` - Get users pending approval
-- `POST /api/admin/approve` - Approve/reject users
-- `GET /api/admin/contact-messages` - Get contact messages
-- `PATCH /api/admin/contact-messages/[id]` - Update message status
-- `DELETE /api/admin/contact-messages/[id]` - Delete message
-
-### Contact System
-- `POST /api/contact` - Submit contact form
-
-## 🎯 Features
-
-### User Management
-- **Multi-role System** - Borrower, lender, and admin roles
-- **Entity Types** - Company and individual registration options
-- **Admin Approval** - Manual approval workflow for new registrations
-- **Account Status** - Active/inactive and approved/pending states
-- **Enhanced Security** - bcrypt password hashing, JWT tokens
-
-### Contact System
-- **Contact Form** - Public contact submission with validation
-- **Message Management** - Admin dashboard for message handling
-- **Status Tracking** - New, read, and replied message states
-
-### Admin Panel
-- **User Approvals** - Review and manage new registrations
-- **Contact Messages** - Handle incoming contact form submissions
-- **Tabbed Interface** - Organized workflow management
-- **Secure Access** - Admin-only authentication required
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js 18+ and npm
-- MySQL 8.0+
-- Git
-
-### Installation
-1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd team071-app_fit3048
-   ```
-
-2. **Install dependencies**
-   ```bash
+   git clone https://github.com/YOUR_USERNAME/EquiRank.git
+   cd EquiRank
    npm install
    ```
+2. **Environment**
 
-3. **Set up environment variables**
    ```bash
    cp env.example .env.local
-   # Edit .env.local with your database credentials and secrets
    ```
 
-4. **Generate security secrets**
+   Edit `.env.local`: set `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, and generate `NEXTAUTH_SECRET` (e.g. `openssl rand -base64 32`). See `env.example` for all options.
+3. **Database**
+
    ```bash
-   # Generate NextAuth secret
-   openssl rand -base64 32
-   
-   # Generate JWT secret
-   openssl rand -base64 32
+   mysql -u YOUR_USER -p -e "CREATE DATABASE IF NOT EXISTS equirank;"
+   mysql -u YOUR_USER -p equirank < src/database/schema.sql
+   npm run db:health   # verify connection
    ```
+4. **Run**
 
-5. **Set up database**
-   ```bash
-   # Create database and run schema
-   mysql -u root -p < src/database/schema.sql
-   ```
-
-6. **Run the development server**
    ```bash
    npm run dev
    ```
 
-7. **Access the application**
-   - Main app: http://localhost:3000
-   - Admin panel: http://localhost:3000/admin (admin login required)
+   Open [http://localhost:3000](http://localhost:3000). Admin panel: `/dashboard/admin` (after logging in as an admin).
 
-## 🔧 Development
+---
 
-### Available Scripts
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
+## Scripts
 
-### Code Style
-- **TypeScript** - Strict type checking enabled
-- **ESLint** - Code quality and consistency
-- **CSS Modules** - Scoped styling with BEM methodology
-- **Component Structure** - Functional components with hooks
+| Command                | Description                  |
+| ---------------------- | ---------------------------- |
+| `npm run dev`        | Start dev server (Turbopack) |
+| `npm run build`      | Production build             |
+| `npm run start`      | Run production build         |
+| `npm run lint`       | ESLint                       |
+| `npm run db:health`  | Check DB connection          |
+| `npm run db:init`    | Initialize DB and migrations |
+| `npm run db:migrate` | Run pending migrations       |
 
-### Database Operations
-All database operations are centralized in `src/database/db.ts`:
-- User CRUD operations with security
-- Approval workflow management
-- Contact message handling
-- Connection pooling and error handling
+---
 
-## 🛡️ Security Features
+## Project context
 
-### Authentication Security
-- **JWT Tokens** - Secure session management with expiration
-- **Password Hashing** - bcrypt with 12 salt rounds
-- **Role-based Access** - Admin-only routes protected
-- **Session Expiration** - Automatic session cleanup
-- **Rate Limiting** - API protection against abuse
-
-### Application Security
-- **Security Headers** - XSS, CSRF, and clickjacking protection
-- **CORS Protection** - Cross-origin request security
-- **Input Validation** - Server-side validation for all inputs
-- **SQL Injection Protection** - Parameterized queries
-- **XSS Prevention** - Content Security Policy headers
-
-### Admin Access Control
-- **Secure Routes** - Admin panel requires authentication
-- **Role Verification** - Admin role required for access
-- **No Public Links** - Admin panel not accessible from public navigation
-- **Session Validation** - Continuous authentication checks
-
-## 📱 Responsive Design
-
-### Breakpoints
-- **Mobile First** - 320px and up
-- **Tablet** - 768px and up
-- **Desktop** - 1024px and up
-- **Large Desktop** - 1200px and up
-
-### Glass Morphism UI
-- **Translucent Backgrounds** - Modern, layered design
-- **Backdrop Blur** - Smooth visual effects
-- **Border Highlights** - Subtle depth and dimension
-- **Hover States** - Interactive feedback and animations
-
-## 🔄 State Management
-
-### Client-side State
-- **React Hooks** - useState, useEffect, useRouter
-- **NextAuth Session** - Authentication state management
-- **Form State** - Controlled form inputs and validation
-- **Loading States** - User feedback during operations
-
-### Server-side State
-- **Database State** - Persistent data storage
-- **API State** - Server-side data processing
-- **Session State** - Server-side session validation
-
-## 🚀 Deployment
-
-### Production Build
-```bash
-npm run build
-npm run start
-```
-
-### Environment Configuration
-- Set `NODE_ENV=production`
-- Configure production database credentials
-- Set secure `NEXTAUTH_SECRET` and `JWT_SECRET`
-- Update `NEXTAUTH_URL` for production domain
-- Configure production database with proper security
-
-### Database Migration
-- Export production schema
-- Configure production database with secure credentials
-- Run schema creation scripts
-- Verify data integrity and security
-
-## 🧪 Testing
-
-### Demo Accounts
-Use the provided demo accounts to test different user roles and workflows:
-
-1. **Admin Testing** - Login as admin to test approval workflow
-2. **User Registration** - Test the registration process
-3. **Login Flow** - Test authentication with different account statuses
-4. **Admin Panel** - Test user approval and contact message management
-
-### Security Testing
-- Test authentication flows
-- Verify role-based access control
-- Test input validation and sanitization
-- Verify security headers are properly set
-
-## 🤝 Contributing
-
-### Development Workflow
-1. Create feature branch from main
-2. Implement changes with proper TypeScript types
-3. Update documentation as needed
-4. Test thoroughly across different screen sizes
-5. Submit pull request with detailed description
-
-### Code Standards
-- Follow TypeScript best practices
-- Maintain consistent component structure
-- Use CSS Modules for styling
-- Include proper error handling
-- Add loading states for async operations
-- Implement proper security measures
-- Follow authentication best practices
-
-## 📚 Additional Resources
-
-- [Next.js Documentation](https://nextjs.org/docs)
-- [NextAuth.js Documentation](https://next-auth.js.org/)
-- [MySQL Documentation](https://dev.mysql.com/doc/)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [React Documentation](https://react.dev/)
-
-## 🔒 Security Notes
-
-- **Never commit `.env.local` files** - They contain sensitive information
-- **Use strong, unique secrets** - Generate different secrets for each environment
-- **Regular security updates** - Keep dependencies updated
-- **Database security** - Use strong passwords and limit database access
-- **HTTPS in production** - Always use HTTPS for production deployments
+- **Purpose** — Developed for **FIT3048 Industry Experience** (Monash University) with a real client; portfolio use with permission.
+- **Deployment** — Configured for Vercel (frontend) and Railway for MySQL; see `env.example` and the Deployment section in the repo for production env vars.
+- **Security** — Secrets (e.g. `NEXTAUTH_SECRET`, `JWT_SECRET`, DB credentials) are not committed; use `.env.local` locally and platform env vars in production.
